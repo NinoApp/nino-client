@@ -1,28 +1,34 @@
 package com.example.batu.ninoclient;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.loopj.android.http.AsyncHttpClient;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.SyncHttpClient;
-import com.loopj.android.http.TextHttpResponseHandler;
 import com.scanlibrary.PolygonView;
 
 import org.json.JSONException;
@@ -43,14 +49,17 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class MainActivity extends AppCompatActivity {
@@ -58,12 +67,20 @@ public class MainActivity extends AppCompatActivity {
     static final int REQUEST_TAKE_PHOTO = 1;
     String mCurrentPhotoPath;
 
+    private Mat mainMat;
     private Mat rgba;
 
     private ImageView mainIv;
     private PolygonViewCreator pvc;
+    private View progressView;
+    private View cameraView;
 
     public static String token = "";
+
+    private Bitmap edgeDetectedTakenImage;
+    private Bitmap finalImage;
+
+    Button warpButton = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,16 +89,22 @@ public class MainActivity extends AppCompatActivity {
 
         mainIv = (ImageView) findViewById(R.id.takenPhotoImageView);
 
-        final Button warpButton = (Button) findViewById(R.id.warpButton);
+        final Button processButton = (Button)findViewById(R.id.process_button);
+        processButton.setVisibility(View.INVISIBLE);
+
+        warpButton = (Button) findViewById(R.id.warpButton);
         warpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 List<Point> pp = pvc.getPoints();
 
                 Mat startM = Converters.vector_Point2f_to_Mat(pp);
-                Mat result = warp(rgba,startM);
-                Bitmap rgbaBit = matToBit(result);
-                mainIv.setImageBitmap(rgbaBit);
+                Mat result = warp(rgba, startM);
+                finalImage = matToBit(result);
+                mainIv.setImageBitmap(finalImage);
+                findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
+                warpButton.setVisibility(View.INVISIBLE);
+                processButton.setVisibility(View.VISIBLE);
             }
         });
 
@@ -89,29 +112,50 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 dispatchTakePictureIntent();
-                warpButton.setVisibility(View.VISIBLE);
             }
         });
 
-        ((Button) findViewById(R.id.registerButton)).setOnClickListener(new View.OnClickListener() {
+
+        processButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
-                startActivity(intent);
+            public void onClick(View view) {
+
+            File finalImageFile = persistImage(finalImage);
+
+            showProgress(true);
+
+            Log.e("TOKEN IN MAIN", token);
+            String SERVER_POST_URL = "http://35.227.40.210:8000/api/notes/";
+            Ion.with(MainActivity.this)
+                    .load("POST", SERVER_POST_URL) //url de query
+                    .setHeader("Cache-Control", "No-Cache")//desabilitando cache denovo porque essa parada é bug
+                    .setHeader("Authorization", "Token " + token)//getIntent().getExtras().getString("token"))//token de acesso
+                    .noCache()//desabilitando cache
+                    //.setLogging("LOG",Log.VERBOSE)//para debug
+                    //.setMultipartParameter("application/json",dadosFoto.toString())
+                    .setMultipartParameter("name", "test")
+                    .setMultipartFile("image","multipart/form-data", saveBitmapToFile(finalImageFile))//saveBitmapToFile(new File(mCurrentPhotoPath)))
+                    .asJsonObject() //array recebida
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception e, JsonObject result) {
+                            // do stuff with the result or error
+                            Log.v("R Foto: ", "" + result);
+                            final byte[] decodedBytes = Base64.decode(result.get("image").toString(), Base64.DEFAULT);
+                            Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                            mainIv.setImageBitmap(decodedBitmap);
+                            showProgress(false);
+                            if (e != null) {
+                                Log.v("Query Error: ", "" + e.getMessage()); //DEBUG
+                            }
+                        }
+                    });
             }
         });
-        /*
-        mainIv.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN){
-                    Toast.makeText(getApplicationContext(), "X: " + String.valueOf(event.getX() + "Y: " +
-                            String.valueOf(event.getY())), Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-        });
-        */
+
+        progressView = findViewById(R.id.process_progress);
+        cameraView = findViewById(R.id.camera_view);
+
     }
 
     private void dispatchTakePictureIntent() {
@@ -136,77 +180,145 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_TAKE_PHOTO) {
             if (resultCode == RESULT_OK) {
                 Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
-                Bitmap edgeDetectedTakenImage = detectNote(takenImage);
-
-                if(!token.equals("")) {
-                    AsyncHttpClient client = new AsyncHttpClient();
-                    StringEntity jsonEntity = null;
-
-                    //RequestParams params = new RequestParams();
-
-                    client.addHeader("Authorization", "Token " + token);
-                    //client.addHeader("Content-Type", "multipart/form-data");
-
-                    JSONObject jsonParams = new JSONObject();
-                    try {
-                        jsonParams.put("name", "test");
-                        jsonParams.put("image", new File(mCurrentPhotoPath));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        jsonEntity = new StringEntity(jsonParams.toString());
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-
-                    client.post(getApplicationContext(), "http://35.231.79.120:8000/api/notes/", jsonEntity, "application/json",
-                            new JsonHttpResponseHandler(){
-                                @Override
-                                public void onFailure(int i, cz.msebera.android.httpclient.Header[] headers, String s, Throwable throwable) {
-                                    Log.d("BAKALIM NOLDU", String.valueOf(i));
-                                }
-
-                                @Override
-                                public void onSuccess(int i, cz.msebera.android.httpclient.Header[] headers, String s) {
-                                    Log.d("BAKALIM NOLDU", String.valueOf(i));
-                                }
-                            });
-
-                    /*
-                    client.post("http://35.231.79.120:8000/api/notes", params, new TextHttpResponseHandler() {
-                        @Override
-                        public void onFailure(int i, cz.msebera.android.httpclient.Header[] headers, String s, Throwable throwable) {
-                            Log.d("BAKALIM NOLDU", String.valueOf(i));
-                        }
-
-                        @Override
-                        public void onSuccess(int i, cz.msebera.android.httpclient.Header[] headers, String s) {
-                            Log.d("BAKALIM NOLDU", String.valueOf(i));
-                        }
-                    });
-                    */
-                }
-                //ImageView ivPreview = (ImageView) findViewById(R.id.takenPhotoImageView);
-                //ivPreview.setImageBitmap(edgeDetectedTakenImage);
+                edgeDetectedTakenImage = detectNote(takenImage);
+                warpButton.setVisibility(View.VISIBLE);
             } else {
                 Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    private File persistImage(Bitmap bitmap) {
+        File filesDir = getApplicationContext().getFilesDir();;
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File imageFile = new File(filesDir, imageFileName + ".jpg");
+
+        OutputStream os;
+        try {
+            os = new FileOutputStream(imageFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            os.flush();
+            os.close();
+        } catch (Exception e) {
+            Log.e(getClass().getSimpleName(), "Error writing bitmap", e);
+        }
+        return imageFile;
+    }
+
+    public File saveBitmapToFile(File file){
+        try {
+
+            // BitmapFactory options to downsize the image
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            o.inSampleSize = 6;
+            // factor of downsizing the image
+
+            FileInputStream inputStream = new FileInputStream(file);
+            //Bitmap selectedBitmap = null;
+            BitmapFactory.decodeStream(inputStream, null, o);
+            inputStream.close();
+
+            // The new size we want to scale to
+            final int REQUIRED_SIZE=75;
+
+            // Find the correct scale value. It should be the power of 2.
+            int scale = 1;
+            while(o.outWidth / scale / 2 >= REQUIRED_SIZE &&
+                    o.outHeight / scale / 2 >= REQUIRED_SIZE) {
+                scale *= 2;
+            }
+
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = scale;
+            inputStream = new FileInputStream(file);
+
+            Bitmap selectedBitmap = BitmapFactory.decodeStream(inputStream, null, o2);
+            inputStream.close();
+
+            file.createNewFile();
+            FileOutputStream outputStream = new FileOutputStream(file);
+
+            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, 100 , outputStream);
+
+            return file;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public class NoteSendRequest extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            String SERVER_POST_URL = "http://35.231.79.120:8000/api/notes/";
+
+            SyncHttpClient client = new SyncHttpClient();
+            StringEntity jsonEntity = null;
+
+            //RequestParams params = new RequestParams();
+
+            Log.e("TOKEN IN MAIN", token);
+            client.addHeader("Authorization", "Token " + token);
+            //client.addHeader("authorization", token);
+
+            JSONObject jsonParams = new JSONObject();
+            try {
+                jsonParams.put("name", "test");
+                jsonParams.put("image", new File(mCurrentPhotoPath));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                jsonEntity = new StringEntity(jsonParams.toString());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+            client.post(getApplicationContext(), SERVER_POST_URL, jsonEntity, "application/json",
+                    new JsonHttpResponseHandler(){
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            super.onFailure(statusCode, headers, responseString, throwable);
+                            Log.d("NoteSendFailed: ", ""+statusCode);
+                            Log.d("NoteSendError : ", "" + throwable);
+                        }
+
+                        @Override
+                        public void onSuccess(int i, Header[] headers, String s) {
+                            Log.d("BAKALIM NOLDU S", String.valueOf(i));
+                        }
+                    });
+
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            Log.e("POST_EXECUTE", result);
+        }
+
+        @Override
+        protected void onCancelled() {
+
+        }
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private Bitmap detectNote(Bitmap bitmap) {
         ImageProcessor ip = new ImageProcessor();
+        rgba = new Mat();
         Utils.bitmapToMat(bitmap, rgba);
 
         Mat edges = new Mat();
         MatOfPoint maxContour = null;
-        for(int c = 4; c <= 4; c++) {
-            int threshold = c * 3;
+        //for(int c = 4; c <= 4; c++) {
+            int threshold = 15;//c * 3;
             edges = ip.detectEdges(bitmap, threshold);
-            Bitmap ed = matToBit(edges);
+            //Bitmap ed = matToBit(edges);
 
             maxContour = ip.findContours(edges);
 
@@ -238,12 +350,6 @@ public class MainActivity extends AppCompatActivity {
 
                     Imgproc.rectangle(rgba, rect.tl(), rect.br(), new Scalar(255, 0, 0), 10);
                     Log.d("CORNER_LOOP", String.valueOf(threshold));
-
-                    /*
-                    Mat startM = Converters.vector_Point2f_to_Mat(source);
-                    Mat result = warp(rgba,startM);
-                    mainIv.setImageBitmap(matToBit(result));
-                    */
                 }else{
                     pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
                 }
@@ -251,8 +357,10 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-        }
+        //}
 
+        rgba = new Mat();
+        Utils.bitmapToMat(bitmap, rgba);
         return matToBit(rgba);
     }
 
@@ -263,8 +371,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public Mat warp(Mat inputMat, Mat startM) {
-        int resultWidth = 1000;
-        int resultHeight = 1000;
+        int resultWidth = pvc.getBitmapWidth();
+        int resultHeight = pvc.getBitmapHeight();
 
         Mat outputMat = new Mat(resultWidth, resultHeight, CvType.CV_8UC4);
 
@@ -330,6 +438,51 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
+            cameraView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    private void changeViewVisibility(final boolean show){
+        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
+        cameraView.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
+    }
+
     public void onResume()
     {
         super.onResume();
@@ -349,7 +502,8 @@ public class MainActivity extends AppCompatActivity {
                 case LoaderCallbackInterface.SUCCESS:
                 {
                     Log.i("OpenCV", "OpenCV loaded successfully");
-                    rgba = new Mat();
+                    //mainMat = new Mat();
+                    //Log.d("HMMMMMMM", "I AM HERE");
                 } break;
                 default:
                 {

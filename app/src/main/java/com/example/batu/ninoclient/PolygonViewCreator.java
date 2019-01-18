@@ -30,10 +30,6 @@ public class PolygonViewCreator {
         this.polygonView = polygonView;
     }
 
-    public void addPoint(Point p) {
-
-    }
-
     public void createPolygonWithCurve(MatOfPoint2f approxCurve, Bitmap rgba, ImageView iv){
         List<Point> lp = approxCurve.toList();
 
@@ -188,6 +184,20 @@ public class PolygonViewCreator {
 
             points.add(new Point(Math.ceil(x), Math.ceil(y)));
         }
-        return points;
+        List<Point> sortedPoints = new ArrayList<Point>();
+        sortedPoints.add(points.get(0));
+        sortedPoints.add(points.get(2));
+        sortedPoints.add(points.get(3));
+        sortedPoints.add(points.get(1));
+
+        return sortedPoints;
+    }
+
+    public int getBitmapWidth(){
+        return bitmapPos[2];
+    }
+
+    public int getBitmapHeight(){
+        return bitmapPos[3];
     }
 }

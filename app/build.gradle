@@ -31,5 +31,6 @@ dependencies {
     implementation project(':scanlibrary')
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.loopj.android:android-async-http:1.4.9'
+    implementation 'com.koushikdutta.ion:ion:2.+'
     //implementation files('libs/android-async-http-1.4.9.jar')
 }
