@@ -38,40 +38,29 @@
                 tools:replace="android:resource" />
         </provider>
 
-        <activity android:name=".CameraActivity"/>
+        <!-- Register library Activities -->
+        <!-- Register library Activities -->
+        <!-- Register library Activities -->
+        <!--
         <activity
-            android:name=".RegisterActivity"
-            android:label="@string/title_activity_register" />
-        <activity android:name=".LoginActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <!-- Register library Activities -->
-        <!-- Register library Activities -->
-        <!-- Register library Activities -->
-        <activity
-            android:name="com.maubis.scarlet.base.MainActivity"
+            android:name="com.example.batu.ninoclient.MainActivity"
             android:windowSoftInputMode="stateHidden">
 
         </activity>
-        <service android:name="com.maubis.scarlet.base.service.FloatingNoteService" />
-        <service android:name="com.maubis.scarlet.base.notification.NotificationIntentService" />
+        <service android:name="com.example.batu.ninoclient.service.FloatingNoteService" />
+        <service android:name="com.example.batu.ninoclient.notification.NotificationIntentService" />
 
         <activity
-            android:name="com.maubis.scarlet.base.note.creation.activity.ViewAdvancedNoteActivity"
+            android:name="com.example.batu.ninoclient.note.creation.activity.ViewAdvancedNoteActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name="com.maubis.scarlet.base.note.creation.activity.CreateNoteActivity"
+            android:name="com.example.batu.ninoclient.note.creation.activity.CreateNoteActivity"
             android:windowSoftInputMode="stateVisible" />
         <activity
-            android:name="com.maubis.scarlet.base.note.creation.activity.CreateListNoteActivity"
+            android:name="com.example.batu.ninoclient.note.creation.activity.CreateListNoteActivity"
             android:windowSoftInputMode="stateHidden" />
-        <activity android:name="com.maubis.scarlet.base.export.activity.ImportNoteActivity" />
-        <activity android:name="com.maubis.scarlet.base.main.activity.OpenTextIntentOrFileActivity">
+        <activity android:name="com.example.batu.ninoclient.export.activity.ImportNoteActivity" />
+        <activity android:name="com.example.batu.ninoclient.main.activity.OpenTextIntentOrFileActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -92,7 +81,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.maubis.scarlet.base.widget.NoteWidgetProvider">
+        <receiver android:name="com.example.batu.ninoclient.widget.NoteWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -102,7 +91,7 @@
                 android:resource="@xml/widget_info" />
         </receiver>
 
-        <receiver android:name="com.maubis.scarlet.base.widget.CreateNoteWidgetProvider">
+        <receiver android:name="com.example.batu.ninoclient.widget.CreateNoteWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -112,18 +101,18 @@
                 android:resource="@xml/create_note_widget_info" />
         </receiver>
 
-        <activity android:name="com.maubis.scarlet.base.main.activity.WidgetConfigureActivity">
+        <activity android:name="com.example.batu.ninoclient.main.activity.WidgetConfigureActivity">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
 
-        <activity android:name="com.maubis.scarlet.base.note.selection.activity.SelectNotesActivity" />
+        <activity android:name="com.example.batu.ninoclient.note.selection.activity.SelectNotesActivity" />
 
         <service
-            android:name="com.maubis.scarlet.base.widget.AllNotesWidgetService"
+            android:name="com.example.batu.ninoclient.widget.AllNotesWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
-        <receiver android:name="com.maubis.scarlet.base.widget.AllNotesWidgetProvider">
+        <receiver android:name="com.example.batu.ninoclient.widget.AllNotesWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -132,7 +121,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/all_notes_widget_info" />
         </receiver>
-
+    -->
     </application>
-
 </manifest>

@@ -21,27 +21,23 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+
+import com.example.batu.ninoclient.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.ToDoubleBiFunction;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -118,7 +114,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         }
         if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
             Snackbar.make(emailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
+                    .setAction(android.R.string.ok, new OnClickListener() {
                         @Override
                         @TargetApi(Build.VERSION_CODES.M)
                         public void onClick(View v) {

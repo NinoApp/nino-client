@@ -24,7 +24,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.maubis.scarlet.base.MainActivity;
+import com.example.batu.ninoclient.MainActivity;
+import com.example.batu.ninoclient.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;

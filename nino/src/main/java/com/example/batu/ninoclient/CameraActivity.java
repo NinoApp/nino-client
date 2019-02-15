@@ -29,6 +29,7 @@ import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.SyncHttpClient;
+import com.example.batu.ninoclient.R;
 import com.scanlibrary.PolygonView;
 
 import org.json.JSONException;
