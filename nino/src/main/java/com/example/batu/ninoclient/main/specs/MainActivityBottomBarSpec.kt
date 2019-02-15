@@ -3,6 +3,7 @@ package com.example.batu.ninoclient.main.specs
 import android.content.Intent
 import android.graphics.Color
 import android.text.Layout
+import com.example.batu.ninoclient.CameraActivity
 import com.facebook.litho.Component
 import com.facebook.litho.ComponentContext
 import com.facebook.litho.Row

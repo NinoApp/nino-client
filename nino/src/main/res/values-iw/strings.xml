@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="title">כותרת</string>
+  <string name="description">תוֹכֶן</string>
+  <string name="save">להציל</string>
+  <string name="share_using">שתף באמצעות &#8230;</string>
+  <string name="main_no_notes">אין הערות</string>
+  <string name="main_no_notes_hint">נראה שלא הוספת הערות. לחץ כדי להוסיף הערה.</string>
+  <string name="main_add_a_note">הוסף הערה&#8230;</string>
+  <string name="main_add_a_quick_note">הוסף הערה מהירה &#8230;</string>
+  <string name="edit_note">ערוך הערה</string>
+  <string name="open_in_popup">פתח ב- Popup</string>
+  <string name="delete_note">מחק הערה</string>
+  <string name="copy_note">העתק הערה</string>
+  <string name="send_note">שלח הערה</string>
+  <string name="choose_action">בחר פעולה&#8230;</string>
+  <string name="format_hint_text">הוסף תוכן &#8230;</string>
+  <string name="format_hint_heading">הוסף כותרת &#8230;</string>
+  <string name="format_hint_sub_heading">הוסף כותרת משנה &#8230;</string>
+  <string name="format_hint_quote">הוסף טקסט מצוטט &#8230;</string>
+  <string name="format_hint_list">הוסף פריט&#8230;</string>
+  <string name="format_hint_code">הוסף קוד &#8230;</string>
+  <string name="search_notes">חפש הערות</string>
+
+  <string name="open_note_day_mode">מצב יום</string>
+  <string name="choose_note_color">שינוי צבע</string>
+  <string name="tap_for_action_open_note_day_mode">הקש כדי להציג את ההערה במצב יום</string>
+  <string name="tap_for_action_color">הקש כדי לשנות את צבע הרקע של ההערה</string>
+  <string name="home_option_enable_night_mode">הפעל מצב לילה</string>
+  <string name="home_option_enable_night_mode_subtitle">אפשר עיצוב כהה כברירת מחדל</string>
+  <string name="home_option_enable_day_mode">הפעל מצב יום</string>
+  <string name="home_option_enable_day_mode_subtitle">אפשר עיצוב אור כברירת מחדל</string>
+  <string name="home_option_enable_list_view">הפעל פריסת רשימה</string>
+  <string name="home_option_enable_list_view_subtitle">הצג הערות בעמודה אחת</string>
+  <string name="home_option_enable_grid_view">הפעל פריסת רשת</string>
+  <string name="home_option_enable_grid_view_subtitle">הצג הערות ברשת מטושטשת</string>
+  <string name="markdown_sheet_markdown_support">תמיכה Markdown</string>
+  <string name="markdown_sheet_markdown_support_subtitle">אפשר עיצוב נתמך של סימון</string>
+  <string name="markdown_sheet_examples">דוגמאות</string>
+  <string name="home_option_markdown_settings">הגדרות Markdown</string>
+  <string name="home_option_markdown_settings_subtitle">ראה כיצד להשתמש ב- markdown בהערות</string>
+  <string name="lock_note">הערה נעל</string>
+  <string name="unlock_note">נעילת הערה</string>
+  <string name="home_option_security">בִּטָחוֹן</string>
+  <string name="home_option_security_subtitle">נעילת הערות ואפשרויות אבטחה</string>
+  <string name="security_option_title">אפשרויות אבטחה</string>
+  <string name="security_option_set_pin_code">מעבר קוד</string>
+  <string name="security_option_set_pin_code_subtitle">הגדר PIN 4 ספרות כדי לנעול הערות</string>
+  <string name="security_option_fingerprint_enabled">נעילת עם טביעת אצבע</string>
+  <string name="security_option_fingerprint_enabled_subtitle">פתקים יפתח עם טביעת האצבע</string>
+  <string name="security_option_fingerprint_disabled">טביעת אצבע מושבתת</string>
+  <string name="security_option_fingerprint_disabled_subtitle">ההערות לא ישתמשו בטביעת אצבע</string>
+  <string name="security_sheet_enter_new_pin_title">הזן קוד PIN חדש</string>
+  <string name="security_sheet_enter_pin_to_unlock_title">הזן PIN כדי לבטל את הנעילה</string>
+  <string name="security_sheet_enter_current_pin_title">הזן את קוד ה- PIN הנוכחי</string>
+  <string name="security_sheet_enter_pin_hint">להזין את הקוד</string>
+  <string name="security_sheet_button_verify">לְאַמֵת</string>
+  <string name="security_sheet_button_unlock">לבטל נעילה</string>
+  <string name="security_sheet_button_set">מַעֲרֶכֶת</string>
+  <string name="security_sheet_button_remove">לְהַסִיר</string>
+
+  <string name="home_option_sheet_title">אפשרויות והגדרות</string>
+  <string name="home_option_export">הערות ייצוא</string>
+  <string name="home_option_export_subtitle">ייצא הערות לאחסון המכשיר כדי לשתף</string>
+  <string name="home_option_import">ייבוא הערות</string>
+  <string name="home_option_import_subtitle">ייבא הערות מאחסון המכשיר</string>
+  <string name="home_option_about_page">עלינו</string>
+  <string name="home_option_about_page_subtitle">למידע נוסף על האפליקציה ועל היזמים</string>
+  <string name="home_option_rate_and_review">דרג סקירה</string>
+  <string name="home_option_rate_and_review_subtitle">ספר לנו כמה אתה אוהב את האפליקציה</string>
+  <string name="permission_layout_give_permission">תן הרשאות</string>
+  <string name="permission_layout_give_permission_details">ייבוא וייצוא מחייבים הרשאות אחסון. תן את ההרשאה כנדרש.</string>
+  <string name="permission_layout_give_permission_ok">להתיר</string>
+  <string name="import_export_import_file_title">ייבא גיבוי מקובץ</string>
+  <string name="import_export_import_file">ייבוא קובץ</string>
+  <string name="import_export_layout_exported">מיוצא לקובץ</string>
+  <string name="import_export_layout_export_failed">הייצוא נכשל</string>
+  <string name="import_export_layout_exporting">ייצוא ל- fileâ €</string>
+  <string name="import_export_layout_exporting_done">בוצע</string>
+  <string name="import_export_layout_exporting_share">לַחֲלוֹק</string>
+  <string name="about_page_title">אודותינו ועוד</string>
+  <string name="about_page_rate">שיעור על חנות Play</string>
+  <string name="about_page_contribute">לתרום</string>
+  <string name="about_page_app_version">גרסת האפליקציה</string>
+  <string name="about_page_about_app">על האפליקציה</string>
+
+  <string name="open_note_night_mode">מצב לילה</string>
+  <string name="delete_note_permanently">מחק לצמיתות</string>
+  <string name="unarchive_note">Unarchive הערה</string>
+  <string name="archive_note">הערה בארכיון</string>
+  <string name="not_favourite_note">סמן לא מועדף</string>
+  <string name="favourite_note">סמן מועדף</string>
+  <string name="restore_note">שחזור הערה</string>
+  <string name="trash_note">העבר לאשפה</string>
+  <string name="tap_for_action_open_note_night_mode">הקש כדי להציג את ההערה במצב לילה</string>
+  <string name="tap_for_action_edit">הקש כדי לפתוח פתק לעריכה</string>
+  <string name="tap_for_action_copy">הקש כדי להעתיק תוכן הערה ללוח</string>
+  <string name="tap_for_action_share">הקש כדי לשתף תוכן הערה ביישומים אחרים</string>
+  <string name="tap_for_action_popup">הקש כדי לפתוח פתק בחלון קופץ צף</string>
+  <string name="tap_for_action_delete">הקש כדי למחוק את ההערה</string>
+  <string name="tap_for_action_trash">הקש כדי להעביר הערה לאשפה</string>
+  <string name="tap_for_action_not_trash">הקש כדי להעביר הערה מתוך אשפה</string>
+  <string name="tap_for_action_favourite">הקש כדי לסמן את ההערה כמצוין</string>
+  <string name="tap_for_action_not_favourite">הקש כדי לסמן הערה לא כאתר מועדף</string>
+  <string name="tap_for_action_archive">הקש כדי להעביר לארכיון את ההערה</string>
+  <string name="tap_for_action_not_archive">הקש כדי לשחרר את ההערה מהארכיון</string>
+  <string name="nav_sheet_title">ההערות שלך</string>
+  <string name="nav_home">בית</string>
+  <string name="nav_home_details">כל ההערות הרגילות והמועדפות שלך</string>
+  <string name="nav_favourites">מועדפים</string>
+  <string name="nav_favourites_details">כל ההערות המועדפות עליך</string>
+  <string name="nav_archived">בארכיון</string>
+  <string name="nav_archived_details">כל ההערות שלך בארכיון</string>
+  <string name="nav_trash">אַשׁפָּה</string>
+  <string name="nav_trash_details">כל ההערות שלך באשפה</string>
+  <string name="open_in_notification">צור הודעה</string>
+  <string name="notification_channel_label">הערה הודעות</string>
+  <string name="nav_locked">נָעוּל</string>
+  <string name="nav_locked_details">כל ההערות הנעולות שלך</string>
+  <string name="nav_tags">תגים</string>
+  <string name="nav_tags_details">כל תגי ההערות שלך</string>
+  <string name="tag_sheet_create_title">הוסף תג חדש</string>
+  <string name="tag_sheet_edit_title">ערוך Taga</string>
+  <string name="tag_sheet_enter_tag_hint">הזן תג</string>
+  <string name="tag_sheet_new_tag_button">צור תג חדש</string>
+  <string name="tag_sheet_choose_tag">בחר תג</string>
+
+  <!-- Added in Release v3.7.9 -->
+  <string name="import_to_app">יְבוּא</string>
+  <string name="markdown_sheet_home_markdown_support">Markdown ברשימת ההערות</string>
+  <string name="markdown_sheet_home_markdown_support_subtitle">הפעל עיצוב Markdown ברשימת ההערות</string>
+  <string name="home_option_fill_survey">מילוי סקר</string>
+  <string name="home_option_fill_survey_subtitle">עזור לנו לשפר את האפליקציה על ידי כך שתספר לנו מה אתה אוהב</string>
+
+  <!-- Added in release v3.8.4 -->
+  <string name="change_tags">שנה תגים</string>
+  <string name="home_option_order_notes">הערות הזמנה</string>
+  <string name="home_option_open_source_page">פרוייקט קוד פתוח</string>
+  <string name="home_option_open_source_page_subtitle">לדעת יותר על פרוייקט קוד פתוח</string>
+  <string name="osp_page_libraries">ספריות</string>
+  <string name="osp_page_about_osp">פרוייקט קוד פתוח</string>
+  <string name="osp_page_title">על פרוייקט קוד פתוח</string>
+  <string name="reminder_sheet_title">הערה תזכורת</string>
+  <string name="reminder_sheet_reminder_date">תאריך תזכורת</string>
+  <string name="reminder_sheet_reminder_time">זמן תזכורת</string>
+  <string name="reminder_sheet_repeat">חזור על תדר</string>
+  <string name="sort_sheet_title">מיין הערות לפי</string>
+  <string name="sort_sheet_newest_first">החדש ביותר יהיה ראשון</string>
+  <string name="sort_sheet_oldest_first">העתיקה ביותר</string>
+  <string name="sort_sheet_last_modified">שינוי לאחרונה</string>
+  <string name="reminder">תִזכּוֹרֶת</string>
+  <string name="pin_note">הערה פין</string>
+  <string name="unpin_note">בטל הצמדה של הערה</string>
+
+  <!-- Added in release v3.9.0 -->
+  <string name="home_option_ui_experience">ממשק וניסיון</string>
+  <string name="home_option_ui_experience_subtitle">בחר כיצד האפליקציה נראית ומרגישה.</string>
+  <string name="home_option_note_settings">הערה העדפות</string>
+  <string name="home_option_note_settings_subtitle">בחר הערה והגדרות אחרות.</string>
+  <string name="home_option_about">על אודות</string>
+  <string name="home_option_about_subtitle">למידע נוסף עלינו ועל האפליקציה.</string>
+  <string name="note_option_default_color">ברירת מחדל הערה צבע</string>
+  <string name="note_option_default_color_subtitle">בחר את צבע ברירת המחדל של ההערות</string>
+  <string name="note_option_number_lines">הערה גבול קו</string>
+  <string name="home_option_backup_options">גיבוי וייבוא</string>
+  <string name="home_option_backup_options_subtitle">אפשרויות גיבוי, ייבוא וייצוא של הערות</string>
+
+  <!-- Added in release v4.0.0 -->
+  <!-- Cloud Backup Hint -->
+  <string name="home_option_install_from_store">התקן מ- Store</string>
+  <string name="home_option_install_from_store_subtitle">התקן אפליקציה מ- Google Store עבור Cloud Sync</string>
+
+  <!-- No PinCode Sheet -->
+  <string name="no_pincode_sheet_title">לא הוגדר קוד PIN</string>
+  <string name="no_pincode_sheet_details">לא הגדרת את ה- PIN. האם אתה רוצה להגדיר את זה עכשיו?</string>
+  <string name="no_pincode_sheet_not_now">יותר מאוחר</string>
+  <string name="no_pincode_sheet_dont_ask">לעולם אל תשאל</string>
+  <string name="no_pincode_sheet_set_up">להכין</string>
+
+  <!-- Added for 4.1.0 -->
+  <string name="duplicate">לְשַׁכְפֵּל</string>
+  <string name="select">בחר</string>
+  <string name="delete_sheet_are_you_sure">האם אתה בטוח?</string>
+  <string name="delete_sheet_delete_trash">האם ברצונך למחוק לצמיתות את ההערות בתיקיית האשפה?</string>
+  <string name="delete_sheet_delete_note_permanently">האם ברצונך למחוק הערה זו לצמיתות?</string>
+  <string name="delete_sheet_delete_trash_yes">לִמְחוֹק</string>
+  <string name="delete_sheet_delete_trash_no">לְבַטֵל</string>
+  <string name="trash_will_delete_automatically">הערות נמחקות לעד 7 ימים</string>
+
+
+  <!-- Added for 4.3.7 -->
+  <string name="shortcut_add_note">להוסיף הערה</string>
+  <string name="shortcut_add_list">הוסף רשימת בדיקה</string>
+  <string name="format_sheet_option_title">חסום עיצוב</string>
+  <string name="format_label_heading">כּוֹתֶרֶת</string>
+  <string name="format_label_sub_heading">כותרת משנה</string>
+  <string name="format_label_text">טֶקסט</string>
+  <string name="format_label_quote">ציטוט</string>
+  <string name="format_label_code">קוד</string>
+  <string name="format_label_list">צ\'ק ליסט</string>
+  <string name="markdown_sheet_option_title">עיצוב סמן</string>
+  <string name="markdown_label_bold">נוֹעָז</string>
+  <string name="markdown_label_italics">אוֹתִיוֹת מוּטוֹת</string>
+  <string name="markdown_label_underline">לָשִׂים דָגֵשׁ</string>
+  <string name="markdown_label_strikethrough">לְהַכּוֹת</string>
+  <string name="markdown_label_list">רשימה</string>
+  <string name="select_a_note_title">בחר הערה</string>
+  <string name="select_notes_title">בחר הערות</string>
+  <string name="nav_settings">הגדרות</string>
+  <string name="widget_no_valid_note">הערה נמחקה או נעולה</string>
+  <string name="note_option_font_size">הערה גודל גופן</string>
+  <string name="note_option_font_size_example">התאם את גודל הגופן של הטקסט בדף ההערות. תוכל לראות כיצד ייראה בתצוגה המקדימה הזו.</string>
+  <string name="note_option_font_size_subtitle">%d של הטקסט במציג ההערות</string>
+
+
+  <!-- Added for 4.3.8 -->
+  <string name="whats_new_title">מה חדש</string>
+  <string name="whats_new_subtitle">דע מה חדש בעדכונים האחרונים של האפליקציה</string>
+  <string name="whats_new_translate">לתרגם</string>
+  <string name="tutorial_create_a_new_note">לחץ כדי להוסיף הערה חדשה</string>
+  <string name="tutorial_home_menu">לחץ כדי לראות את אפשרויות הבית</string>
+  <string name="tutorial_home_menu_subtitle">בתפריט הבית יש הערות מועדפות וארכיוניות, כמו גם הגדרות יישום. תוכל למצוא את התגים שלך גם כאן.</string>
+
+  <!-- Login, Welcome Strings -->
+  <string name="home_option_login_with_app">היכנס לאפליקציה</string>
+  <string name="home_option_login_with_app_subtitle">היכנס לגיבוי ענן ולסינכרון</string>
+  <string name="home_option_logout_of_app">התנתק</string>
+  <string name="home_option_logout_of_app_subtitle">צא כדי לעצור את גיבוי הענן</string>
+  <string name="login_with_google">היכנס באמצעות Google</string>
+  <string name="logging_into_app">כניסה</string>
+  <string name="logged_into_app">אתה מחובר</string>
+  <string name="login_to_google_failed">הכניסה של Google נכשלה</string>
+  <string name="material_notes_privacy_policy">מדיניות פרטיות</string>
+  <string name="material_notes_privacy_policy_subtitle">מדיניות הפרטיות של האפליקציה עבור התוכן</string>
+  <string name="install_pro_app">התקן Pro App</string>
+  <string name="why_install_pro">למה להתקין Pro</string>
+  <string name="why_install_pro_details">תמיכה מפתח עבור עלויות השרת מסיבית, כדי להפעיל את סנכרון ענן \n\n קבל את התכונות החדשות הראשון \n\n כמה תכונות נוספות יהיה זמין רק למשתמשים Pro</string>
+  <string name="why_cloud">מדוע להפעיל את Cloud Sync</string>
+  <string name="why_cloud_details">טען וגבה מפני שינויי מכשירים \n\n סנכרון בין מכשירים מרובים, וקבל עדכונים מהירים \n\n נשמר באופן מאובטח בשרתי Google Firebase</string>
+  <string name="welcome_page_hello">שלום,</string>
+  <string name="welcome_page_transfer_message">הערות החומר הוא עכשיו סקרלט!</string>
+  <string name="welcome_page_get_started">להתחיל</string>
+
+  <!-- Added for 4.5.3 -->
+  <string name="format_action_copy">עותק</string>
+  <string name="format_action_title">לחסום פעולות טקסט</string>
+  <string name="format_action_gallery">גלריה</string>
+  <string name="format_action_camera">מַצלֵמָה</string>
+  <string name="voice_sheet_title">הערה בקול רם</string>
+  <string name="voice_action_title">לדבר בקול רם</string>
+  <string name="image_delete_all_devices">מחיקת פריט זה תמחק את התמונה מכל המכשירים.</string>
+  <string name="image_not_on_current_device">תמונה לא נמצאת במכשיר זה</string>
+  <string name="image_cannot_be_loaded">לא ניתן לטעון את התמונה</string>
+  <string name="image_not_uploaded">התמונות אינן מסונכרנות</string>
+  <string name="image_not_uploaded_details">התמונות אינן מסונכרנות בין מכשירים. התמונות שלך לא יופיעו במכשירים אחרים בעת הצגת ההערה!</string>
+  <string name="image_not_uploaded_i_understand">אני מבין</string>
+  <string name="home_option_auto_export">ייצוא אוטומטי</string>
+  <string name="home_option_auto_export_subtitle">ייצוא הערות לעתים קרובות לקובץ חיצוני כגיבוי</string>
+  <string name="format_label_image">תמונה</string>
+  <string name="format_hint_image">לחץ כדי להוסיף או לשנות את התמונה</string>
+
+  <!-- Added for 4.7.0 -->
+  <string name="reminder_frequency_once">רק פעם אחת</string>
+  <string name="reminder_frequency_daily">יום יומי</string>
+  <string name="reminder_frequency_custom">המותאם אישית</string>
+  <string name="reminder_beta_label">בטא</string>
+  <string name="notification_reminder_channel_label">תזכורות ו אזעקות</string>
+  <string name="about_page_description_os">%s הוא קוד פתוח וכל אחד פתוח לתרום כדי לעשות את זה טוב יותר. הוא נבנה כעת ומתוחזק על ידי %s.</string>
+  <string name="about_page_description">%s הוא פתק פשוט לוקח יישום. זה מאפשר קלט טקסט עשיר עשיר מבלי להפוך את החוויה קשה מאוד לשימוש. זה עושה multi-tasking משב רוח.</string>
+  <string name="about_page_about_us_details">היי, אנחנו זוג מעצב ומתכנת, שיצר %s.
+     אנו משתדלים לבנות יפה, תוכנן בקפידה ללא תשלום, מודעות חינם או מודעות מינימלי אשר משרתים כלי נהדר לכולם!</string>
+  <string name="note_option_number_lines_subtitle">%d שורות במסך הבית</string>
+  <string name="search_toolbar_text">חיפוש %s &#8230;</string>
+  <string name="view_distraction_free">הסחת דעת חינם</string>
+  <string name="format_label_separator">מפריד</string>
+
+  <!-- Added for 6.6.1 -->
+  <string name="home_option_theme_color">נושא</string>
+  <string name="home_option_theme_color_subtitle">בחר את צבע הרקע עבור ערכת הנושא</string>
+  <string name="theme_page_title">בחר ערכת נושא של אפליקציות</string>
+  <string name="click_to_add_tags">לחץ כדי להוסיף או לשנות תגים</string>
+  <string name="show_more_actions">הצג פעולות נוספות</string>
+  <string name="select_notes">בחר הערות</string>
+  <string name="select_notes_details">בחר וביצע פעולות במספר הערות בבת אחת</string>
+  <string name="recent_to_trash_message">הפתק הועבר לאשפה</string>
+  <string name="recent_to_delete_message">ההערה נמחקה</string>
+  <string name="recent_to_trash_undo">לבטל</string>
+  <string name="backup_note_disable">השבת גיבוי</string>
+  <string name="backup_note_enable">הפעל גיבוי</string>
+  <string name="folder_card_title">מחברת ריקה</string>
+  <string name="folder_card_title_single_note">1 הערה</string>
+  <string name="folder_card_title_notes">%d הערות</string>
+  <string name="folder_sheet_add_note">צור מחברת חדשה</string>
+  <string name="folder_sheet_edit_note">ערוך את המחברת</string>
+  <string name="folder_sheet_add_note_detail">הוסף מחשב נייד</string>
+  <string name="folder_option_add_to_notebook">הוסף למחברת</string>
+  <string name="folder_option_change_notebook">שנה את המחשב הנייד</string>
+  <string name="recent_notes">הערות אחרונות</string>
+  <string name="information_card_title">מידע</string>
+  <string name="information_new_app_update">הקש כדי להתקין את גרסת האפליקציה העדכנית ביותר</string>
+  <string name="information_install_pro">הקש כדי לשדרג ל Scarlet Pro</string>
+  <string name="home_option_install_pro_app">התקן Pro App</string>
+  <string name="home_option_install_pro_app_details">התקן את Pro App כדי לפתוח תכונות מפתח תמיכה</string>
+  <string name="home_option_migrate_to_pro">להעביר הערות ל Scarlet Pro</string>
+  <string name="home_option_migrate_to_pro_details">העבר את כל ההערות שלך לאפליקציה המקצועית</string>
+  <string name="home_option_delete_notes_and_more">מחק הערות ועוד</string>
+  <string name="home_option_delete_notes_and_more_details">מחק הערות, תגים ונתונים אחרים באפליקציה</string>
+  <string name="home_option_delete_all_notes">מחק את כל ההערות</string>
+  <string name="home_option_delete_all_notes_details">מחק את כל ההערות באפליקציה</string>
+  <string name="home_option_delete_all_folders">מחק את כל התיקיות</string>
+  <string name="home_option_delete_all_folders_details">מחק את כל התיקיות באפליקציה</string>
+  <string name="home_option_delete_all_tags">מחק את כל התגים</string>
+  <string name="home_option_delete_all_tags_details">מחק את כל התגים באפליקציה</string>
+  <string name="home_option_delete_everything">מחק הכל</string>
+  <string name="home_option_delete_everything_details">מחק הערות, תגים ותיקיות באפליקציה</string>
+  <string name="ui_options_note_background_color">הערה מציג רקע</string>
+
+</resources>

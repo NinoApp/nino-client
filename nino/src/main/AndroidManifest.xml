@@ -38,10 +38,22 @@
                 tools:replace="android:resource" />
         </provider>
 
+        <activity android:name=".CameraActivity"/>
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/title_activity_register" />
+        <activity android:name=".LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- Register library Activities -->
         <!-- Register library Activities -->
         <!-- Register library Activities -->
-        <!--
+
         <activity
             android:name="com.example.batu.ninoclient.MainActivity"
             android:windowSoftInputMode="stateHidden">
@@ -121,6 +133,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/all_notes_widget_info" />
         </receiver>
-    -->
+
     </application>
 </manifest>
