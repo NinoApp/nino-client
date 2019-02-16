@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.batu.ninoclient">
+    package="com.nino.ninoclient">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".Nino"
+        android:name="com.nino.ninoclient.Nino"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:allowBackup="true"
@@ -38,11 +38,11 @@
                 tools:replace="android:resource" />
         </provider>
 
-        <activity android:name=".CameraActivity"/>
+        <activity android:name="com.nino.ninoclient.CameraActivity"/>
         <activity
-            android:name=".RegisterActivity"
+            android:name="com.nino.ninoclient.RegisterActivity"
             android:label="@string/title_activity_register" />
-        <activity android:name=".LoginActivity">
+        <activity android:name="com.nino.ninoclient.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -55,24 +55,24 @@
         <!-- Register library Activities -->
 
         <activity
-            android:name="com.example.batu.ninoclient.MainActivity"
+            android:name="com.nino.ninoclient.MainActivity"
             android:windowSoftInputMode="stateHidden">
 
         </activity>
-        <service android:name="com.example.batu.ninoclient.service.FloatingNoteService" />
-        <service android:name="com.example.batu.ninoclient.notification.NotificationIntentService" />
+        <service android:name="com.nino.ninoclient.service.FloatingNoteService" />
+        <service android:name="com.nino.ninoclient.notification.NotificationIntentService" />
 
         <activity
-            android:name="com.example.batu.ninoclient.note.creation.activity.ViewAdvancedNoteActivity"
+            android:name="com.nino.ninoclient.note.creation.activity.ViewAdvancedNoteActivity"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name="com.example.batu.ninoclient.note.creation.activity.CreateNoteActivity"
+            android:name="com.nino.ninoclient.note.creation.activity.CreateNoteActivity"
             android:windowSoftInputMode="stateVisible" />
         <activity
-            android:name="com.example.batu.ninoclient.note.creation.activity.CreateListNoteActivity"
+            android:name="com.nino.ninoclient.note.creation.activity.CreateListNoteActivity"
             android:windowSoftInputMode="stateHidden" />
-        <activity android:name="com.example.batu.ninoclient.export.activity.ImportNoteActivity" />
-        <activity android:name="com.example.batu.ninoclient.main.activity.OpenTextIntentOrFileActivity">
+        <activity android:name="com.nino.ninoclient.export.activity.ImportNoteActivity" />
+        <activity android:name="com.nino.ninoclient.main.activity.OpenTextIntentOrFileActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -93,7 +93,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.example.batu.ninoclient.widget.NoteWidgetProvider">
+        <receiver android:name="com.nino.ninoclient.widget.NoteWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -103,7 +103,7 @@
                 android:resource="@xml/widget_info" />
         </receiver>
 
-        <receiver android:name="com.example.batu.ninoclient.widget.CreateNoteWidgetProvider">
+        <receiver android:name="com.nino.ninoclient.widget.CreateNoteWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -113,18 +113,18 @@
                 android:resource="@xml/create_note_widget_info" />
         </receiver>
 
-        <activity android:name="com.example.batu.ninoclient.main.activity.WidgetConfigureActivity">
+        <activity android:name="com.nino.ninoclient.main.activity.WidgetConfigureActivity">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
 
-        <activity android:name="com.example.batu.ninoclient.note.selection.activity.SelectNotesActivity" />
+        <activity android:name="com.nino.ninoclient.note.selection.activity.SelectNotesActivity" />
 
         <service
-            android:name="com.example.batu.ninoclient.widget.AllNotesWidgetService"
+            android:name="com.nino.ninoclient.widget.AllNotesWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
-        <receiver android:name="com.example.batu.ninoclient.widget.AllNotesWidgetProvider">
+        <receiver android:name="com.nino.ninoclient.widget.AllNotesWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

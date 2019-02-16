@@ -7,7 +7,7 @@ android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
     defaultConfig {
-        applicationId "com.example.batu.ninoclient"
+        applicationId "com.nino.ninoclient"
         minSdkVersion 22
         targetSdkVersion 28
         multiDexEnabled true
