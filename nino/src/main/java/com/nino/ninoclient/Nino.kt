@@ -5,10 +5,10 @@ import android.support.multidex.MultiDex
 import android.support.multidex.MultiDexApplication
 import com.evernote.android.job.JobManager
 import com.facebook.soloader.SoLoader
-import com.nino.ninoclient.config.CoreConfig
-import com.nino.ninoclient.config.MaterialNoteConfig
-import com.nino.ninoclient.export.support.ExternalFolderSync
-import com.nino.ninoclient.note.reminders.ReminderJobCreator
+import com.nino.ninoclient.base.config.CoreConfig
+import com.nino.ninoclient.base.config.MaterialNoteConfig
+import com.nino.ninoclient.base.export.support.ExternalFolderSync
+import com.nino.ninoclient.base.note.reminders.ReminderJobCreator
 
 class Nino : MultiDexApplication() {
 

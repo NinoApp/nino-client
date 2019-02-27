@@ -10,7 +10,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,13 +26,8 @@ import android.widget.Toast;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.SyncHttpClient;
-import com.nino.ninoclient.R;
 import com.scanlibrary.PolygonView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -54,14 +48,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -182,11 +172,150 @@ public class CameraActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
                 edgeDetectedTakenImage = detectNote(takenImage);
+                //edgeDetectedTakenImage = detectionV2(takenImage);
+                //edgeDetectedTakenImage = detectionV3(takenImage);
                 warpButton.setVisibility(View.VISIBLE);
             } else {
                 Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    /*
+    public void detectionV3(Bitmap bitmap){
+        ImageProcessor ip = new ImageProcessor();
+        PolygonViewCreator pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView));
+        MatOfPoint maxContour = ip.detectEdges(bitmap);
+        MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
+
+        double[] temp_double;
+        Point p;
+        List<Point> source = new ArrayList<Point>();
+        try {
+            Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
+            if(approxCurve.total() > 0) {
+                for (int i = 0; i < approxCurve.total(); i++) {
+                    temp_double = approxCurve.get(i, 0);
+                    p = new Point(temp_double[0], temp_double[1]);
+                    //Imgproc.circle(rgba, p, 55, new Scalar(255, 0, 0), 10);
+                    source.add(p);
+                }
+
+                pvc.createPolygonWithCurve(approxCurve, bitmap, mainIv);
+
+                //Imgproc.rectangle(rgba, rect.tl(), rect.br(), new Scalar(255, 0, 0), 10);
+                //Log.d("CORNER_LOOP", String.valueOf(threshold));
+            }else{
+                Rect rect = Imgproc.boundingRect(maxContour);
+                pvc.createPolygonWithRect(rect, bitmap, mainIv);
+            }
+        }catch(NullPointerException e){
+            e.printStackTrace();
+        }
+
+    }
+    */
+
+    /*
+    public Bitmap detectionV2(Bitmap bitmap){
+        ImageScanner is = new ImageScanner();
+
+        rgba = new Mat();
+        Utils.bitmapToMat(bitmap, rgba);
+        ScannedDocument doc = is.processPicture(rgba);
+        Mat result = doc.getProcessed();
+
+        Bitmap resbm = matToBit(result);
+        mainIv.setImageBitmap(resbm);
+        return resbm;
+    }
+    */
+
+    @SuppressLint("ClickableViewAccessibility")
+    private Bitmap detectNote(Bitmap bitmap) {
+        ImageProcessor ip = new ImageProcessor();
+        rgba = new Mat();
+        Utils.bitmapToMat(bitmap, rgba);
+
+        Mat edges = new Mat();
+        MatOfPoint maxContour = null;
+        int threshold = 5;
+
+        edges = ip.detectEdges(bitmap);
+        maxContour = ip.findContours(edges);
+
+        Rect rect = Imgproc.boundingRect(maxContour);
+
+        MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
+
+        Imgproc.cvtColor(edges, edges, Imgproc.COLOR_BayerBG2RGB); //????
+
+        pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView));
+
+        Bitmap rgbaBit = matToBit(rgba);
+        mainIv.setImageBitmap(rgbaBit);
+
+        double[] temp_double;
+        Point p;
+        List<Point> source = new ArrayList<Point>();
+        try {
+            Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
+            if(approxCurve.total() > 0) {
+                for (int i = 0; i < approxCurve.total(); i++) {
+                    temp_double = approxCurve.get(i, 0);
+                    p = new Point(temp_double[0], temp_double[1]);
+                    Imgproc.circle(rgba, p, 55, new Scalar(255, 0, 0), 10);
+                    source.add(p);
+                }
+
+                pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
+
+                Imgproc.rectangle(rgba, rect.tl(), rect.br(), new Scalar(255, 0, 0), 10);
+                Log.d("CORNER_LOOP", String.valueOf(threshold));
+            }else{
+                pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
+            }
+        }catch(NullPointerException e){
+            e.printStackTrace();
+        }
+
+        rgba = new Mat();
+        Utils.bitmapToMat(bitmap, rgba);
+        return matToBit(rgba);
+    }
+
+    public Bitmap matToBit(Mat mat){
+        Bitmap resultBitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(mat, resultBitmap);
+        return resultBitmap;
+    }
+
+    public Mat warp(Mat inputMat, Mat startM) {
+        int resultWidth = pvc.getBitmapWidth();
+        int resultHeight = pvc.getBitmapHeight();
+
+        Mat outputMat = new Mat(resultWidth, resultHeight, CvType.CV_8UC4);
+
+        Point ocvPOut1 = new Point(0, 0);
+        Point ocvPOut2 = new Point(0, resultHeight);
+        Point ocvPOut3 = new Point(resultWidth, resultHeight);
+        Point ocvPOut4 = new Point(resultWidth, 0);
+        List<Point> dest = new ArrayList<Point>();
+        dest.add(ocvPOut1);
+        dest.add(ocvPOut2);
+        dest.add(ocvPOut3);
+        dest.add(ocvPOut4);
+        Mat endM = Converters.vector_Point2f_to_Mat(dest);
+
+        Mat perspectiveTransform = Imgproc.getPerspectiveTransform(startM, endM);
+
+        Imgproc.warpPerspective(inputMat,
+                outputMat,
+                perspectiveTransform,
+                new Size(resultWidth, resultHeight),
+                Imgproc.INTER_CUBIC);
+
+        return outputMat;
     }
 
     private File persistImage(Bitmap bitmap) {
@@ -247,156 +376,6 @@ public class CameraActivity extends AppCompatActivity {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public class NoteSendRequest extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            String SERVER_POST_URL = "http://35.231.79.120:8000/api/notes/";
-
-            SyncHttpClient client = new SyncHttpClient();
-            StringEntity jsonEntity = null;
-
-            //RequestParams params = new RequestParams();
-
-            Log.e("TOKEN IN MAIN", token);
-            client.addHeader("Authorization", "Token " + token);
-            //client.addHeader("authorization", token);
-
-            JSONObject jsonParams = new JSONObject();
-            try {
-                jsonParams.put("name", "test");
-                jsonParams.put("image", new File(mCurrentPhotoPath));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            try {
-                jsonEntity = new StringEntity(jsonParams.toString());
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-
-            client.post(getApplicationContext(), SERVER_POST_URL, jsonEntity, "application/json",
-                    new JsonHttpResponseHandler(){
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                            super.onFailure(statusCode, headers, responseString, throwable);
-                            Log.d("NoteSendFailed: ", ""+statusCode);
-                            Log.d("NoteSendError : ", "" + throwable);
-                        }
-
-                        @Override
-                        public void onSuccess(int i, Header[] headers, String s) {
-                            Log.d("BAKALIM NOLDU S", String.valueOf(i));
-                        }
-                    });
-
-            return "";
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            Log.e("POST_EXECUTE", result);
-        }
-
-        @Override
-        protected void onCancelled() {
-
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private Bitmap detectNote(Bitmap bitmap) {
-        ImageProcessor ip = new ImageProcessor();
-        rgba = new Mat();
-        Utils.bitmapToMat(bitmap, rgba);
-
-        Mat edges = new Mat();
-        MatOfPoint maxContour = null;
-        //for(int c = 4; c <= 4; c++) {
-            int threshold = 15;//c * 3;
-            edges = ip.detectEdges(bitmap, threshold);
-            //Bitmap ed = matToBit(edges);
-
-            maxContour = ip.findContours(edges);
-
-            Rect rect = Imgproc.boundingRect(maxContour);
-
-            MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
-
-            Imgproc.cvtColor(edges, edges, Imgproc.COLOR_BayerBG2RGB); //????
-
-            pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView));
-
-            Bitmap rgbaBit = matToBit(rgba);
-            mainIv.setImageBitmap(rgbaBit);
-
-            double[] temp_double;
-            Point p;
-            List<Point> source = new ArrayList<Point>();
-            try {
-                Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
-                if(approxCurve.total() > 0) {
-                    for (int i = 0; i < approxCurve.total(); i++) {
-                        temp_double = approxCurve.get(i, 0);
-                        p = new Point(temp_double[0], temp_double[1]);
-                        Imgproc.circle(rgba, p, 55, new Scalar(255, 0, 0), 10);
-                        source.add(p);
-                    }
-
-                    pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
-
-                    Imgproc.rectangle(rgba, rect.tl(), rect.br(), new Scalar(255, 0, 0), 10);
-                    Log.d("CORNER_LOOP", String.valueOf(threshold));
-                }else{
-                    pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
-                }
-            }catch(NullPointerException e){
-                e.printStackTrace();
-            }
-
-        //}
-
-        rgba = new Mat();
-        Utils.bitmapToMat(bitmap, rgba);
-        return matToBit(rgba);
-    }
-
-    public Bitmap matToBit(Mat mat){
-        Bitmap resultBitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(mat, resultBitmap);
-        return resultBitmap;
-    }
-
-    public Mat warp(Mat inputMat, Mat startM) {
-        int resultWidth = pvc.getBitmapWidth();
-        int resultHeight = pvc.getBitmapHeight();
-
-        Mat outputMat = new Mat(resultWidth, resultHeight, CvType.CV_8UC4);
-
-        Point ocvPOut1 = new Point(0, 0);
-        Point ocvPOut2 = new Point(0, resultHeight);
-        Point ocvPOut3 = new Point(resultWidth, resultHeight);
-        Point ocvPOut4 = new Point(resultWidth, 0);
-        List<Point> dest = new ArrayList<Point>();
-        dest.add(ocvPOut1);
-        dest.add(ocvPOut2);
-        dest.add(ocvPOut3);
-        dest.add(ocvPOut4);
-        Mat endM = Converters.vector_Point2f_to_Mat(dest);
-
-        Mat perspectiveTransform = Imgproc.getPerspectiveTransform(startM, endM);
-
-        Imgproc.warpPerspective(inputMat,
-                outputMat,
-                perspectiveTransform,
-                new Size(resultWidth, resultHeight),
-                Imgproc.INTER_CUBIC);
-
-        return outputMat;
     }
 
     public Bitmap rotateBitmapOrientation(String photoFilePath) {
