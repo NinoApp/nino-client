@@ -42,14 +42,6 @@ public class LoginActivity extends AppCompatActivity{
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-
     private AutoCompleteTextView usernameView;
     private EditText passwordView;
     private View progressView;
@@ -209,7 +201,7 @@ public class LoginActivity extends AppCompatActivity{
         @Override
         protected String doInBackground(String... params) {
             String data = "";
-            String USER_CREATE_POST = "http://35.227.40.210:8000/api/auth/token/login/";
+            String USER_CREATE_POST = "http://35.237.158.162:8000/api/auth/token/login/";
 
             status = 0;
             HttpURLConnection httpURLConnection = null;

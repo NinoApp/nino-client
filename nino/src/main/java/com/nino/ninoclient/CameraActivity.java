@@ -102,7 +102,8 @@ public class CameraActivity extends AppCompatActivity {
         ((Button)findViewById(R.id.cameraButton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dispatchTakePictureIntent();
+                //dispatchTakePictureIntent();
+                startActivity(new Intent(getApplicationContext(), PhotoEditorCameraActivity.class));
             }
         });
 
@@ -116,7 +117,7 @@ public class CameraActivity extends AppCompatActivity {
             showProgress(true);
 
             Log.e("TOKEN IN MAIN", token);
-            String SERVER_POST_URL = "http://35.227.40.210:8000/api/notes/";
+            String SERVER_POST_URL = "http://35.237.158.162:8000/api/notes/";
             Ion.with(CameraActivity.this)
                     .load("POST", SERVER_POST_URL) //url de query
                     .setHeader("Cache-Control", "No-Cache")//desabilitando cache denovo porque essa parada é bug
@@ -237,18 +238,12 @@ public class CameraActivity extends AppCompatActivity {
         rgba = new Mat();
         Utils.bitmapToMat(bitmap, rgba);
 
-        Mat edges = new Mat();
-        MatOfPoint maxContour = null;
-        int threshold = 5;
-
-        edges = ip.detectEdges(bitmap);
-        maxContour = ip.findContours(edges);
+        Mat edges = ip.detectEdges(bitmap);
+        MatOfPoint maxContour = ip.findContours(edges);
 
         Rect rect = Imgproc.boundingRect(maxContour);
 
         MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
-
-        Imgproc.cvtColor(edges, edges, Imgproc.COLOR_BayerBG2RGB); //????
 
         pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView));
 
@@ -264,14 +259,10 @@ public class CameraActivity extends AppCompatActivity {
                 for (int i = 0; i < approxCurve.total(); i++) {
                     temp_double = approxCurve.get(i, 0);
                     p = new Point(temp_double[0], temp_double[1]);
-                    Imgproc.circle(rgba, p, 55, new Scalar(255, 0, 0), 10);
                     source.add(p);
                 }
 
                 pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
-
-                Imgproc.rectangle(rgba, rect.tl(), rect.br(), new Scalar(255, 0, 0), 10);
-                Log.d("CORNER_LOOP", String.valueOf(threshold));
             }else{
                 pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
             }
@@ -309,11 +300,15 @@ public class CameraActivity extends AppCompatActivity {
 
         Mat perspectiveTransform = Imgproc.getPerspectiveTransform(startM, endM);
 
-        Imgproc.warpPerspective(inputMat,
-                outputMat,
-                perspectiveTransform,
+
+        Imgproc.warpPerspective(inputMat, outputMat, perspectiveTransform,
                 new Size(resultWidth, resultHeight),
                 Imgproc.INTER_CUBIC);
+        /*
+        Imgproc.warpPerspective(inputMat, outputMat, perspectiveTransform,
+                new Size(resultWidth, resultHeight),
+                Imgproc.INTER_LINEAR | Imgproc.WARP_INVERSE_MAP);
+        */
 
         return outputMat;
     }

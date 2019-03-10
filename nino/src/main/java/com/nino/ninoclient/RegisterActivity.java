@@ -322,7 +322,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         @Override
         protected String doInBackground(String... params) {
             String data = "";
-            String USER_CREATE_POST = "http://35.227.40.210:8000/api/auth/users/create/";
+            String USER_CREATE_POST = "http://35.237.158.162:8000/api/auth/users/create/";
 
             int status = 0;
             HttpURLConnection httpURLConnection = null;
