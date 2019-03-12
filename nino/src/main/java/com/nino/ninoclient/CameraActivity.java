@@ -23,11 +23,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.scanlibrary.PolygonView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -103,7 +107,8 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //dispatchTakePictureIntent();
-                startActivity(new Intent(getApplicationContext(), PhotoEditorCameraActivity.class));
+                //startActivity(new Intent(getApplicationContext(), PhotoEditorCameraActivity.class));
+                startActivity(new Intent(getApplicationContext(), PhotoEditorActivity.class));
             }
         });
 
@@ -136,6 +141,20 @@ public class CameraActivity extends AppCompatActivity {
                             final byte[] decodedBytes = Base64.decode(result.get("image").toString(), Base64.DEFAULT);
                             Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
                             mainIv.setImageBitmap(decodedBitmap);
+
+                            JsonArray linesJson = result.getAsJsonArray("lines");
+                            ArrayList<String> lines = new ArrayList<String>();
+
+                            List<String> list = new ArrayList<String>();
+                            for(int i = 0; i < linesJson.size(); i++){
+                                JsonObject entry = linesJson.get(i).getAsJsonObject();
+                                list.add(entry.get("text").getAsString());
+                            }
+
+                            for(String s : list){
+                                Log.d("TEXT_FROM_IMAGE", s);
+                            }
+
                             showProgress(false);
                             if (e != null) {
                                 Log.v("Query Error: ", "" + e.getMessage()); //DEBUG

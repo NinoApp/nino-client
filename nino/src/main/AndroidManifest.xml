@@ -25,6 +25,8 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".PhotoEditorCameraActivity"></activity>
+        <activity android:name=".PhotoEditorActivity"></activity>
+
 
         <provider
             android:name="android.support.v4.content.FileProvider"

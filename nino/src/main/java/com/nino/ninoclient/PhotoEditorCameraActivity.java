@@ -8,6 +8,10 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -104,7 +108,29 @@ public class PhotoEditorCameraActivity extends Activity implements PermissionReq
     }
 
     private void openCamera() {
+
+
         SettingsList settingsList = createPesdkSettingsList();
+        /*
+        int PESDK_RESULT = 1;
+
+
+        // TODO: Choose a better file path
+        File file = new File(Environment.getExternalStorageDirectory(), "staveState.pesdk");
+        if (file.exists()) {
+            PESDKFileReader reader = new PESDKFileReader(settingsList);
+            try {
+                reader.readJson(file);
+            } catch (IOException e) {
+                Toast.makeText(this, "Error while opening json.", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+                return;
+            }
+        } else {
+            Toast.makeText(this, "No save state found.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        */
 
         new CameraPreviewBuilder(this)
                 .setSettingsList(settingsList)
