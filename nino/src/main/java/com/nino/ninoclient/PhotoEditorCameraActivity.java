@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,6 +33,7 @@ import ly.img.android.pesdk.ui.model.state.UiConfigOverlay;
 import ly.img.android.pesdk.ui.model.state.UiConfigSticker;
 import ly.img.android.pesdk.ui.model.state.UiConfigText;
 import ly.img.android.pesdk.ui.utils.PermissionRequest;
+import ly.img.android.serializer._3._0._0.PESDKFileReader;
 import ly.img.android.serializer._3._0._0.PESDKFileWriter;
 
 public class PhotoEditorCameraActivity extends Activity implements PermissionRequest.Response {
@@ -102,21 +103,28 @@ public class PhotoEditorCameraActivity extends Activity implements PermissionReq
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_photo_editor_camera);
+        setContentView(R.layout.activity_camera);
 
         openCamera();
     }
 
     private void openCamera() {
-
-
         SettingsList settingsList = createPesdkSettingsList();
-        /*
-        int PESDK_RESULT = 1;
+
+        String jsonFileName = "JSON_TEMPLATE.json";
+        JsonHelper jh = new JsonHelper();
+        try {
+            JSONObject result = new JSONObject(getIntent().getStringExtra("result"));
+            JSONObject jo = jh.createJsonTemplate(result.getJSONArray("lines"));
+            jh.writeJson(jo, jsonFileName);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
 
-        // TODO: Choose a better file path
-        File file = new File(Environment.getExternalStorageDirectory(), "staveState.pesdk");
+
+        File file = new File(Environment.getExternalStorageDirectory(), jsonFileName);
+
         if (file.exists()) {
             PESDKFileReader reader = new PESDKFileReader(settingsList);
             try {
@@ -130,7 +138,6 @@ public class PhotoEditorCameraActivity extends Activity implements PermissionReq
             Toast.makeText(this, "No save state found.", Toast.LENGTH_LONG).show();
             return;
         }
-        */
 
         new CameraPreviewBuilder(this)
                 .setSettingsList(settingsList)

@@ -11,6 +11,9 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,8 +24,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import ly.img.android.pesdk.assets.filter.basic.FilterPackBasic;
 import ly.img.android.pesdk.assets.font.basic.FontPackBasic;
@@ -112,7 +117,27 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        openSystemGalleryToSelectAnImage();
+        /*
+        try {
+            JSONObject result = new JSONObject(getIntent().getStringExtra("lines"));
+            JSONArray linesJson = result.getJSONArray("lines");
+            ArrayList<String> lines = new ArrayList<String>();
+            for(int i = 0; i < linesJson.length(); i++){
+                JSONObject entry = linesJson.getJSONObject(i);
+                lines.add(entry.getString("text"));
+            }
+
+            for(String s : lines){
+                Log.d("TEXT_FROM_IMAGE", s);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }*/
+
+        //openSystemGalleryToSelectAnImage();
+
+        Uri uri = Uri.parse("android.resource://com.nino.ninoclient/drawable/bbg");
+        openEditor(uri);
     }
 
     private void openSystemGalleryToSelectAnImage() {
@@ -128,153 +153,25 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
         }
     }
 
-
-    private JSONObject getTextJson(String text, double x, double y, double maxWidth) throws JSONException {
-        JSONObject jto = new JSONObject();
-        jto.put("type", "text");
-
-        JSONObject options = new JSONObject();
-        options.put("text", text);
-        options.put("fontSize", 0.10000000149011612);
-        options.put("fontIdentifier", "imgly_font_open_sans_bold");
-        options.put("alignment", "center");
-
-        JSONObject color = new JSONObject();
-        JSONArray rgba = new JSONArray();
-        for(int i = 0; i < 4; i++){
-            rgba.put(1);
-        }
-        color.put("rgba", rgba);
-        options.put("color", color);
-
-        JSONObject backgroundColor = new JSONObject();
-        JSONArray rgbaBC = new JSONArray();
-        for(int i = 0; i < 4; i++){
-            rgbaBC.put(0);
-        }
-        backgroundColor.put("rgba", rgbaBC);
-        options.put("backgroundColor", backgroundColor);
-
-        JSONObject position = new JSONObject();
-        position.put("x", x);
-        position.put("y", y);
-        options.put("position", position);
-
-        options.put("rotation", "0");
-        options.put("maxWidth", 0.35370001196861267);//maxWidth);
-        options.put("flipHorizontally", false);
-        options.put("flipVertically", false);
-
-        jto.put("options", options);
-        return jto;
-    }
-
-    private JSONObject createJsonTemplate(){
-        JSONObject jo = new JSONObject();
-        try {
-            jo.put("version", "3.0.0");
-
-            JSONObject meta = new JSONObject();
-            meta.put("platform", "android");
-            meta.put("verison", "6.2.6");
-            meta.put("createdAt", "2019-03-13T00:01:02+03:00");
-            jo.put("meta", meta);
-
-            JSONObject image = new JSONObject();
-            image.put("type", "image/jpeg");
-            image.put("width", 3096);
-            image.put("height", 5504);
-            jo.put("image", image);
-
-            JSONArray operations = new JSONArray();
-            //JSONObject transform = new JSONObject();
-            //JSONObject orientation = new JSONObject();
-            //JSONObject adjustments = new JSONObject();
-
-            JSONObject operations_sprite = new JSONObject();
-            operations_sprite.put("type", "sprite");
-
-            JSONObject operations_sprite_options = new JSONObject();
-
-            JSONArray operations_sprite_option_sprites = new JSONArray();
-
-            for(int i = 1; i <= 3; i++) {
-                JSONObject jsonTextObject = getTextJson("hi", 0.2 * i, 0.2*i, 0);
-                operations_sprite_option_sprites.put(jsonTextObject);
-            }
-
-            operations_sprite_options.put("sprites", operations_sprite_option_sprites);
-            operations_sprite.put("options", operations_sprite_options);
-            operations.put(operations_sprite);
-
-            jo.put("operations", operations);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return jo;
-    }
-
-    private void writeJson(JSONObject jo, String jsonFileName){
-        File root = android.os.Environment.getExternalStorageDirectory();
-        File dir = new File (root.getAbsolutePath());
-        File file = new File(Environment.getExternalStorageDirectory(), jsonFileName);
-
-        try {
-            FileOutputStream f = new FileOutputStream(file);
-            PrintWriter pw = new PrintWriter(f);
-
-            pw.println(jo.toString());
-            pw.flush();
-            pw.close();
-            f.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void openEditor(Uri inputImage) {
         SettingsList settingsList = createPesdkSettingsList();
-
-        // Set input image
         settingsList.getSettingsModel(EditorLoadSettings.class)
                 .setImageSource(inputImage);
 
-        JSONObject jo = createJsonTemplate();
-        String jsonFileName = "JSON_TEMPLATE.json";
-        writeJson(jo, jsonFileName);
-
-        File file = new File(Environment.getExternalStorageDirectory(), jsonFileName);
-
-
-        Log.d("CUSTOM_JSON", jo.toString());
-
-
-        StringBuilder text = new StringBuilder();
-        BufferedReader br = null;
-
+        JsonHelper jh = new JsonHelper();
+        JSONObject jo = null;
         try {
-            br = new BufferedReader(new FileReader(file));
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                text.append(line);
-                text.append('\n');
-            }
-        } catch (IOException e) {
-            // do exception handling
-        } finally {
-            try { br.close(); } catch (Exception e) { }
-        }
-        try {
-            JSONObject job = new JSONObject(String.valueOf(text));
-            Log.d("JSON_TEMPLATE_***", job.toString());
+            JSONObject result =  new JSONObject(getIntent().getStringExtra("result"));
+            JSONArray linesJson = result.getJSONArray("lines");
+            jo = jh.createJsonTemplate(linesJson);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+        String jsonFileName = "JSON_TEMPLATE.json";
+        jh.writeJson(jo, jsonFileName);
+
+        File file = new File(Environment.getExternalStorageDirectory(), jsonFileName);
 
         if (file.exists()) {
             PESDKFileReader reader = new PESDKFileReader(settingsList);
