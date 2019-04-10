@@ -147,4 +147,6 @@ dependencies {
     })
     implementation project(':openCVLibrary343')
     implementation project(':scanlibrary')
+
+    implementation 'com.github.svran:Android-Image-Cropper:2.8.0.4'
 }

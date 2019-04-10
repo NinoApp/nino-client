@@ -4,10 +4,17 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -19,6 +26,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -28,6 +37,7 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.scanlibrary.PolygonView;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,12 +85,16 @@ public class CameraActivity extends AppCompatActivity {
     private Bitmap edgeDetectedTakenImage;
     private Bitmap finalImage;
 
+    private float rotation;
+    Button rotateButton = null;
     Button warpButton = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+
+        rotation = 0;
 
         mainIv = (ImageView) findViewById(R.id.takenPhotoImageView);
 
@@ -112,11 +126,65 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
+        rotateButton = (Button) findViewById(R.id.rotate_button);
+        rotateButton.setVisibility(View.INVISIBLE);
+        rotateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rotation = (rotation + 90) % 360;
+                mainIv.setRotation(rotation);
+            }
+        });
+
+        Button webButton = (Button) findViewById(R.id.web_button);
+        webButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(CameraActivity.this);
+                alert.setTitle("TITLE");
+
+                WebView wv = new WebView(CameraActivity.this);
+                wv.getSettings().setBuiltInZoomControls(true);
+                wv.getSettings().setUseWideViewPort(true);
+                wv.getSettings().setLoadWithOverviewMode(true);
+
+                ProgressDialog progressDialog;
+                progressDialog = new ProgressDialog(CameraActivity.this);
+                progressDialog.setMessage("Loading...");
+                progressDialog.show();
+
+                wv.loadUrl("http://www.google.com");
+                wv.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                        view.loadUrl(url);
+                        return true;
+                    }
+
+                    @Override
+                    public void onPageFinished(WebView view, String url) {
+                        if (progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+                    }
+                });
+
+                alert.setView(wv);
+                alert.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+                alert.show();
+            }
+        });
 
         processButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+            finalImage = rotateBitmap(finalImage, rotation);
             File finalImageFile = persistImage(finalImage);
 
             showProgress(true);
@@ -124,8 +192,8 @@ public class CameraActivity extends AppCompatActivity {
             Log.e("TOKEN IN MAIN", token);
             String SERVER_POST_URL = "http://35.237.158.162:8000/api/notes/";
             Ion.with(CameraActivity.this)
-                    .load("POST", SERVER_POST_URL) //url de query
-                    .setHeader("Cache-Control", "No-Cache")//desabilitando cache denovo porque essa parada é bug
+                    .load("POST", SERVER_POST_URL)
+                    .setHeader("Cache-Control", "No-Cache")
                     .setHeader("Authorization", "Token " + token)//getIntent().getExtras().getString("token"))//token de acesso
                     .noCache()//desabilitando cache
                     //.setLogging("LOG",Log.VERBOSE)//para debug
@@ -147,8 +215,14 @@ public class CameraActivity extends AppCompatActivity {
 
                             Intent editorIntent = new Intent(getApplicationContext(), PhotoEditorActivity.class);
                             //editorIntent.putExtra("lines", result.toString());
-                            editorIntent.putExtra("result", result.toString());
-                            startActivity(editorIntent);
+                            try{
+                                editorIntent.putExtra("result", result.toString());
+                                startActivity(editorIntent);
+                            }catch (NullPointerException npe){
+                                Toast.makeText(getApplicationContext(),
+                                        "There was a problem connecting to the server, please try again", Toast.LENGTH_SHORT).show();
+                                Log.v("Response Error: ", "" + e.getMessage()); //DEBUG
+                            }
 
                             showProgress(false);
                             if (e != null) {
@@ -158,12 +232,18 @@ public class CameraActivity extends AppCompatActivity {
                     });
             }
         });
-
         progressView = findViewById(R.id.process_progress);
         cameraView = findViewById(R.id.camera_view);
-
     }
 
+    public static Bitmap rotateBitmap(Bitmap source, float angle)
+    {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+
+    private Uri photoURI;
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -173,7 +253,7 @@ public class CameraActivity extends AppCompatActivity {
             } catch (IOException ex) {
             }
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
+                photoURI = FileProvider.getUriForFile(this,
                         "com.example.android.fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
@@ -185,15 +265,33 @@ public class CameraActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO) {
             if (resultCode == RESULT_OK) {
+                //CropImage.activity(photoURI).start(this);
                 Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
                 edgeDetectedTakenImage = detectNote(takenImage);
-                //edgeDetectedTakenImage = detectionV2(takenImage);
-                //edgeDetectedTakenImage = detectionV3(takenImage);
                 warpButton.setVisibility(View.VISIBLE);
+                rotateButton.setVisibility(View.VISIBLE);
             } else {
                 Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
+        /*
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                Uri resultUri = result.getUri();
+                Bitmap takenImage = null;
+                try {
+                    takenImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                    edgeDetectedTakenImage = detectNote(takenImage);
+                    warpButton.setVisibility(View.VISIBLE);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+            }
+        }
+        */
     }
 
     /*
@@ -259,7 +357,7 @@ public class CameraActivity extends AppCompatActivity {
 
         MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
 
-        pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView));
+        pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView));//// TODO: 13.03.2019 fix  out of sight poly 
 
         Bitmap rgbaBit = matToBit(rgba);
         mainIv.setImageBitmap(rgbaBit);
@@ -275,7 +373,6 @@ public class CameraActivity extends AppCompatActivity {
                     p = new Point(temp_double[0], temp_double[1]);
                     source.add(p);
                 }
-
                 pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
             }else{
                 pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
@@ -325,6 +422,27 @@ public class CameraActivity extends AppCompatActivity {
         */
 
         return outputMat;
+    }
+
+    public static Bitmap changeBitmapContrastBrightness(Bitmap bmp, float contrast, float brightness)
+    {
+        ColorMatrix cm = new ColorMatrix(new float[]
+                {
+                        contrast, 0, 0, 0, brightness,
+                        0, contrast, 0, 0, brightness,
+                        0, 0, contrast, 0, brightness,
+                        0, 0, 0, 1, 0
+                });
+
+        Bitmap ret = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
+
+        Canvas canvas = new Canvas(ret);
+
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(cm));
+        canvas.drawBitmap(bmp, 0, 0, paint);
+
+        return ret;
     }
 
     private File persistImage(Bitmap bitmap) {

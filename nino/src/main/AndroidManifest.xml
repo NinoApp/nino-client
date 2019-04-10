@@ -23,9 +23,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        android:appComponentFactory="android.support.v4.app.CoreComponentFactory">
         <activity android:name=".PhotoEditorCameraActivity"></activity>
         <activity android:name=".PhotoEditorActivity"></activity>
+        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat"/>
 
 
         <provider

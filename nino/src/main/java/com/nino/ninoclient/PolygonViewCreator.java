@@ -32,7 +32,7 @@ public class PolygonViewCreator {
 
     public void createPolygonWithCurve(MatOfPoint2f approxCurve, Bitmap rgba, ImageView iv){
         List<Point> lp = approxCurve.toList();
-
+        Log.i("POLYGON_POINT", "curve");
         bitmapPos = getBitmapPositionInsideImageView(iv);
 
         double scaledBitWidth = bitmapPos[2];
@@ -45,23 +45,31 @@ public class PolygonViewCreator {
         rHeight = scaledBitHeight / origBitHeight;
 
         List<PointF> pointFs = new ArrayList<>();
+        Log.i("P: POLYGON_POINT CORNER", String.valueOf(lp.size()));
         for(Point p : lp){
+            Log.i("P: POLYGON_POINT", String.valueOf(p.x) + " @ " + String.valueOf(p.y)
+                    + " @ " + rWidth + " @ " + rHeight + " @ " + bitmapPos[0] + " @ " +
+                    bitmapPos[1] + " @ " + scaledBitWidth + " @ " + scaledBitHeight + " @ " +
+                    origBitWidth + " @ " + origBitHeight);
             int x = (int) (p.x * rWidth + bitmapPos[0]);
             int y = (int) (p.y * rHeight + bitmapPos[1]);
             x = x - (int) (14 * (1/rWidth));
             y = y - (int) (14 * (1/rHeight));
-            Log.d("P: CORNER_POINT", String.valueOf(x) + "-" + String.valueOf(y));
+            Log.i("P: POLYGON_POINT CORNER", String.valueOf(x) + "-" + String.valueOf(y));
             pointFs.add(new PointF(x, y));
         }
 
-        /*
-        for(int i = 0; i < 4; i++)
-            Log.d("P: POLYGON_POINT", pointFs.get(i).toString());*/
-
         Map<Integer, PointF> orderedPoints = polygonView.getOrderedPoints(pointFs);
+        for (PointF p : orderedPoints.values()){
+            Log.i("P: POLYGON_POINT ORD", p.toString());
+        }
 
         if (!polygonView.isValidShape(orderedPoints)) {
-            orderedPoints = getOutlinePoints(rgba);
+            orderedPoints = getOutlinePoints((float) scaledBitWidth, (float) scaledBitHeight);
+        }
+
+        for (PointF p : orderedPoints.values()){
+            Log.i("P: POLYGON_POINT VAL", p.toString());
         }
 
         polygonView.setPoints(orderedPoints);
@@ -70,7 +78,7 @@ public class PolygonViewCreator {
 
     public void createPolygonWithRect(Rect rect, Bitmap rgba, ImageView iv){
         bitmapPos = getBitmapPositionInsideImageView(iv);
-
+        Log.i("POLYGON_POINT", "rect");
         double scaledBitWidth = bitmapPos[2];
         double scaledBitHeight = bitmapPos[3];
 
@@ -80,6 +88,10 @@ public class PolygonViewCreator {
         rWidth = scaledBitWidth / origBitWidth;
         rHeight = scaledBitHeight / origBitHeight;
 
+        Log.i("P: POLYGON_POINT", String.valueOf(rect.x) + " @ " + String.valueOf(rect.y)
+        + " @ " + rWidth + " @ " + rHeight + " @ " + bitmapPos[0] + " @ " + bitmapPos[1] + " @ " +
+                rect.width + " @ " + rect.height + " @ " + scaledBitWidth + " @ " + scaledBitHeight + " @ " +
+                origBitWidth + " @ " + origBitHeight);
         int x = (int) (rect.x * rWidth + bitmapPos[0]);
         int y = (int) (rect.y * rHeight + bitmapPos[1]);
         int w = (int) (rect.width * rWidth);
@@ -88,11 +100,11 @@ public class PolygonViewCreator {
         x = x - (int) (14 * (1/rWidth));
         y = y - (int) (14 * (1/rHeight));
 
-        Log.d("P: CONTOUR_POINT", String.valueOf(bitmapPos[0]) + "-" + String.valueOf(bitmapPos[1]));
-        Log.d("P: POLYGON_POINT", String.valueOf(x) + "-" + String.valueOf(y));
+        Log.i("P: CONTOUR_POINT", String.valueOf(bitmapPos[0]) + "-" + String.valueOf(bitmapPos[1]));
+        Log.i("P: POLYGON_POINT", String.valueOf(x) + "-" + String.valueOf(y));
 
-        Log.d("P: POLYGON_POINT", String.valueOf(w));
-        Log.d("P: POLYGON_POINT", String.valueOf(h));
+        Log.i("P: POLYGON_POINT", String.valueOf(w));
+        Log.i("P: POLYGON_POINT", String.valueOf(h));
 
         List<PointF> pointFs = new ArrayList<>();
 
@@ -101,13 +113,10 @@ public class PolygonViewCreator {
         pointFs.add(new PointF(x,y + h));
         pointFs.add(new PointF(x + w,y + h));
 
-        for(int i = 0; i < 4; i++)
-            Log.d("P: POLYGON_POINT", pointFs.get(i).toString());
-
         Map<Integer, PointF> orderedPoints = polygonView.getOrderedPoints(pointFs);
 
         if (!polygonView.isValidShape(orderedPoints)) {
-            orderedPoints = getOutlinePoints(rgba);
+            orderedPoints = getOutlinePoints((float) scaledBitWidth, (float) scaledBitHeight);
         }
 
         polygonView.setPoints(orderedPoints);
@@ -134,6 +143,13 @@ public class PolygonViewCreator {
         final float scaleX = f[Matrix.MSCALE_X];
         final float scaleY = f[Matrix.MSCALE_Y];
 
+        for (float loat: f) {
+            Log.i("P: POLYGON_POINT MATRIX", String.valueOf(loat));
+        }
+
+        Log.i("P: POLYGON_POINT W/H", f[Matrix.MSCALE_X] + " @ " + f[Matrix.MSCALE_X]);
+
+
         // Get the drawable (could also get the bitmap behind the drawable and getWidth/getHeight)
         final Drawable d = imageView.getDrawable();
         final int origW = d.getIntrinsicWidth();
@@ -142,6 +158,7 @@ public class PolygonViewCreator {
         // Calculate the actual dimensions
         final int actW = Math.round(origW * scaleX);
         final int actH = Math.round(origH * scaleY);
+        Log.i("P: POLYGON_POINT W/H", origW + " @ " + scaleX + " @ " + origH + " @ " + scaleY);
 
         ret[2] = actW;
         ret[3] = actH;
@@ -160,12 +177,12 @@ public class PolygonViewCreator {
         return ret;
     }
 
-    private Map<Integer, PointF> getOutlinePoints(Bitmap tempBitmap) {
+    private Map<Integer, PointF> getOutlinePoints(float origBitWidth, float origBitHeight) {
         Map<Integer, PointF> outlinePoints = new HashMap<>();
         outlinePoints.put(0, new PointF(0, 0));
-        outlinePoints.put(1, new PointF(tempBitmap.getWidth(), 0));
-        outlinePoints.put(2, new PointF(0, tempBitmap.getHeight()));
-        outlinePoints.put(3, new PointF(tempBitmap.getWidth(), tempBitmap.getHeight()));
+        outlinePoints.put(1, new PointF(origBitWidth, 0));
+        outlinePoints.put(2, new PointF(0, origBitHeight));
+        outlinePoints.put(3, new PointF(origBitWidth, origBitHeight));
         return outlinePoints;
     }
 

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class JsonHelper {
 
@@ -25,9 +26,9 @@ public class JsonHelper {
 
         JSONObject options = new JSONObject();
         options.put("text", text);
-        options.put("fontSize", 0.05);//0.10000000149011612);
+        options.put("fontSize", 0.03);//0.10000000149011612);
         options.put("fontIdentifier", "imgly_font_open_sans_bold");
-        options.put("alignment", "center");
+        options.put("alignment", "left");
 
         JSONObject color = new JSONObject();
         JSONArray rgba = new JSONArray();
@@ -90,32 +91,66 @@ public class JsonHelper {
 
             ArrayList<Double> leftArr = new ArrayList<Double>();
             ArrayList<Double> topArr = new ArrayList<Double>();
+            ArrayList<Double> rightArr = new ArrayList<Double>();
+            ArrayList<Double> horArr = new ArrayList<Double>();
             for(int i = 0; i < lines.length(); i++) {
                 JSONObject entry = lines.getJSONObject(i);
                 double left = entry.getDouble("left");
                 double top = entry.getDouble("top");
+                double right = entry.getDouble("right");
                 leftArr.add(left);
                 topArr.add(top);
+                rightArr.add(right);
+                horArr.add(left);
+                horArr.add(right);
             }
 
+            int idxHor = horArr.indexOf(Collections.min(horArr));
             int idxLeft = leftArr.indexOf(Collections.min(leftArr));
             int idxTop = topArr.indexOf(Collections.min(topArr));
+            int idxRight = rightArr.indexOf(Collections.min(rightArr));
+            double minHor = horArr.get(idxHor);
             double minLeft = leftArr.get(idxLeft);
             double minTop = topArr.get(idxTop);
+            double minRight = rightArr.get(idxRight);
+            idxHor = horArr.indexOf(Collections.max(horArr));
             idxLeft = leftArr.indexOf(Collections.max(leftArr));
             idxTop = topArr.indexOf(Collections.max(topArr));
+            idxRight = rightArr.indexOf(Collections.max(rightArr));
+            double maxHor = horArr.get(idxHor);
             double maxLeft = leftArr.get(idxLeft);
             double maxTop = topArr.get(idxTop);
+            double maxRight = rightArr.get(idxRight);
 
+            double leftAvg = calculateAverage(leftArr);
+            double rightAvg = calculateAverage(rightArr);
+            double topAvg = calculateAverage(topArr);
+            double horAvg = calculateAverage(horArr);
+
+            double widthPerChar = (0.8 / 60);
             for(int i = 0; i < lines.length(); i++) {
                 JSONObject entry = lines.getJSONObject(i);
                 String text = entry.getString("text");
+                int charCount = text.length();
                 double x = entry.getDouble("left");
                 double y = entry.getDouble("top");
-                x = (x - minLeft)/(maxLeft - minLeft);
-                y = (y - minTop)/(maxTop - minTop);
-                Log.d("ATTEMPTING: TEXT", "text: " + text + " x: " + x + " y: " + y);
-                JSONObject jsonTextObject = getTextJson(text, x, y, 0.7); //// TODO: 13.03.2019 FIX MAXWIDTH 
+                //x = (x - minLeft)/(maxLeft - minLeft);
+                //x = (x - minHor)/(maxHor - minHor) + 0.3;
+                x = x * (0.5 / leftAvg);
+                //y = (y - minTop)/(maxTop - minTop);
+                y = y * (0.5 / topAvg);
+
+                double r = entry.getDouble("right");
+                //r = (r - minRight)/(maxRight - minRight);
+                //r = (r - minHor)/(maxHor - minHor) - 0.1;
+                //r = r * (0.5 / rightAvg);
+
+
+                //double maxWidth = r - x;
+                //double maxWidth = (r - entry.getDouble("left")) * (0.5 / horAvg);
+                double maxWidth = charCount * widthPerChar;
+                Log.d("ATTEMPTING: TEXT", "text: " + text + " x: " + x + " y: " + y + " r: " + r + " mW: " + maxWidth);
+                JSONObject jsonTextObject = getTextJson(text, x, y, maxWidth);
                 operations_sprite_option_sprites.put(jsonTextObject);
             }
 
@@ -129,6 +164,17 @@ public class JsonHelper {
         }
 
         return jo;
+    }
+
+    private double calculateAverage(List<Double> arr) {
+        double sum = 0;
+        if(!arr.isEmpty()) {
+            for (Double mark : arr) {
+                sum += mark;
+            }
+            return sum / arr.size();
+        }
+        return sum;
     }
 
     public void writeJson(JSONObject jo, String jsonFileName){
