@@ -112,6 +112,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             return true;
         }
+        /*
         if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
             Snackbar.make(emailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
                     .setAction(android.R.string.ok, new OnClickListener() {
@@ -124,6 +125,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
         } else {
             requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
         }
+        */
         return false;
     }
 
