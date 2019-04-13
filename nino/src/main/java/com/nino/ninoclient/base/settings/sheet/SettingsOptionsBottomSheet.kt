@@ -37,6 +37,7 @@ class SettingsOptionsBottomSheet : OptionItemBottomSheetBase() {
     val loginClick = CoreConfig.instance.authenticator().openLoginActivity(activity)
     val firebaseUser = CoreConfig.instance.authenticator().userId()
 
+      /*
     val migrateToPro = getMigrateToProAppInformationItem(activity)
     options.add(OptionsItem(
         title = migrateToPro.title,
@@ -59,6 +60,7 @@ class SettingsOptionsBottomSheet : OptionItemBottomSheetBase() {
         },
         visible = loginClick !== null && firebaseUser === null
     ))
+    */
     options.add(OptionsItem(
         title = R.string.home_option_ui_experience,
         subtitle = R.string.home_option_ui_experience_subtitle,
@@ -75,6 +77,7 @@ class SettingsOptionsBottomSheet : OptionItemBottomSheetBase() {
           NoteSettingsOptionsBottomSheet.openSheet(activity)
         }
     ))
+    /*
     options.add(OptionsItem(
         title = R.string.home_option_editor_options_title,
         subtitle = R.string.home_option_editor_options_description,
@@ -83,6 +86,8 @@ class SettingsOptionsBottomSheet : OptionItemBottomSheetBase() {
           openSheet(activity, EditorOptionsBottomSheet())
         }
     ))
+    */
+      /*
     options.add(OptionsItem(
         title = R.string.home_option_backup_options,
         subtitle = R.string.home_option_backup_options_subtitle,
@@ -91,14 +96,17 @@ class SettingsOptionsBottomSheet : OptionItemBottomSheetBase() {
           BackupSettingsOptionsBottomSheet.openSheet(activity)
         }
     ))
+      */
     options.add(OptionsItem(
         title = R.string.home_option_about,
-        subtitle = R.string.home_option_about_subtitle,
+        subtitle = R.string.home_option_about_page_subtitle,
         icon = R.drawable.ic_info,
         listener = View.OnClickListener {
-          AboutSettingsOptionsBottomSheet.openSheet(activity)
+            AboutUsBottomSheet.openSheet(activity)
+            dismiss()
         }
     ))
+      /*
     options.add(OptionsItem(
         title = R.string.home_option_install_pro_app,
         subtitle = R.string.home_option_install_pro_app_details,
@@ -118,6 +126,7 @@ class SettingsOptionsBottomSheet : OptionItemBottomSheetBase() {
           dismiss()
         }
     ))
+
     options.add(OptionsItem(
         title = R.string.home_option_delete_notes_and_more,
         subtitle = R.string.home_option_delete_notes_and_more_details,
@@ -136,6 +145,7 @@ class SettingsOptionsBottomSheet : OptionItemBottomSheetBase() {
         },
         visible = firebaseUser !== null
     ))
+    */
     return options
   }
 

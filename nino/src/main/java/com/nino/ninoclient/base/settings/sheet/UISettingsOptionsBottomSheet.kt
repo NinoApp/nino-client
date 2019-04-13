@@ -161,6 +161,7 @@ class UISettingsOptionsBottomSheet : OptionItemBottomSheetBase() {
         visible = flavor != Flavor.NONE,
         actionIcon = if (flavor == Flavor.PRO) 0 else R.drawable.ic_rating
     ))
+      /*
     options.add(OptionsItem(
         title = R.string.markdown_sheet_home_markdown_support,
         subtitle = R.string.markdown_sheet_home_markdown_support_subtitle,
@@ -171,6 +172,7 @@ class UISettingsOptionsBottomSheet : OptionItemBottomSheetBase() {
         },
         actionIcon = if (sMarkdownEnabledHome) 0 else R.drawable.ic_check_box_white_24dp
     ))
+      */
     return options
   }
 

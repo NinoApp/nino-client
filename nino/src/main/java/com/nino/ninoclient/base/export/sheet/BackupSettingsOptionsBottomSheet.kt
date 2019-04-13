@@ -26,6 +26,7 @@ class BackupSettingsOptionsBottomSheet : OptionItemBottomSheetBase() {
   private fun getOptions(): List<OptionsItem> {
     val activity = context as MainActivity
     val options = ArrayList<OptionsItem>()
+
     options.add(OptionsItem(
         title = R.string.home_option_install_from_store,
         subtitle = R.string.home_option_install_from_store_subtitle,
