@@ -105,10 +105,7 @@ public class CameraActivity extends AppCompatActivity {
         warpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Point> pp = pvc.getPoints();
-
-                Mat startM = Converters.vector_Point2f_to_Mat(pp);
-                Mat result = warp(rgba, startM);
+                Mat result = warp(rgba);
                 finalImage = matToBit(result);
                 mainIv.setImageBitmap(finalImage);
                 findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
@@ -274,75 +271,7 @@ public class CameraActivity extends AppCompatActivity {
                 Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
-        /*
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-                Uri resultUri = result.getUri();
-                Bitmap takenImage = null;
-                try {
-                    takenImage = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
-                    edgeDetectedTakenImage = detectNote(takenImage);
-                    warpButton.setVisibility(View.VISIBLE);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
-            }
-        }
-        */
     }
-
-    /*
-    public void detectionV3(Bitmap bitmap){
-        ImageProcessor ip = new ImageProcessor();
-        PolygonViewCreator pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView));
-        MatOfPoint maxContour = ip.detectEdges(bitmap);
-        MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
-
-        double[] temp_double;
-        Point p;
-        List<Point> source = new ArrayList<Point>();
-        try {
-            Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
-            if(approxCurve.total() > 0) {
-                for (int i = 0; i < approxCurve.total(); i++) {
-                    temp_double = approxCurve.get(i, 0);
-                    p = new Point(temp_double[0], temp_double[1]);
-                    //Imgproc.circle(rgba, p, 55, new Scalar(255, 0, 0), 10);
-                    source.add(p);
-                }
-
-                pvc.createPolygonWithCurve(approxCurve, bitmap, mainIv);
-
-                //Imgproc.rectangle(rgba, rect.tl(), rect.br(), new Scalar(255, 0, 0), 10);
-                //Log.d("CORNER_LOOP", String.valueOf(threshold));
-            }else{
-                Rect rect = Imgproc.boundingRect(maxContour);
-                pvc.createPolygonWithRect(rect, bitmap, mainIv);
-            }
-        }catch(NullPointerException e){
-            e.printStackTrace();
-        }
-
-    }
-    */
-
-    /*
-    public Bitmap detectionV2(Bitmap bitmap){
-        ImageScanner is = new ImageScanner();
-
-        rgba = new Mat();
-        Utils.bitmapToMat(bitmap, rgba);
-        ScannedDocument doc = is.processPicture(rgba);
-        Mat result = doc.getProcessed();
-
-        Bitmap resbm = matToBit(result);
-        mainIv.setImageBitmap(resbm);
-        return resbm;
-    }
-    */
 
     @SuppressLint("ClickableViewAccessibility")
     private Bitmap detectNote(Bitmap bitmap) {
@@ -357,7 +286,7 @@ public class CameraActivity extends AppCompatActivity {
 
         MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
 
-        pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView));//// TODO: 13.03.2019 fix  out of sight poly 
+        pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView));
 
         Bitmap rgbaBit = matToBit(rgba);
         mainIv.setImageBitmap(rgbaBit);
@@ -392,16 +321,34 @@ public class CameraActivity extends AppCompatActivity {
         return resultBitmap;
     }
 
-    public Mat warp(Mat inputMat, Mat startM) {
-        int resultWidth = pvc.getBitmapWidth();
-        int resultHeight = pvc.getBitmapHeight();
+    public Mat warp(Mat inputMat) {
+        List<Point> pp = pvc.getPoints();
+
+        for (Point p: pp) {
+            Log.i("warp pp", p.toString());
+        }
+
+        Mat startM = Converters.vector_Point2f_to_Mat(pp);
+
+        //pp-> tl, bl, br, tr
+        Point tl = pp.get(0);
+        Point bl = pp.get(1);
+        Point br = pp.get(2);
+        Point tr = pp.get(3);
+        double widthA = Math.sqrt(Math.pow((br.x - bl.x), 2) + Math.pow((br.y - bl.y), 2));
+        double widthB = Math.sqrt(Math.pow((tr.x - tl.x), 2) + Math.pow((tr.y - tl.y), 2));
+        int resultWidth = Math.max((int) widthA, (int) widthB);
+
+        double heightA = Math.sqrt(Math.pow((tr.x - br.x), 2) + Math.pow((tr.y - br.y), 2));
+        double heightB = Math.sqrt(Math.pow((tl.x - tl.x), 2) + Math.pow((tl.y - bl.y), 2));
+        int resultHeight = Math.max((int) heightA, (int) heightB);
 
         Mat outputMat = new Mat(resultWidth, resultHeight, CvType.CV_8UC4);
 
         Point ocvPOut1 = new Point(0, 0);
-        Point ocvPOut2 = new Point(0, resultHeight);
-        Point ocvPOut3 = new Point(resultWidth, resultHeight);
-        Point ocvPOut4 = new Point(resultWidth, 0);
+        Point ocvPOut2 = new Point(0, resultHeight - 1);
+        Point ocvPOut3 = new Point(resultWidth - 1, resultHeight - 1);
+        Point ocvPOut4 = new Point(resultWidth - 1, 0);
         List<Point> dest = new ArrayList<Point>();
         dest.add(ocvPOut1);
         dest.add(ocvPOut2);
@@ -422,27 +369,6 @@ public class CameraActivity extends AppCompatActivity {
         */
 
         return outputMat;
-    }
-
-    public static Bitmap changeBitmapContrastBrightness(Bitmap bmp, float contrast, float brightness)
-    {
-        ColorMatrix cm = new ColorMatrix(new float[]
-                {
-                        contrast, 0, 0, 0, brightness,
-                        0, contrast, 0, 0, brightness,
-                        0, 0, contrast, 0, brightness,
-                        0, 0, 0, 1, 0
-                });
-
-        Bitmap ret = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
-
-        Canvas canvas = new Canvas(ret);
-
-        Paint paint = new Paint();
-        paint.setColorFilter(new ColorMatrixColorFilter(cm));
-        canvas.drawBitmap(bmp, 0, 0, paint);
-
-        return ret;
     }
 
     private File persistImage(Bitmap bitmap) {

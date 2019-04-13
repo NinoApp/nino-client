@@ -26,7 +26,7 @@ public class JsonHelper {
 
         JSONObject options = new JSONObject();
         options.put("text", text);
-        options.put("fontSize", 0.03);//0.10000000149011612);
+        options.put("fontSize", 0.01);//0.10000000149011612);
         options.put("fontIdentifier", "imgly_font_open_sans_bold");
         options.put("alignment", "left");
 

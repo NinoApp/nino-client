@@ -191,13 +191,57 @@ public class PolygonViewCreator {
         List<PointF> list = new ArrayList<PointF>(map.values());
         List<Point> points = new ArrayList<Point>();
 
+        //list -> tl, tr, bl, br
+        PointF tl = list.get(0);
+        double x = tl.x - (int) (14 * (1/rWidth));
+        //double y = tl.y - (int) (14 * (1/rHeight));
+        double y = tl.y;
+        x = (x - bitmapPos[0]) / rWidth;
+        y = (y - bitmapPos[1]) / rHeight;
+        points.add(new Point(Math.ceil(x), Math.ceil(y)));
+
+        PointF tr = list.get(1);
+        x = tr.x + (int) (14 * (1/rWidth));
+        //y = tr.y - (int) (14 * (1/rHeight));
+        y = tr.y;
+        x = (x - bitmapPos[0]) / rWidth;
+        y = (y - bitmapPos[1]) / rHeight;
+        points.add(new Point(Math.ceil(x), Math.ceil(y)));
+
+        PointF bl = list.get(2);
+        x = bl.x - (int) (14 * (1/rWidth));
+        y = bl.y + (int) (14 * (1/rHeight));
+        x = (x - bitmapPos[0]) / rWidth;
+        y = (y - bitmapPos[1]) / rHeight;
+        points.add(new Point(Math.ceil(x), Math.ceil(y)));
+
+        PointF br = list.get(3);
+        x = br.x + (int) (14 * (1/rWidth));
+        y = br.y + (int) (14 * (1/rHeight));
+        x = (x - bitmapPos[0]) / rWidth;
+        y = (y - bitmapPos[1]) / rHeight;
+        points.add(new Point(Math.ceil(x), Math.ceil(y)));
+
+        List<Point> sortedPoints = new ArrayList<Point>();
+        sortedPoints.add(points.get(0));
+        sortedPoints.add(points.get(2));
+        sortedPoints.add(points.get(3));
+        sortedPoints.add(points.get(1));
+        //sp-> tl, bl, br, tr => list -> tl, tr, bl, br
+
+        return sortedPoints;
+        /*
         //x*rw+pos=f => x=(f-pos)/rw /// f=x-14/rw => x=f+14/rw
         //x=(f+14/rw - pos)/rw
         for(PointF pf : list){
+            /*
             double x = pf.x + (int) (14 * (1/rWidth));
             double y = pf.y + (int) (14 * (1/rHeight));
             x = (x - bitmapPos[0]) / rWidth;
             y = (y - bitmapPos[1]) / rHeight;
+
+            double x = (pf.x - bitmapPos[0]) / rWidth;
+            double y = (pf.y - bitmapPos[1]) / rHeight;
 
             points.add(new Point(Math.ceil(x), Math.ceil(y)));
         }
@@ -208,6 +252,7 @@ public class PolygonViewCreator {
         sortedPoints.add(points.get(1));
 
         return sortedPoints;
+        */
     }
 
     public int getBitmapWidth(){

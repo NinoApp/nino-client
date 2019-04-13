@@ -55,10 +55,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
 
     private String token;
 
-    //TODO  IF NO SUCH USER, ITS A REGISTER / LOGIN OTHERWISE
-    //TODO  ADD USERNAME AUTOCOMPLETE CODE
     //TODO  MERGE ASYNC TASKS
-    //TODO  SEND IMAGE TO SERVER
     //TODO  CLEANUP?
 
     @Override
@@ -213,22 +210,18 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     }
 
     private boolean isUsernameValid(String username) {
-        //TODO: Replace this with your own logic
         return username.length() > 3;
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
+        return password.length() > 3;
     }
 
     private boolean isRepeatPasswordValid(String password, String passwordRepeat) {
-        //TODO: Replace this with your own logic
         return password.equals(passwordRepeat);
     }
 

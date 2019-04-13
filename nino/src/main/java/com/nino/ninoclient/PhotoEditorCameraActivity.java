@@ -50,7 +50,7 @@ public class PhotoEditorCameraActivity extends Activity implements PermissionReq
 
     @Override
     public void permissionDenied() {
-        /* TODO: The Permission was rejected by the user. The Editor was not opened,
+        /*
          * Show a hint to the user and try again. */
     }
 
