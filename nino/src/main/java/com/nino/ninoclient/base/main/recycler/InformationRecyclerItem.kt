@@ -49,8 +49,8 @@ fun getAppUpdateInformationItem(context: Context): InformationRecyclerItem {
 }
 
 fun shouldShowReviewInformationItem(): Boolean {
-  return probability(0.01f)
-      && !CoreConfig.instance.store().get(KEY_INFO_RATE_AND_REVIEW, false)
+  return false /*probability(0.01f)
+      && !CoreConfig.instance.store().get(KEY_INFO_RATE_AND_REVIEW, false) */
 }
 
 fun getReviewInformationItem(context: Context): InformationRecyclerItem {
