@@ -1,33 +1,42 @@
-//Todo Phase 1 => Login Page -> Empty Page -> Take picture and submit to pipeline -> get result and turn into note.
-// Phase 1
-// Login Page:
-// 1) Move login and register activity.
-// 2) Change main activity to Logic activity and bd.
-// 3) (Bonus) Change theme to match scarlet.
-// Empty Page:
-// 1) Make "Add note" button open camera activity of nino.
-// 2) (Bonus) Change theme to match scarlet.
-// Camera:
-// 1) Make sure server/pipeline works and gives back processed image.
-// 2) Turn image into note.
+# Material Notes / Scarlet / Scarlet Pro on Android
+This is the code which powers the Material Notes / Scarlet Notes app on Android by Maubis Apps.
 
-//Todo Phase 2 => Login Page -> Get notes of that user -> show them.
+Material Notes is the fully offline FDroid version of the applications
+Scarlet / Scarlet Notes is the note apps available on the Play Store
 
-// Phase 2
-// 1) Make sure valid users can connect.
-// 2) Obtain notes of user.
-// 3) Present notes in main menu.
-// 4) Create new notes and save them to django.
-// 5) Relog to see changes.
+This app is meant for a simple yet powerful rich text experience. It's still being built and improved.
 
-//Todo Phase 3 => Create Notebooks -> Move notes to other notebooks. Save notebook info to django.
+<a href="https://f-droid.org/packages/com.bijoysingh.quicknote/" target="_blank">
+<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80"/></a>
 
-// Phase 3
-// 1) Make sure notes can be moved around folders.
-// 2) Save notebook info of each note to django (base notebook for notebook-less notes?).
+<a href="https://play.google.com/store/apps/details?id=com.bijoysingh.quicknote" target="_blank">
+<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="80"/></a>
 
-//Todo Phase 4 => Cleanup
+<a href="https://play.google.com/store/apps/details?id=com.bijoysingh.quicknote.pro" target="_blank">
+<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="80"/></a>
 
-// Phase 4
-// 1) REMOVE NOTE POP UPS THAT SAY "UPGRADE TO PRO"
-// 2) Remove unrelated options or edit them  (e.g. "About us")
+<a href="https://scarlet.maubis.com/" target="_blank">
+<img src="https://scarlet.maubis.com/assets/scarlet_try_it_icon.png" alt="Try it on Scarlet Web" height="80"/></a>
+
+
+# Highlights of the application features
+- Fully Offline: The application doesnot store anything online, no logs, etc.
+- Choice of Grid / List layouts
+- Rich Note Input: Add rich notes - lists, headings, quotes and more.
+- Markdown Support: The text elements have markdown support
+- Simple UX: Simplistic and straight forward UI.
+- Archived, Favourites, and more
+- Set color to your notes
+- Night Mode: view notes in night mode, for your eyes and screens
+- Lock Notes: lock the notes with a pincode
+- Ad Free: Now and always ad-free.
+- Note-ifications: Notes can be kept in the notifications list of your phone.
+- Floating Heads: Quickly take notes while doing other stuff.
+
+# Google Play Store Beta Program
+The app is improving fast. As we grow, a lot of new features will not be realeased publically till it's tested on alpha/beta channels. If you would like to get the new features faster, join the beta program here:
+https://play.google.com/apps/testing/com.bijoysingh.quicknote
+
+# Survey Link
+If you have used the app, here is a survey which helps me understand how to make the app better.
+https://goo.gl/forms/UbE2lARpp89CNIbl2

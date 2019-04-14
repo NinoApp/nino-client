@@ -19,7 +19,9 @@ class FullLineSegment(val type: MarkdownSegmentType, val lineToken: String) : IS
   }
 }
 
-class LineStartSegment(val type: MarkdownSegmentType, val lineStartToken: String) : ISegmentConfig {
+class LineStartSegment(val type: MarkdownSegmentType,
+                       val lineStartToken: String,
+                       val replacementToken: String = "") : ISegmentConfig {
   override fun type() = type
 
   override fun isValid(segment: String): Boolean {
@@ -114,14 +116,14 @@ class TextSegmentConfig(builder: Builder) {
         MarkdownSegmentType.CODE -> arrayOf(
             MultilineDelimiterSegment(MarkdownSegmentType.CODE, "```", "```"))
         MarkdownSegmentType.BULLET_1 -> arrayOf(
-            LineStartSegment(MarkdownSegmentType.BULLET_1, "- "))
+            LineStartSegment(MarkdownSegmentType.BULLET_1, "- ", "• "))
         MarkdownSegmentType.BULLET_2 -> arrayOf(
-            LineStartSegment(MarkdownSegmentType.BULLET_2, "  - "),
-            LineStartSegment(MarkdownSegmentType.BULLET_2, " - "))
+            LineStartSegment(MarkdownSegmentType.BULLET_2, "  - ", "    ◦ "),
+            LineStartSegment(MarkdownSegmentType.BULLET_2, " - ", "    ◦ "))
         MarkdownSegmentType.BULLET_3 -> arrayOf(
-            LineStartSegment(MarkdownSegmentType.BULLET_3, "    - "),
-            LineStartSegment(MarkdownSegmentType.BULLET_3, "    - "),
-            LineStartSegment(MarkdownSegmentType.BULLET_3, "     - "))
+            LineStartSegment(MarkdownSegmentType.BULLET_3, "    - ", "        ▪ "),
+            LineStartSegment(MarkdownSegmentType.BULLET_3, "    - ", "        ▪ "),
+            LineStartSegment(MarkdownSegmentType.BULLET_3, "     - ", "        ▪ "))
         MarkdownSegmentType.QUOTE -> arrayOf(
             MultilineStartSegment(MarkdownSegmentType.QUOTE, "> "))
         MarkdownSegmentType.SEPARATOR -> arrayOf(
@@ -132,9 +134,11 @@ class TextSegmentConfig(builder: Builder) {
             FullLineSegment(MarkdownSegmentType.SEPARATOR, "------"),
             FullLineSegment(MarkdownSegmentType.SEPARATOR, "-------"))
         MarkdownSegmentType.CHECKLIST_UNCHECKED -> arrayOf(
-            LineStartSegment(MarkdownSegmentType.CHECKLIST_UNCHECKED, "[] "), LineStartSegment(MarkdownSegmentType.CHECKLIST_UNCHECKED, "[ ] "))
+            LineStartSegment(MarkdownSegmentType.CHECKLIST_UNCHECKED, "[] ", "☐ "),
+            LineStartSegment(MarkdownSegmentType.CHECKLIST_UNCHECKED, "[ ] ", "☐ "))
         MarkdownSegmentType.CHECKLIST_CHECKED -> arrayOf(
-            LineStartSegment(MarkdownSegmentType.CHECKLIST_CHECKED, "[x] "), LineStartSegment(MarkdownSegmentType.CHECKLIST_UNCHECKED, "[X] "))
+            LineStartSegment(MarkdownSegmentType.CHECKLIST_CHECKED, "[x] ", "☑ "),
+            LineStartSegment(MarkdownSegmentType.CHECKLIST_CHECKED, "[X] ", "☑ "))
       }
     }
 
