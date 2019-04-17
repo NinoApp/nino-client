@@ -51,10 +51,13 @@ public class PolygonViewCreator {
                     + " @ " + rWidth + " @ " + rHeight + " @ " + bitmapPos[0] + " @ " +
                     bitmapPos[1] + " @ " + scaledBitWidth + " @ " + scaledBitHeight + " @ " +
                     origBitWidth + " @ " + origBitHeight);
-            int x = (int) (p.x * rWidth + bitmapPos[0]);
-            int y = (int) (p.y * rHeight + bitmapPos[1]);
-            x = x - (int) (14 * (1/rWidth));
-            y = y - (int) (14 * (1/rHeight));
+
+            float x = (float) (p.x * rWidth + bitmapPos[0]);
+            float y = (float) (p.y * rHeight + bitmapPos[1]);
+
+            x = (float) (x - 7 * (1/rWidth));
+            y = (float) (y - 14 * (1/rHeight));
+
             Log.i("P: POLYGON_POINT CORNER", String.valueOf(x) + "-" + String.valueOf(y));
             pointFs.add(new PointF(x, y));
         }
@@ -92,13 +95,23 @@ public class PolygonViewCreator {
         + " @ " + rWidth + " @ " + rHeight + " @ " + bitmapPos[0] + " @ " + bitmapPos[1] + " @ " +
                 rect.width + " @ " + rect.height + " @ " + scaledBitWidth + " @ " + scaledBitHeight + " @ " +
                 origBitWidth + " @ " + origBitHeight);
+        /*
         int x = (int) (rect.x * rWidth + bitmapPos[0]);
         int y = (int) (rect.y * rHeight + bitmapPos[1]);
         int w = (int) (rect.width * rWidth);
         int h = (int) (rect.height * rHeight);
 
-        x = x - (int) (14 * (1/rWidth));
-        y = y - (int) (14 * (1/rHeight));
+        x = x - (int) (7 * (1/rWidth));
+        y = y - (int) (7 * (1/rHeight));
+        */
+
+        float x = (float) (rect.x * rWidth + bitmapPos[0]);
+        float y = (float) (rect.y * rHeight + bitmapPos[1]);
+        float w = (float) (rect.width * rWidth);
+        float h = (float) (rect.height * rHeight);
+
+        x = (float) (x - 7 * (1/rWidth));
+        y = (float) (y - 14 * (1/rHeight));
 
         Log.i("P: CONTOUR_POINT", String.valueOf(bitmapPos[0]) + "-" + String.valueOf(bitmapPos[1]));
         Log.i("P: POLYGON_POINT", String.valueOf(x) + "-" + String.valueOf(y));
@@ -191,6 +204,7 @@ public class PolygonViewCreator {
         List<PointF> list = new ArrayList<PointF>(map.values());
         List<Point> points = new ArrayList<Point>();
 
+        /*
         //list -> tl, tr, bl, br
         PointF tl = list.get(0);
         double x = tl.x - (int) (14 * (1/rWidth));
@@ -227,21 +241,20 @@ public class PolygonViewCreator {
         sortedPoints.add(points.get(2));
         sortedPoints.add(points.get(3));
         sortedPoints.add(points.get(1));
+
         //sp-> tl, bl, br, tr => list -> tl, tr, bl, br
 
         return sortedPoints;
+        */
+
         /*
         //x*rw+pos=f => x=(f-pos)/rw /// f=x-14/rw => x=f+14/rw
         //x=(f+14/rw - pos)/rw
         for(PointF pf : list){
-            /*
-            double x = pf.x + (int) (14 * (1/rWidth));
-            double y = pf.y + (int) (14 * (1/rHeight));
+            double x = pf.x + (int) (7 * (1/rWidth));
+            double y = pf.y + (int) (7 * (1/rHeight));
             x = (x - bitmapPos[0]) / rWidth;
             y = (y - bitmapPos[1]) / rHeight;
-
-            double x = (pf.x - bitmapPos[0]) / rWidth;
-            double y = (pf.y - bitmapPos[1]) / rHeight;
 
             points.add(new Point(Math.ceil(x), Math.ceil(y)));
         }
@@ -253,6 +266,23 @@ public class PolygonViewCreator {
 
         return sortedPoints;
         */
+        //x*rw+pos=f => x=(f-pos)/rw /// f=x-14/rw => x=f+14/rw
+        //x=(f+14/rw - pos)/rw
+        for(PointF pf : list){
+            double x = pf.x + (int) (7 * (1/rWidth));
+            double y = pf.y + (int) (14 * (1/rHeight));
+            x = (x - bitmapPos[0]) / rWidth;
+            y = (y - bitmapPos[1]) / rHeight;
+
+            points.add(new Point(Math.ceil(x), Math.ceil(y)));
+        }
+        List<Point> sortedPoints = new ArrayList<Point>();
+        sortedPoints.add(points.get(0));
+        sortedPoints.add(points.get(2));
+        sortedPoints.add(points.get(3));
+        sortedPoints.add(points.get(1));
+
+        return sortedPoints;
     }
 
     public int getBitmapWidth(){

@@ -22,6 +22,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.3.2'
         classpath 'com.google.gms:google-services:4.2.0'
+
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.github.zellius:android-shortcut-gradle-plugin:0.1.2'
         classpath 'ly.img.android.pesdk:plugin:6.3.0'
