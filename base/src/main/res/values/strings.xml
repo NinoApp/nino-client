@@ -76,7 +76,7 @@
   <string name="nav_trash_details">All of your notes in the trash</string>
 
   <string name="format_hint_text">Add Content&#8230;</string>
-  <string name="format_hint_heading">Add Heading&#8230;</string>
+  <string name="format_hint_heading">Title&#8230;</string>
   <string name="format_hint_sub_heading">Add Sub Heading&#8230;</string>
   <string name="format_hint_quote">Add Quoted Text&#8230;</string>
   <string name="format_hint_list">Add Item&#8230;</string>

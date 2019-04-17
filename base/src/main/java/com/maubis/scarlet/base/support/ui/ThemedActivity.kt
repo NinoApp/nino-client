@@ -2,14 +2,21 @@ package com.maubis.scarlet.base.support.ui
 
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import com.maubis.scarlet.base.config.CoreConfig
 
 abstract class ThemedActivity : AppCompatActivity() {
 
   abstract fun notifyThemeChange()
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+  }
 
   fun setSystemTheme(color: Int = getStatusBarColor()) {
     setStatusBarColor(color)
