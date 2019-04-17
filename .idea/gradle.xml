@@ -8,10 +8,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/base" />
             <option value="$PROJECT_DIR$/markdown" />
-            <option value="$PROJECT_DIR$/nino" />
             <option value="$PROJECT_DIR$/openCVLibrary343" />
             <option value="$PROJECT_DIR$/scanlibrary" />
+            <option value="$PROJECT_DIR$/scarlet" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
