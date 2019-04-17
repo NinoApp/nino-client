@@ -23,8 +23,8 @@ class ToolbarMainRecyclerHolder(context: Context, itemView: View) : RecyclerView
 
   val toolbarTitle: TextView = findViewById(R.id.toolbarTitle)
   val toolbarIconSearch: ImageView = findViewById(R.id.toolbarIconSearch)
-  val toolbarIconSettings: ImageView = findViewById(R.id.toolbarIconSettings)
-  val toolbarIconDebug: ImageView = findViewById(R.id.toolbarIconDebug)
+  //val toolbarIconSettings: ImageView = findViewById(R.id.toolbarIconSettings)
+  //val toolbarIconDebug: ImageView = findViewById(R.id.toolbarIconDebug)
 
   override fun populate(data: RecyclerItem, extra: Bundle) {
     setFullSpan()
@@ -32,22 +32,24 @@ class ToolbarMainRecyclerHolder(context: Context, itemView: View) : RecyclerView
       (context as MainActivity).setSearchMode(true)
     }
 
+    /*
     toolbarIconSettings.setOnClickListener {
       SettingsOptionsBottomSheet.openSheet((context as MainActivity))
     }
+    */
 
     val titleColor = CoreConfig.instance.themeController().get(ThemeColorType.SECONDARY_TEXT)
     toolbarTitle.setTextColor(titleColor)
 
     val toolbarIconColor = CoreConfig.instance.themeController().get(ThemeColorType.SECONDARY_TEXT)
     toolbarIconSearch.setColorFilter(toolbarIconColor)
-    toolbarIconSettings.setColorFilter(toolbarIconColor)
+    //toolbarIconSettings.setColorFilter(toolbarIconColor)
 
-    toolbarIconDebug.visibility = visibility(BuildConfig.DEBUG)
-    toolbarIconDebug.setColorFilter(toolbarIconColor)
-    toolbarIconDebug.setOnClickListener {
+    //toolbarIconDebug.visibility = visibility(BuildConfig.DEBUG)
+    //toolbarIconDebug.setColorFilter(toolbarIconColor)
+    /*toolbarIconDebug.setOnClickListener {
       openSheet((context as MainActivity), DeleteAndMoreOptionsBottomSheet())
-    }
+    }*/
   }
 }
 

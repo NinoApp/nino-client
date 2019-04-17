@@ -55,6 +55,7 @@ object MainActivityBottomBarSpec {
               FolderBuilder().emptyFolder(sNoteDefaultColor),
               { _, _ -> activity.setupData() })
         })
+      /*
     row.child(bottomBarRoundIcon(context, colorConfig)
         .iconRes(R.drawable.icon_add_list)
         .onClick {
@@ -63,6 +64,7 @@ object MainActivityBottomBarSpec {
               activity.config.folders.firstOrNull()?.uuid ?: "")
           activity.startActivity(intent)
         })
+        */
     row.child(bottomBarRoundIcon(context, colorConfig)
         .iconRes(R.drawable.icon_add_note)
         .onClick {
