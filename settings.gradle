@@ -1,1 +1,1 @@
-include ':app', ':base', ':scarlet', ':markdown', ':scanlibrary', ':openCVLibrary343'
+include ':app', ':base', ':scarlet', ':markdown', ':scanlibrary', ':opencv'
