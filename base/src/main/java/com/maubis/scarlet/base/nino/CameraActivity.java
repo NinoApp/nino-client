@@ -238,7 +238,41 @@ public class CameraActivity extends AppCompatActivity {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-    }
+    }<?xml version="1.0" encoding="utf-8"?>
+<paths>
+  <external-path
+            name="external"
+    path="." />
+  <external-files-path
+            name="external_files"
+    path="." />
+  <cache-path
+            name="cache"
+    path="." />
+  <external-cache-path<?xml version="1.0" encoding="utf-8"?>
+<paths>
+  <external-path
+    name="external"
+    path="." />
+  <external-files-path
+    name="external_files"
+    path="." />
+  <cache-path
+    name="cache"
+    path="." />
+  <external-cache-path
+    name="external_cache"
+    path="." />
+<files-path
+    name="files"
+    path="." />
+</paths>
+            name="external_cache"
+    path="." />
+<files-path
+            name="files"
+    path="." />
+</paths>
 
     private Uri photoURI;
     private void dispatchTakePictureIntent() {
@@ -251,6 +285,7 @@ public class CameraActivity extends AppCompatActivity {
             }
             if (photoFile != null) {
                 photoURI = FileProvider.getUriForFile(this,
+                        //"com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
                         "com.example.android.fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
