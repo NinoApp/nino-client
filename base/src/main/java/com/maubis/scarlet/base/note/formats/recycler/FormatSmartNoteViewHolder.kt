@@ -1,6 +1,7 @@
 package com.maubis.scarlet.base.note.formats.recycler
 
 import android.content.Context
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.util.TypedValue
 import android.view.View
@@ -11,15 +12,17 @@ import com.github.bijoysingh.uibasics.views.UITextView
 import com.maubis.scarlet.base.R
 import com.maubis.scarlet.base.core.format.Format
 import com.maubis.scarlet.base.core.note.ImageLoadCallback
-import com.maubis.scarlet.base.core.note.NoteImage
+import com.maubis.scarlet.base.core.note.NoteSmartNote
+import com.maubis.scarlet.base.core.note.SmartNoteLoadCallback
 import com.maubis.scarlet.base.main.sheets.AlertBottomSheet
 import com.maubis.scarlet.base.main.sheets.openDeleteFormatDialog
+import com.maubis.scarlet.base.nino.CameraActivity
 import com.maubis.scarlet.base.note.creation.sheet.FormatActionBottomSheet
 import com.maubis.scarlet.base.support.ui.visibility
 import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
 
-class FormatImageViewHolder(context: Context, view: View) : FormatViewHolderBase(context, view) {
+class FormatSmartNoteViewHolder(context: Context, view: View) : FormatViewHolderBase(context, view) {
 
   protected val text: TextView = root.findViewById(R.id.text)
   protected val image: ImageView = root.findViewById(R.id.image)
@@ -53,9 +56,13 @@ class FormatImageViewHolder(context: Context, view: View) : FormatViewHolderBase
     actionGallery.setColorFilter(iconColor)
     actionCamera.setOnClickListener {
       try {
-        EasyImage.openCamera(context as AppCompatActivity, data.uid)
+        //EasyImage.openCamera(context as AppCompatActivity, data.uid)
+        val intent = Intent(context, CameraActivity::class.java)
+          intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+          context.startActivity(intent)
       } catch (e: Exception) {
-        ToastHelper.show(context, "No camera app installed")
+
+        ToastHelper.show(context, e.toString() +"No camera app installed")
       }
     }
     actionGallery.setOnClickListener {
@@ -77,7 +84,7 @@ class FormatImageViewHolder(context: Context, view: View) : FormatViewHolderBase
 
     val fileName = data.text
     if (!fileName.isBlank()) {
-      val file = NoteImage(context).getFile(config.noteUUID, data)
+      val file = NoteSmartNote(context).getFile(config.noteUUID, data)
       when (file.exists()) {
         true -> populateFile(file)
         false -> {
@@ -91,7 +98,7 @@ class FormatImageViewHolder(context: Context, view: View) : FormatViewHolderBase
   }
 
   fun populateFile(file: File) {
-    NoteImage(context).loadPersistentFileToImageView(image, file, object : ImageLoadCallback {
+    NoteSmartNote(context).loadPersistentFileToImageView(image, file, object : SmartNoteLoadCallback {
       override fun onSuccess() {
         noImageMessage.visibility = View.GONE
       }

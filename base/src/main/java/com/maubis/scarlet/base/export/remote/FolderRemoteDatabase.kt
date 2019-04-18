@@ -25,6 +25,7 @@ class FolderRemoteDatabase(val weakContext: WeakReference<Context>) : IRemoteDat
   private var tagsRemoteFolder: RemoteFolder<ExportableTag>? = null
   private var foldersRemoteFolder: RemoteFolder<ExportableFolder>? = null
   private var remoteImagesFolder: RemoteImagesFolder? = null
+  private var remoteSmartNotesFolder: RemoteSmartNotesFolder? = null
 
   override fun init(userId: String) {}
 
@@ -54,6 +55,7 @@ class FolderRemoteDatabase(val weakContext: WeakReference<Context>) : IRemoteDat
     val context = weakContext.get()
     if (context !== null) {
       remoteImagesFolder = RemoteImagesFolder(context, File(notesFolder, "images"))
+      remoteSmartNotesFolder = RemoteSmartNotesFolder(context, File(notesFolder, "smart_notes"))
     }
   }
 
@@ -63,6 +65,7 @@ class FolderRemoteDatabase(val weakContext: WeakReference<Context>) : IRemoteDat
     tagsRemoteFolder = null
     foldersRemoteFolder = null
     remoteImagesFolder = null
+    remoteSmartNotesFolder = null
   }
 
   override fun logout() {
@@ -77,6 +80,7 @@ class FolderRemoteDatabase(val weakContext: WeakReference<Context>) : IRemoteDat
     tagsRemoteFolder?.deleteEverything()
     foldersRemoteFolder?.deleteEverything()
     remoteImagesFolder?.deleteEverything()
+    remoteSmartNotesFolder?.deleteEverything()
   }
 
   override fun insert(note: INoteContainer) {
@@ -88,6 +92,7 @@ class FolderRemoteDatabase(val weakContext: WeakReference<Context>) : IRemoteDat
     }
     notesRemoteFolder?.insert(note.uuid(), note)
     remoteImagesFolder?.onInsert(note)
+    remoteSmartNotesFolder?.onInsert(note)
   }
 
   override fun insert(tag: ITagContainer) {
@@ -110,6 +115,7 @@ class FolderRemoteDatabase(val weakContext: WeakReference<Context>) : IRemoteDat
     }
     notesRemoteFolder?.delete(note.uuid())
     remoteImagesFolder?.onRemove(note.uuid())
+    remoteSmartNotesFolder?.onRemove(note.uuid())
   }
 
   override fun remove(tag: ITagContainer) {
@@ -137,6 +143,7 @@ class FolderRemoteDatabase(val weakContext: WeakReference<Context>) : IRemoteDat
     }
     IRemoteDatabaseUtils.onRemoteInsert(context, note)
     remoteImagesFolder?.onRemoteInsert(note)
+    remoteSmartNotesFolder?.onRemoteInsert(note)
   }
 
   override fun onRemoteRemove(note: INoteContainer) {

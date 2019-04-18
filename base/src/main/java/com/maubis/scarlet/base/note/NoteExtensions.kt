@@ -34,6 +34,7 @@ fun Note.log(context: Context): String {
   log["_title"] = getTitle()
   log["_text"] = getText()
   log["_image"] = getImageFile()
+  log["_smartNote"] = getSmartNoteFile()
   log["_locked"] = getLockedText(false)
   log["_fullText"] = getFullText()
   log["_displayTime"] = getDisplayTime()
@@ -48,6 +49,7 @@ fun Note.log(): String {
   log["_title"] = getTitle()
   log["_text"] = getText()
   log["_image"] = getImageFile()
+  log["_smartNote"] = getSmartNoteFile()
   log["_fullText"] = getFullText()
   log["_displayTime"] = getDisplayTime()
   log["_formats"] = getFormats()
@@ -114,6 +116,12 @@ fun Note.getSmartFormats(): List<Format> {
 fun Note.getImageFile(): String {
   val formats = getFormats()
   val format = formats.find { it.formatType === FormatType.IMAGE }
+  return format?.text ?: ""
+}
+
+fun Note.getSmartNoteFile(): String {
+  val formats = getFormats()
+  val format = formats.find { it.formatType === FormatType.SMART_NOTE }
   return format?.text ?: ""
 }
 

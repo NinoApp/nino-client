@@ -97,7 +97,7 @@ class FormatBuilder {
       FormatType.NUMBERED_LIST -> return FormatType.NUMBERED_LIST
       FormatType.HEADING -> return FormatType.SUB_HEADING
       FormatType.CHECKLIST_CHECKED, FormatType.CHECKLIST_UNCHECKED -> return FormatType.CHECKLIST_UNCHECKED
-      FormatType.IMAGE, FormatType.SUB_HEADING, FormatType.CODE, FormatType.QUOTE, FormatType.TEXT -> return FormatType.TEXT
+      FormatType.IMAGE, FormatType.SMART_NOTE, FormatType.SUB_HEADING, FormatType.CODE, FormatType.QUOTE, FormatType.TEXT -> return FormatType.TEXT
       else -> return FormatType.TEXT
     }
   }

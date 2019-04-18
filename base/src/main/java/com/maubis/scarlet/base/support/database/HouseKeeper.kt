@@ -24,6 +24,7 @@ class HouseKeeper(val context: Context) {
       { removeDecoupledFolders() },
       { removeOldReminders() },
       { deleteRedundantImageFiles() },
+      { deleteRedundantSmartNoteFiles() },
       { migrateZeroUidNotes() }
   )
 
@@ -83,6 +84,32 @@ class HouseKeeper(val context: Context) {
     val uuids = notesDb.getAllUUIDs()
 
     val imagesFolder = File(context.filesDir, "images" + File.separator)
+    val uuidFiles = imagesFolder.listFiles()
+    if (uuidFiles === null || uuidFiles.isEmpty()) {
+      return
+    }
+
+    val availableDirectories = HashSet<String>()
+    for (file in uuidFiles) {
+      if (file.isDirectory) {
+        availableDirectories.add(file.name)
+      }
+    }
+    for (id in uuids) {
+      availableDirectories.remove(id)
+    }
+    for (uuid in availableDirectories) {
+      val noteFolder = File(imagesFolder, uuid)
+      for (file in noteFolder.listFiles()) {
+        deleteIfExist(file)
+      }
+    }
+  }
+
+  private fun deleteRedundantSmartNoteFiles() {
+    val uuids = notesDb.getAllUUIDs()
+
+    val imagesFolder = File(context.filesDir, "smart_notes" + File.separator)
     val uuidFiles = imagesFolder.listFiles()
     if (uuidFiles === null || uuidFiles.isEmpty()) {
       return

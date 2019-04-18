@@ -9,6 +9,7 @@ import com.maubis.scarlet.base.core.format.Format
 import com.maubis.scarlet.base.core.format.FormatType
 import com.maubis.scarlet.base.core.note.NoteImage
 import com.maubis.scarlet.base.core.note.NoteImage.Companion.deleteIfExist
+import com.maubis.scarlet.base.core.note.NoteSmartNote
 import com.maubis.scarlet.base.note.creation.activity.ViewAdvancedNoteActivity
 import com.maubis.scarlet.base.support.option.OptionsItem
 import com.maubis.scarlet.base.support.sheets.GridBottomSheetBase
@@ -43,7 +44,7 @@ class FormatActionBottomSheet : GridBottomSheetBase() {
               .share()
           dismiss()
         },
-        visible = !arrayOf(FormatType.IMAGE, FormatType.SEPARATOR).contains(format.formatType)
+        visible = !arrayOf(FormatType.IMAGE, FormatType.SMART_NOTE, FormatType.SEPARATOR).contains(format.formatType)
     ))
     options.add(OptionsItem(
         title = R.string.format_action_copy,
@@ -53,7 +54,7 @@ class FormatActionBottomSheet : GridBottomSheetBase() {
           TextUtils.copyToClipboard(context, format.text)
           dismiss()
         },
-        visible = !arrayOf(FormatType.IMAGE, FormatType.SEPARATOR).contains(format.formatType)
+        visible = !arrayOf(FormatType.IMAGE, FormatType.SMART_NOTE, FormatType.SEPARATOR).contains(format.formatType)
     ))
     options.add(OptionsItem(
         title = R.string.format_action_camera,
@@ -62,7 +63,7 @@ class FormatActionBottomSheet : GridBottomSheetBase() {
         listener = View.OnClickListener {
             EasyImage.openCamera(activity, format.uid)
         },
-        visible = format.formatType === FormatType.IMAGE
+        visible = format.formatType === FormatType.IMAGE || format.formatType === FormatType.SMART_NOTE
     ))
     options.add(OptionsItem(
         title = R.string.format_action_gallery,
@@ -71,7 +72,7 @@ class FormatActionBottomSheet : GridBottomSheetBase() {
         listener = View.OnClickListener {
           EasyImage.openGallery(activity, format.uid)
         },
-        visible = format.formatType === FormatType.IMAGE
+        visible = format.formatType === FormatType.IMAGE || format.formatType === FormatType.SMART_NOTE
     ))
     options.add(OptionsItem(
         title = R.string.delete_sheet_delete_trash_yes,
@@ -82,6 +83,10 @@ class FormatActionBottomSheet : GridBottomSheetBase() {
           if (format.formatType === FormatType.IMAGE && !format.text.isBlank()) {
             val noteImage = NoteImage(themedContext())
             deleteIfExist(noteImage.getFile(noteUUID, format))
+          }
+          if (format.formatType === FormatType.SMART_NOTE && !format.text.isBlank()) {
+              val noteImage = NoteSmartNote(themedContext())
+              deleteIfExist(noteImage.getFile(noteUUID, format))
           }
           dismiss()
         }

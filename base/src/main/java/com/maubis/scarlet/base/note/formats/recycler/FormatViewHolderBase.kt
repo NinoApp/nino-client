@@ -86,7 +86,7 @@ abstract class FormatViewHolderBase(context: Context, view: View) : RecyclerView
           }
         }(),
         backgroundColor = when (data.formatType) {
-          FormatType.CODE, FormatType.IMAGE -> CoreConfig.instance.themeController().get(context, R.color.code_light, R.color.code_dark)
+          FormatType.CODE, FormatType.IMAGE, FormatType.SMART_NOTE -> CoreConfig.instance.themeController().get(context, R.color.code_light, R.color.code_dark)
           else -> ContextCompat.getColor(context, R.color.transparent)
         },
         secondaryTextColor = secondaryTextColor,
