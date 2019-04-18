@@ -44,7 +44,10 @@ object NoteCreationBottomBarSpec {
   fun onCreate(context: ComponentContext,
                @Prop colorConfig: ToolbarColorConfig,
                @State state: NoteCreateBottomBarType): Component {
-    val row = Row.create(context)
+
+      val activity = context.androidContext as CreateNoteActivity
+
+      val row = Row.create(context)
         .widthPercent(100f)
         .paddingDip(YogaEdge.HORIZONTAL, 4f)
         .alignItems(YogaAlign.CENTER)
@@ -95,18 +98,29 @@ object NoteCreationBottomBarSpec {
     }
     row.child(icon)
 
-    val moreIcon = when (state) {
-      NoteCreateBottomBarType.DEFAULT_MARKDOWNS, NoteCreateBottomBarType.DEFAULT_SEGMENTS, NoteCreateBottomBarType.OPTIONS ->
-        bottomBarRoundIcon(context, colorConfig)
-            .iconRes(R.drawable.ic_more_options)
-            .bgColor(Color.TRANSPARENT)
-            .onClick { }
-            .isClickDisabled(true)
-            .clickHandler(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.OPTIONS))
-      else -> EmptyComponent.create(context)
-    }
-    row.child(moreIcon)
-    return bottomBarCard(context, row.build(), colorConfig).build()
+      val moreIcon = when (state) {
+          NoteCreateBottomBarType.DEFAULT_MARKDOWNS, NoteCreateBottomBarType.DEFAULT_SEGMENTS, NoteCreateBottomBarType.OPTIONS ->
+              bottomBarRoundIcon(context, colorConfig)
+                      .iconRes(R.drawable.ic_more_options)
+                      .bgColor(Color.TRANSPARENT)
+                      .onClick { }
+                      .isClickDisabled(true)
+                      .clickHandler(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.OPTIONS))
+          else -> EmptyComponent.create(context)
+      }
+      row.child(moreIcon)
+
+      val okeyIcon = when (state) {
+          NoteCreateBottomBarType.DEFAULT_MARKDOWNS, NoteCreateBottomBarType.DEFAULT_SEGMENTS, NoteCreateBottomBarType.OPTIONS ->
+              bottomBarRoundIcon(context, colorConfig)
+                      .iconRes(R.drawable.ic_action_enabled)
+                      .bgColor(Color.TRANSPARENT)
+                      .onClick { activity.onBackPressed() }
+          else -> EmptyComponent.create(context)
+      }
+      row.child(okeyIcon)
+
+      return bottomBarCard(context, row.build(), colorConfig).build()
   }
 
   @OnEvent(ClickEvent::class)
