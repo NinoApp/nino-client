@@ -1,13 +1,21 @@
 package com.maubis.scarlet.base.nino;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -51,14 +59,20 @@ import ly.img.android.pesdk.ui.utils.PermissionRequest;
 import ly.img.android.serializer._3._0._0.PESDKFileReader;
 import ly.img.android.serializer._3._0._0.PESDKFileWriter;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 public class PhotoEditorActivity extends Activity implements PermissionRequest.Response {
 
+    private static final int PERMISSION_REQUEST_CODE = 200;
+    private Uri uri;
+    /*
     // Important permission request for Android 6.0 and above, don't forget to add this!
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         PermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+    }*/
 
     @Override
     public void permissionGranted() {}
@@ -73,9 +87,6 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
     public static int GALLERY_RESULT = 2;
 
     private SettingsList createPesdkSettingsList() {
-
-
-
         // Create a empty new SettingsList and apply the changes on this referance.
         SettingsList settingsList = new SettingsList();
 
@@ -137,9 +148,66 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
 
         //openSystemGalleryToSelectAnImage();
 
-        Uri uri = Uri.parse("android.resource://com.nino.ninoclient/drawable/bbg");
-        openEditor(uri);
+        uri = Uri.parse("android.resource://com.nino.ninoclient/drawable/bbg");
+
+        requestPermissionAndOpenEditor(uri);
     }
+
+    private void requestPermissionAndOpenEditor(Uri uri) {
+        if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, WRITE_EXTERNAL_STORAGE)
+                    && ActivityCompat.shouldShowRequestPermissionRationale(this, READ_EXTERNAL_STORAGE)) {
+                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+                alertBuilder.setCancelable(true);
+                alertBuilder.setTitle("Need Permissions");
+                alertBuilder.setMessage("Nino requires read and write permissions");
+                alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+                    public void onClick(DialogInterface dialog, int which) {
+                        ActivityCompat.requestPermissions(PhotoEditorActivity.this, new String[]{WRITE_EXTERNAL_STORAGE
+                                , READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+                    }
+                });
+                AlertDialog alert = alertBuilder.create();
+                alert.show();
+                Log.e("", "permission denied, show dialog");
+            } else {
+                ActivityCompat.requestPermissions(PhotoEditorActivity.this, new String[]{WRITE_EXTERNAL_STORAGE,
+                        READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+            }
+        } else {
+            openEditor(uri);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (permissions.length > 0 && grantResults.length > 0) {
+
+                boolean flag = true;
+                for (int i = 0; i < grantResults.length; i++) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+                        flag = false;
+                    }
+                }
+                if (flag) {
+                    openEditor(uri);
+                } else {
+                    finish();
+                }
+
+            } else {
+                finish();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
 
     private void openSystemGalleryToSelectAnImage() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
+import android.view.View
 import com.facebook.litho.ComponentContext
 import com.facebook.litho.LithoView
 import com.maubis.scarlet.base.R
@@ -17,6 +18,7 @@ import com.maubis.scarlet.base.core.format.MarkdownType
 import com.maubis.scarlet.base.core.note.*
 import com.maubis.scarlet.base.core.note.NoteImage.Companion.deleteIfExist
 import com.maubis.scarlet.base.database.room.note.Note
+import com.maubis.scarlet.base.nino.CameraActivity
 import com.maubis.scarlet.base.note.creation.specs.NoteCreationBottomBar
 import com.maubis.scarlet.base.note.creation.specs.NoteCreationTopBar
 import com.maubis.scarlet.base.note.delete
@@ -49,6 +51,13 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     super.onCreate(savedInstanceState)
     setTouchListener()
     startHandler()
+    val fab: View = findViewById(R.id.nino_fab)
+    fab.setOnClickListener { view ->
+      val intent = Intent(context, CameraActivity::class.java)
+      intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+      context.startActivity(intent)
+    }
+
   }
   
   override fun onCreationFinished() {

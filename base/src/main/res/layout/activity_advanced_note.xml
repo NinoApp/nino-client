@@ -22,6 +22,14 @@
       android:layout_height="match_parent" />
   </FrameLayout>
 
+  <android.support.design.widget.FloatingActionButton
+      android:id="@+id/nino_fab"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="end|bottom"
+      android:src="@drawable/ic_scarlet_logo"
+      android:layout_margin="16dp" />
+
   <FrameLayout
     android:id="@+id/lithoBottomToolbar"
     android:layout_width="match_parent"

@@ -71,6 +71,7 @@ dependencies {
     implementation 'com.koushikdutta.ion:ion:2.+'
     implementation project(':scanlibrary')
     implementation project(':opencv')
+
 }
 
 apply plugin: 'kotlin-android-extensions'
