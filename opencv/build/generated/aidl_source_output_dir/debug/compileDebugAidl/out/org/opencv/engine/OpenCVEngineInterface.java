@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: /Users/selim/StudioProjects/nino-client/opencv/java/src/org/opencv/engine/OpenCVEngineInterface.aidl
+ * Original file: /home/batu/AndroidStudioProjects/Nino-Client/opencv/java/src/org/opencv/engine/OpenCVEngineInterface.aidl
  */
 package org.opencv.engine;
 /**

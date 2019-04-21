@@ -76,6 +76,7 @@ dependencies {
 
 apply plugin: 'kotlin-android-extensions'
 
+
 // Apply the PESDKPlugin
 apply plugin: 'ly.img.android.pesdk'
 

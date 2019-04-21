@@ -1,37 +1,37 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
+ADDED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
 	package
-		ADDED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:11-64
-		INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
-		INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		ADDED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:11-64
+		INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
 	android:versionName
-		INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
-		ADDED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
-		INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		ADDED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
+		INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
 	xmlns:android
-		ADDED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
+		ADDED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
 	android:versionCode
-		INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
-		ADDED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
-		INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		ADDED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml:1:1-67
+		INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
 uses-sdk
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml reason: use-sdk injection requested
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
-INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
+INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
 	android:targetSdkVersion
-		INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
-		ADDED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
-		INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		ADDED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
 	android:minSdkVersion
-		INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
-		ADDED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
-		INJECTED from /Users/selim/StudioProjects/nino-client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		ADDED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml
+		INJECTED from /home/batu/AndroidStudioProjects/Nino-Client/UIReferenceImplementation/src/main/AndroidManifest.xml

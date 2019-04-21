@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -117,7 +118,7 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
 
         // Set custom editor image export settings
         settingsList.getSettingsModel(EditorSaveSettings.class)
-                .setExportDir(Directory.DCIM, "SomeFolderName")
+                .setExportDir(Directory.DCIM, "pesdk_results")
                 .setExportPrefix("result_")
                 .setSavePolicy(EditorSaveSettings.SavePolicy.RETURN_ALWAYS_ONLY_OUTPUT);
 
@@ -148,7 +149,7 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
 
         //openSystemGalleryToSelectAnImage();
 
-        uri = Uri.parse("android.resource://com.nino.ninoclient/drawable/bbg");
+        uri = Uri.parse("android.resource://" + getPackageName() + "/drawable/bbg");
 
         requestPermissionAndOpenEditor(uri);
     }
@@ -288,6 +289,14 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
             Log.i("PESDK", "Source image is located here " + sourceURI);
             Log.i("PESDK", "Result image is located here " + resultURI);
 
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), sourceURI);
+                Bitmap bitmap2 = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultURI);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
             // TODO: Do something with the result image
 
             // OPTIONAL: read the latest state to save it as a serialisation
@@ -298,6 +307,10 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
                         "serialisationReadyToReadWithPESDKFileReader.json"
                 ));
             } catch (IOException e) { e.printStackTrace(); }
+
+            Intent intent = new Intent(this, CameraActivity.class);
+            intent.putExtra("result_uri", resultURI.toString());
+            startActivity(intent);
 
         } else if (resultCode == RESULT_CANCELED && requestCode == PESDK_RESULT) {
             // Editor was canceled

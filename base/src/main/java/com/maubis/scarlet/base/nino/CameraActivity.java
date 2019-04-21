@@ -100,6 +100,18 @@ public class CameraActivity extends AppCompatActivity {
         final Button processButton = (Button)findViewById(R.id.process_button);
         processButton.setVisibility(View.INVISIBLE);
 
+        Intent intent = getIntent();
+        if (intent.hasExtra("result_uri")) {
+            Uri resultUri = Uri.parse(intent.getExtras().getString("result_uri"));
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                mainIv.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
         /*
         cpb = findViewById(R.id.circular_prog_button);
 
@@ -249,7 +261,7 @@ public class CameraActivity extends AppCompatActivity {
         Ion.with(CameraActivity.this)
             .load("POST", SERVER_POST_URL)
             .setHeader("Cache-Control", "No-Cache")
-            .setHeader("Authorization", "Token " + token)
+            //.setHeader("Authorization", "Token " + token)
             .noCache()
             .setMultipartParameter("name", "test")
             .setMultipartFile("image","multipart/form-data", saveBitmapToFile(finalImageFile))
