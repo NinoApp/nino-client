@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="control_gray">#959da6</color>
+    <color name="control_white_transparent">#f2ffffff</color>
+    <color name="word_gray">#bfbfbf</color>
+    <dimen name="horizontal_margin">25dp</dimen>
+    <dimen name="smart_guide_horizontal_padding">10dp</dimen>
+    <dimen name="smart_guide_text_size">20dp</dimen>
+    <dimen name="smart_guide_vertical_padding">6dp</dimen>
+    <dimen name="vertical_margin">70dp</dimen>
+    <string name="more_view_string">•••</string>
+    <string name="style_view_string_h1">H1</string>
+    <string name="style_view_string_h2">H2</string>
+    <string name="style_view_string_h3">H3</string>
+    <string name="style_view_string_normal">¶</string>
+    <declare-styleable name="LayerView">
+
+    <attr format="enum" name="layerType">
+      <enum name="BACKGROUND" value="0"/>
+      <enum name="MODEL" value="1"/>
+      <enum name="TEMPORARY" value="2"/>
+      <enum name="CAPTURE" value="3"/>
+    </attr>
+
+  </declare-styleable>
+</resources>

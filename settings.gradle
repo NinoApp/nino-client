@@ -1,1 +1,1 @@
-include ':app', ':base', ':scarlet', ':markdown', ':scanlibrary', ':opencv'
+include ':app', ':base', ':scarlet', ':markdown', ':scanlibrary', ':opencv', ':UIReferenceImplementation'
