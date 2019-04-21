@@ -194,8 +194,8 @@ public class PolygonViewCreator {
         Map<Integer, PointF> outlinePoints = new HashMap<>();
         outlinePoints.put(0, new PointF(0, 0));
         outlinePoints.put(1, new PointF(origBitWidth, 0));
-        outlinePoints.put(2, new PointF(0, origBitHeight));
-        outlinePoints.put(3, new PointF(origBitWidth, origBitHeight));
+        outlinePoints.put(2, new PointF(0, origBitHeight*3/4));
+        outlinePoints.put(3, new PointF(origBitWidth, origBitHeight*3/4));
         return outlinePoints;
     }
 

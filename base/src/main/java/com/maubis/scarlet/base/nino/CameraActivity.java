@@ -10,11 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -23,7 +19,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
@@ -32,16 +27,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.maubis.scarlet.base.R;
 import com.scanlibrary.PolygonView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -52,7 +43,6 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
@@ -89,10 +79,19 @@ public class CameraActivity extends AppCompatActivity {
     Button rotateButton = null;
     Button warpButton = null;
 
+    private enum CPB_STATE{
+        CAMERA,
+        WARP,
+        PROCESS;
+    }
+    CPB_STATE cpbState = CPB_STATE.CAMERA;
+    //CircularProgressButton cpb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.material_grey_850));
 
         rotation = 0;
 
@@ -100,6 +99,54 @@ public class CameraActivity extends AppCompatActivity {
 
         final Button processButton = (Button)findViewById(R.id.process_button);
         processButton.setVisibility(View.INVISIBLE);
+
+        /*
+        cpb = findViewById(R.id.circular_prog_button);
+
+        final Button back = findViewById(R.id.back_button);
+        back.setVisibility(View.INVISIBLE);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(cpbState == CPB_STATE.WARP){
+                    dispatchTakePictureIntent();
+                }
+                else if(cpbState == CPB_STATE.PROCESS){
+                    mainIv.setImageBitmap(matToBit(rgba));
+                    findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
+                    cpbState = CPB_STATE.WARP;
+                }
+            }
+        });
+
+        cpb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(cpbState == CPB_STATE.CAMERA){
+                    dispatchTakePictureIntent();
+                    cpbState = CPB_STATE.WARP;
+                    back.setVisibility(View.VISIBLE);
+                    back.setText("Re-take image");
+                }else if(cpbState == CPB_STATE.WARP){
+                    Mat result = warp(rgba);
+                    finalImage = matToBit(result);
+                    mainIv.setImageBitmap(finalImage);
+                    findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
+                    warpButton.setVisibility(View.INVISIBLE);
+                    processButton.setVisibility(View.VISIBLE);
+
+                    cpbState = CPB_STATE.PROCESS;
+                    back.setText("Re-warp image");
+                }
+                else if(cpbState == CPB_STATE.PROCESS){
+                    process();
+                    back.setVisibility(View.INVISIBLE);
+                    cpb.setProgress(1);
+                }
+            }
+        });
+
+        */
 
         warpButton = (Button) findViewById(R.id.warpButton);
         warpButton.setOnClickListener(new View.OnClickListener() {
@@ -117,6 +164,9 @@ public class CameraActivity extends AppCompatActivity {
         ((Button)findViewById(R.id.cameraButton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Intent i = new Intent(getApplicationContext(), TestActivity.class);
+                //startActivity(i);
+
                 dispatchTakePictureIntent();
                 //startActivity(new Intent(getApplicationContext(), PhotoEditorCameraActivity.class));
                 //startActivity(new Intent(getApplicationContext(), PhotoEditorActivity.class));
@@ -180,57 +230,53 @@ public class CameraActivity extends AppCompatActivity {
         processButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-            finalImage = rotateBitmap(finalImage, rotation);
-            File finalImageFile = persistImage(finalImage);
-
-            showProgress(true);
-
-            Log.e("TOKEN IN MAIN", token);
-            String SERVER_POST_URL = "http://35.237.158.162:8000/api/notes/";
-            Ion.with(CameraActivity.this)
-                    .load("POST", SERVER_POST_URL)
-                    .setHeader("Cache-Control", "No-Cache")
-                    .setHeader("Authorization", "Token " + token)//getIntent().getExtras().getString("token"))//token de acesso
-                    .noCache()//desabilitando cache
-                    //.setLogging("LOG",Log.VERBOSE)//para debug
-                    //.setMultipartParameter("application/json",dadosFoto.toString())
-                    .setMultipartParameter("name", "test")
-                    .setMultipartFile("image","multipart/form-data", saveBitmapToFile(finalImageFile))//saveBitmapToFile(new File(mCurrentPhotoPath)))
-                    .asJsonObject() //array recebida
-                    .setCallback(new FutureCallback<JsonObject>() {
-                        @Override
-                        public void onCompleted(Exception e, JsonObject result) {
-                            // do stuff with the result or error
-                            Log.v("R Foto: ", "" + result);
-
-                            /*
-                            final byte[] decodedBytes = Base64.decode(result.get("image").toString(), Base64.DEFAULT);
-                            Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-                            mainIv.setImageBitmap(decodedBitmap);
-                            */
-
-                            Intent editorIntent = new Intent(getApplicationContext(), PhotoEditorActivity.class);
-                            //editorIntent.putExtra("lines", result.toString());
-                            try{
-                                editorIntent.putExtra("result", result.toString());
-                                startActivity(editorIntent);
-                            }catch (NullPointerException npe){
-                                Toast.makeText(getApplicationContext(),
-                                        "There was a problem connecting to the server, please try again", Toast.LENGTH_SHORT).show();
-                                Log.v("Response Error: ", "" + e.getMessage()); //DEBUG
-                            }
-
-                            showProgress(false);
-                            if (e != null) {
-                                Log.v("Query Error: ", "" + e.getMessage()); //DEBUG
-                            }
-                        }
-                    });
+                process();
             }
         });
+
         progressView = findViewById(R.id.process_progress);
         cameraView = findViewById(R.id.camera_view);
+    }
+
+    private void process(){
+        finalImage = rotateBitmap(finalImage, rotation);
+        File finalImageFile = persistImage(finalImage);
+
+        showProgress(true);
+
+        Log.e("TOKEN IN MAIN", token);
+        String SERVER_POST_URL = "http://35.237.158.162:8000/api/notes/";
+        Ion.with(CameraActivity.this)
+            .load("POST", SERVER_POST_URL)
+            .setHeader("Cache-Control", "No-Cache")
+            .setHeader("Authorization", "Token " + token)
+            .noCache()
+            .setMultipartParameter("name", "test")
+            .setMultipartFile("image","multipart/form-data", saveBitmapToFile(finalImageFile))
+            .asJsonObject()
+            .setCallback(new FutureCallback<JsonObject>() {
+                @Override
+                public void onCompleted(Exception e, JsonObject result) {
+                    Log.v("R Foto: ", "" + result);
+
+                    Intent editorIntent = new Intent(getApplicationContext(), PhotoEditorActivity.class);
+                    try{
+                        editorIntent.putExtra("result", result.toString());
+                        startActivity(editorIntent);
+                        //cpb.setProgress(100);
+
+                    }catch (NullPointerException npe){
+                        Toast.makeText(getApplicationContext(),
+                                "There was a problem connecting to the server, please try again", Toast.LENGTH_SHORT).show();
+                        Log.v("Response Error: ", "" + e.getMessage()); //DEBUG
+                    }
+
+                    showProgress(false);
+                    if (e != null) {
+                        Log.v("Query Error: ", "" + e.getMessage()); //DEBUG
+                    }
+                }
+            });
     }
 
     public static Bitmap rotateBitmap(Bitmap source, float angle)
@@ -363,11 +409,6 @@ public class CameraActivity extends AppCompatActivity {
         Imgproc.warpPerspective(inputMat, outputMat, perspectiveTransform,
                 new Size(resultWidth, resultHeight),
                 Imgproc.INTER_CUBIC);
-        /*
-        Imgproc.warpPerspective(inputMat, outputMat, perspectiveTransform,
-                new Size(resultWidth, resultHeight),
-                Imgproc.INTER_LINEAR | Imgproc.WARP_INVERSE_MAP);
-        */
 
         return outputMat;
     }
@@ -503,18 +544,6 @@ public class CameraActivity extends AppCompatActivity {
             progressView.setVisibility(show ? View.VISIBLE : View.GONE);
             cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
-    }
-
-    private void changeViewVisibility(final boolean show){
-        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-        cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
-        cameraView.animate().setDuration(shortAnimTime).alpha(
-                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
-            }
-        });
     }
 
     public void onResume()

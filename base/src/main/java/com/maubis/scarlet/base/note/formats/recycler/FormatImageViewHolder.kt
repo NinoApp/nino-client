@@ -1,6 +1,7 @@
 package com.maubis.scarlet.base.note.formats.recycler
 
 import android.content.Context
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.util.TypedValue
 import android.view.View
@@ -14,6 +15,7 @@ import com.maubis.scarlet.base.core.note.ImageLoadCallback
 import com.maubis.scarlet.base.core.note.NoteImage
 import com.maubis.scarlet.base.main.sheets.AlertBottomSheet
 import com.maubis.scarlet.base.main.sheets.openDeleteFormatDialog
+import com.maubis.scarlet.base.nino.CameraActivity
 import com.maubis.scarlet.base.note.creation.sheet.FormatActionBottomSheet
 import com.maubis.scarlet.base.support.ui.visibility
 import pl.aprilapps.easyphotopicker.EasyImage
@@ -53,8 +55,11 @@ class FormatImageViewHolder(context: Context, view: View) : FormatViewHolderBase
     actionGallery.setColorFilter(iconColor)
     actionCamera.setOnClickListener {
       try {
-        EasyImage.openCamera(context as AppCompatActivity, data.uid)
-      } catch (e: Exception) {
+        //EasyImage.openCamera(context as AppCompatActivity, data.uid)
+        val intent = Intent(context, CameraActivity::class.java)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+      }  catch (e: Exception) {
         ToastHelper.show(context, "No camera app installed")
       }
     }
