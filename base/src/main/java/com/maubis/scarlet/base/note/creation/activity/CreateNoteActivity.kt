@@ -146,8 +146,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       }
       !formats[0].text.startsWith("# ") &&
           formats[0].formatType !== FormatType.HEADING
-          && formats[0].formatType !== FormatType.IMAGE
-          && formats[0].formatType !== FormatType.SMART_NOTE -> {
+          && formats[0].formatType !== FormatType.IMAGE -> {
         addEmptyItem(0, FormatType.HEADING)
       }
     }
@@ -190,22 +189,6 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
         }
 
         val targetFile = NoteImage(context).renameOrCopy(note!!, imageFile)
-        val index = getFormatIndex(type)
-        triggerImageLoaded(index, targetFile)
-      }
-
-      override fun onImagePickerError(e: Exception, source: EasyImage.ImageSource, type: Int) {
-        //Some error handling
-      }
-    })
-
-    EasyImage.handleActivityResult(requestCode, resultCode, data, this, object : DefaultCallback() {
-      override fun onImagePicked(smartNoteFile: File?, source: EasyImage.ImageSource?, type: Int) {
-        if (smartNoteFile == null) {
-          return
-        }
-
-        val targetFile = NoteSmartNote(context).renameOrCopy(note!!, smartNoteFile)
         val index = getFormatIndex(type)
         triggerImageLoaded(index, targetFile)
       }
@@ -374,23 +357,6 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     setFormat(formatToChange)
   }
 
-  fun triggerSmartNoteLoaded(position: Int, file: File) {
-    if (position == -1) {
-      return
-    }
-
-    val holder = findSmartNoteViewHolderAtPosition(position) ?: return
-    holder.populateFile(file)
-
-    val formatToChange = formats[position]
-    if (!formatToChange.text.isBlank()) {
-      val noteSmartNote= NoteSmartNote(context)
-      deleteIfExist(noteSmartNote.getFile(note!!.uuid, formatToChange.text))
-    }
-    formatToChange.text = file.name
-    setFormat(formatToChange)
-  }
-
   fun onHistoryClick(undo: Boolean) {
     when (undo) {
       true -> {
@@ -425,11 +391,6 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
   }
 
   private fun findImageViewHolderAtPosition(position: Int): FormatImageViewHolder? {
-    val holder = findViewHolderAtPositionAggressively(position)
-    return if (holder !== null && holder is FormatImageViewHolder) holder else null
-  }
-
-  private fun findSmartNoteViewHolderAtPosition(position: Int): FormatImageViewHolder? {
     val holder = findViewHolderAtPositionAggressively(position)
     return if (holder !== null && holder is FormatImageViewHolder) holder else null
   }

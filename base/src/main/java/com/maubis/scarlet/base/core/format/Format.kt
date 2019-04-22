@@ -24,7 +24,6 @@ class Format {
         FormatType.CODE -> "```\n$text\n```"
         FormatType.QUOTE -> "> $text"
         FormatType.IMAGE -> ""
-        FormatType.SMART_NOTE -> ""
         FormatType.SEPARATOR -> "\n---\n"
         FormatType.TEXT -> text
         else -> return text
