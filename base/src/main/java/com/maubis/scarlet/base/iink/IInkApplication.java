@@ -4,7 +4,6 @@ package com.maubis.scarlet.base.iink;
 
 import android.app.Application;
 
-import com.maubis.scarlet.base.iink.Certificate;
 import com.myscript.iink.Engine;
 
 public class IInkApplication extends Application
@@ -15,7 +14,7 @@ public class IInkApplication extends Application
   {
     if (engine == null)
     {
-      engine = Engine.create(Certificate.getBytes());
+      engine = Engine.create(MyCertificate.getBytes());
     }
 
     return engine;
