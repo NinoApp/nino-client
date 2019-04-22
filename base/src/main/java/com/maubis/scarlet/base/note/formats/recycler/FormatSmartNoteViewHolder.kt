@@ -56,10 +56,10 @@ class FormatSmartNoteViewHolder(context: Context, view: View) : FormatViewHolder
     actionGallery.setColorFilter(iconColor)
     actionCamera.setOnClickListener {
       try {
-        //EasyImage.openCamera(context as AppCompatActivity, data.uid)
-        val intent = Intent(context, CameraActivity::class.java)
-          intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-          context.startActivity(intent)
+        EasyImage.openCamera(context as AppCompatActivity, data.uid)
+        //val intent = Intent(context, CameraActivity::class.java)
+        //intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        //context.startActivity(intent)
       } catch (e: Exception) {
 
         ToastHelper.show(context, e.toString() +"No camera app installed")

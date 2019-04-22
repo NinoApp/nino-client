@@ -8,6 +8,8 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -110,7 +112,6 @@ public class CameraActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-
 
         /*
         cpb = findViewById(R.id.circular_prog_button);
@@ -302,17 +303,34 @@ public class CameraActivity extends AppCompatActivity {
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-            }
-            if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(this,
-                        //"com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
-                        "com.example.android.fileprovider", photoFile);
+            Intent intent = getIntent();
+            if(intent.hasExtra("pp")){
+                mCurrentPhotoPath = intent.getStringExtra("pp");
+                Uri photoURI = Uri.parse(intent.getExtras().getString("uri"));
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }else{
+                File photoFile = null;
+                try {
+                    photoFile = createImageFile();
+                } catch (IOException ex) {
+                }
+                if (photoFile != null) {
+                    photoURI = FileProvider.getUriForFile(this,
+                            "com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
+                    //"com.example.android.fileprovider", photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
+                    List<ResolveInfo> resInfoList = this.getPackageManager().queryIntentActivities(takePictureIntent,
+                            PackageManager.MATCH_DEFAULT_ONLY);
+                    for (ResolveInfo resolveInfo : resInfoList) {
+                        String packageName = resolveInfo.activityInfo.packageName;
+                        this.grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    }
+
+                    startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                }
             }
         }
     }

@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.bijoysingh.quicknote">
 
+  <!--
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+  -->
 
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
   <uses-permission android:name="android.permission.INTERNET" />
-  <uses-permission android:name="android.permission.USE_FINGERPRINT" />
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
   <application
@@ -24,16 +25,17 @@
 
     <provider
       android:name="com.maubis.scarlet.base.export.support.GenericFileProvider"
-      tools:replace="android:authorities"
       android:authorities="@string/file_provider_name"
       android:exported="false"
-      android:grantUriPermissions="true">
+      android:grantUriPermissions="true"
+        tools:replace="android:authorities">
       <meta-data
         android:name="android.support.FILE_PROVIDER_PATHS"
-        tools:replace="android:resource"
-        android:resource="@xml/provider_paths"/>
+        android:resource="@xml/provider_paths"
+        tools:replace="android:resource" />
     </provider>
 
+    <!--
     <provider
         android:name="android.support.v4.content.FileProvider"
         android:authorities="com.example.android.fileprovider"
@@ -45,6 +47,7 @@
           android:resource="@xml/file_paths"
           tools:replace="android:resource" />
     </provider>
+    -->
 
     <activity android:name="com.maubis.scarlet.base.nino.CameraActivity" />
 

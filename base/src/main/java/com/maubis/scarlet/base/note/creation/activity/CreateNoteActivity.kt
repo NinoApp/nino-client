@@ -2,8 +2,13 @@ package com.maubis.scarlet.base.note.creation.activity
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
+import android.provider.MediaStore
+import android.support.v4.content.FileProvider
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.View
@@ -18,6 +23,7 @@ import com.maubis.scarlet.base.core.format.MarkdownType
 import com.maubis.scarlet.base.core.note.*
 import com.maubis.scarlet.base.core.note.NoteImage.Companion.deleteIfExist
 import com.maubis.scarlet.base.database.room.note.Note
+import com.maubis.scarlet.base.export.support.GenericFileProvider
 import com.maubis.scarlet.base.nino.CameraActivity
 import com.maubis.scarlet.base.note.creation.specs.NoteCreationBottomBar
 import com.maubis.scarlet.base.note.creation.specs.NoteCreationTopBar
@@ -33,6 +39,8 @@ import kotlinx.android.synthetic.main.activity_advanced_note.*
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 
 open class CreateNoteActivity : ViewAdvancedNoteActivity() {
@@ -54,10 +62,49 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     val fab: View = findViewById(R.id.nino_fab)
     fab.setOnClickListener { view ->
       val intent = Intent(context, CameraActivity::class.java)
-      intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-      context.startActivity(intent)
-    }
 
+      var photoFile: File? = null
+      try {
+        photoFile = createImageFile()
+      } catch (ex: IOException) {
+      }
+
+      if (photoFile != null) {
+        val photoURI = FileProvider.getUriForFile(this, GenericFileProvider.PROVIDER, photoFile)
+
+        /*var photoURI: Uri? = GenericFileProvider.getUriForFile(this,
+                "com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile)*/
+
+
+        /*
+        val resInfoList = this.packageManager.queryIntentActivities(intent,
+                PackageManager.MATCH_DEFAULT_ONLY)
+        for (resolveInfo in resInfoList) {
+          val packageName = resolveInfo.activityInfo.packageName
+          this.grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        */
+
+        intent.setData(photoURI)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra("pp", mCurrentPhotoPath)
+        context.startActivity(intent)
+      }
+    }
+  }
+
+  var mCurrentPhotoPath:String = ""
+  @Throws(IOException::class)
+  private fun createImageFile(): File {
+    // Create an image file name
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    val imageFileName = "JPEG_" + timeStamp + "_"
+    val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+    val image = File.createTempFile(imageFileName, ".jpg", storageDir)
+
+    // Save a file: path for use with ACTION_VIEW intents
+    mCurrentPhotoPath = image.absolutePath
+    return image
   }
   
   override fun onCreationFinished() {
