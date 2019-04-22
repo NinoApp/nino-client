@@ -61,7 +61,6 @@ class FormatImageViewHolder(context: Context, view: View) : FormatViewHolderBase
         //context.startActivity(intent)
       }  catch (e: Exception) {
         ToastHelper.show(context, "No camera app installed")
-      }
     }
     actionGallery.setOnClickListener {
       try {
