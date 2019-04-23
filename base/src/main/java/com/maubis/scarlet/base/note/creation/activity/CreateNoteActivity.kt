@@ -2,14 +2,9 @@ package com.maubis.scarlet.base.note.creation.activity
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
-import android.preference.PreferenceManager
-import android.provider.MediaStore
-import android.support.v4.content.FileProvider
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.View
@@ -24,7 +19,6 @@ import com.maubis.scarlet.base.core.format.MarkdownType
 import com.maubis.scarlet.base.core.note.*
 import com.maubis.scarlet.base.core.note.NoteImage.Companion.deleteIfExist
 import com.maubis.scarlet.base.database.room.note.Note
-import com.maubis.scarlet.base.export.support.GenericFileProvider
 import com.maubis.scarlet.base.nino.CameraActivity
 import com.maubis.scarlet.base.note.creation.specs.NoteCreationBottomBar
 import com.maubis.scarlet.base.note.creation.specs.NoteCreationTopBar
@@ -40,8 +34,6 @@ import kotlinx.android.synthetic.main.activity_advanced_note.*
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
-import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.*
 
 open class CreateNoteActivity : ViewAdvancedNoteActivity() {
@@ -82,7 +74,14 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     setFolderFromIntent()
 
     if (intent.hasExtra("result_uri")) {
-      val targetFile = NoteImage(context).renameOrCopy(note!!, File(Uri.parse(intent.getStringExtra("result_uri")).path))
+      var targetFile = NoteImage(context).renameOrCopy(note!!, File(Uri.parse(intent.getStringExtra("result_uri")).path))
+      triggerImageLoaded(ninoUid, targetFile)
+      triggerImageLoaded(ninoUid + 1, targetFile)
+      triggerImageLoaded(maxUid - 1, targetFile)
+
+      val uri = Uri.parse(intent.getStringExtra("result_uri"))
+      val photoFile = com.maubis.scarlet.base.nino.EasyImageFiles.pickedExistingPicture(context, uri)
+      targetFile = NoteImage(context).renameOrCopy(note!!, photoFile)
       triggerImageLoaded(ninoUid, targetFile)
       triggerImageLoaded(ninoUid + 1, targetFile)
       triggerImageLoaded(maxUid - 1, targetFile)
