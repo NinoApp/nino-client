@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.maubis.scarlet.base.R;
+import com.maubis.scarlet.base.note.creation.activity.CreateNoteActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -308,7 +309,13 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
                 ));
             } catch (IOException e) { e.printStackTrace(); }
 
+            /*
             Intent intent = new Intent(this, CameraActivity.class);
+            intent.putExtra("result_uri", resultURI.toString());
+            startActivity(intent);
+            */
+
+            Intent intent = new Intent(this, CreateNoteActivity.class);
             intent.putExtra("result_uri", resultURI.toString());
             startActivity(intent);
 

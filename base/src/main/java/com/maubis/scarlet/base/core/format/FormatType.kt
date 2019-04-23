@@ -4,7 +4,6 @@ enum class FormatType {
   TAG,
   TEXT,
   NUMBERED_LIST,
-  SMART_NOTE,
   IMAGE,
   HEADING,// HEADING_1
   SUB_HEADING, // HEADING_2

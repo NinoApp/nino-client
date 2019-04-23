@@ -2,6 +2,7 @@ package com.maubis.scarlet.base.note.creation.activity
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.widget.RecyclerView
@@ -47,23 +48,45 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
   override val editModeValue: Boolean get() = true
 
+  private var ninoUid = 0
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setTouchListener()
     startHandler()
+
     val fab: View = findViewById(R.id.nino_fab)
     fab.setOnClickListener { view ->
+      addEmptyItem(FormatType.IMAGE)
       val intent = Intent(context, CameraActivity::class.java)
-      intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
       context.startActivity(intent)
     }
 
+    if (getSupportActionBar() != null) {
+      getSupportActionBar()?.setDisplayHomeAsUpEnabled(false);
+      getSupportActionBar()?.setHomeButtonEnabled(false);
+    }
   }
   
   override fun onCreationFinished() {
     super.onCreationFinished()
     history.add(NoteBuilder().copy(note!!))
     setFolderFromIntent()
+
+    if (intent.hasExtra("result_uri")) {
+      var targetFile = NoteImage(context).renameOrCopy(note!!, File(Uri.parse(intent.getStringExtra("result_uri")).path))
+      triggerImageLoaded(ninoUid, targetFile)
+      triggerImageLoaded(ninoUid + 1, targetFile)
+      triggerImageLoaded(maxUid - 1, targetFile)
+
+      val uri = Uri.parse(intent.getStringExtra("result_uri"))
+      val photoFile = com.maubis.scarlet.base.nino.EasyImageFiles.pickedExistingPicture(context, uri)
+      targetFile = NoteImage(context).renameOrCopy(note!!, photoFile)
+      triggerImageLoaded(ninoUid, targetFile)
+      triggerImageLoaded(ninoUid + 1, targetFile)
+      triggerImageLoaded(maxUid - 1, targetFile)
+
+    }
   }
 
   private fun setFolderFromIntent() {
@@ -99,8 +122,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       }
       !formats[0].text.startsWith("# ") &&
           formats[0].formatType !== FormatType.HEADING
-          && formats[0].formatType !== FormatType.IMAGE
-          && formats[0].formatType !== FormatType.SMART_NOTE -> {
+          && formats[0].formatType !== FormatType.IMAGE -> {
         addEmptyItem(0, FormatType.HEADING)
       }
     }
@@ -143,22 +165,6 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
         }
 
         val targetFile = NoteImage(context).renameOrCopy(note!!, imageFile)
-        val index = getFormatIndex(type)
-        triggerImageLoaded(index, targetFile)
-      }
-
-      override fun onImagePickerError(e: Exception, source: EasyImage.ImageSource, type: Int) {
-        //Some error handling
-      }
-    })
-
-    EasyImage.handleActivityResult(requestCode, resultCode, data, this, object : DefaultCallback() {
-      override fun onImagePicked(smartNoteFile: File?, source: EasyImage.ImageSource?, type: Int) {
-        if (smartNoteFile == null) {
-          return
-        }
-
-        val targetFile = NoteSmartNote(context).renameOrCopy(note!!, smartNoteFile)
         val index = getFormatIndex(type)
         triggerImageLoaded(index, targetFile)
       }
@@ -263,6 +269,8 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     format.uid = maxUid + 1
     maxUid++
 
+    ninoUid = position
+
     formats.add(position, format)
     adapter.addItem(format, position)
   }
@@ -327,23 +335,6 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     setFormat(formatToChange)
   }
 
-  fun triggerSmartNoteLoaded(position: Int, file: File) {
-    if (position == -1) {
-      return
-    }
-
-    val holder = findSmartNoteViewHolderAtPosition(position) ?: return
-    holder.populateFile(file)
-
-    val formatToChange = formats[position]
-    if (!formatToChange.text.isBlank()) {
-      val noteSmartNote= NoteSmartNote(context)
-      deleteIfExist(noteSmartNote.getFile(note!!.uuid, formatToChange.text))
-    }
-    formatToChange.text = file.name
-    setFormat(formatToChange)
-  }
-
   fun onHistoryClick(undo: Boolean) {
     when (undo) {
       true -> {
@@ -379,11 +370,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
   private fun findImageViewHolderAtPosition(position: Int): FormatImageViewHolder? {
     val holder = findViewHolderAtPositionAggressively(position)
-    return if (holder !== null && holder is FormatImageViewHolder) holder else null
-  }
-
-  private fun findSmartNoteViewHolderAtPosition(position: Int): FormatImageViewHolder? {
-    val holder = findViewHolderAtPositionAggressively(position)
+    val bool = holder is FormatImageViewHolder
     return if (holder !== null && holder is FormatImageViewHolder) holder else null
   }
 

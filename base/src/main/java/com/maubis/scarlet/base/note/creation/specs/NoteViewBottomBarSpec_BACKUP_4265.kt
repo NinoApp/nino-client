@@ -192,6 +192,18 @@ object NoteCreationSegmentsBottomBarSpec {
     return Row.create(context)
         .alignItems(YogaAlign.CENTER)
         .child(bottomBarRoundIcon(context, colorConfig)
+<<<<<<< HEAD
+                    .iconRes(R.drawable.ic_action_play)
+                    .onClick {
+                        val intent = Intent(activity, IInkActivity::class.java)
+                        activity.startActivity(intent)
+                    })
+        .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_image_camera)
+                    .onClick { activity.addEmptyItemAtFocused(FormatType.SMART_NOTE) })
+        .child(bottomBarRoundIcon(context, colorConfig)
+=======
+>>>>>>> fix4-8-9
             .iconRes(R.drawable.ic_title_white_48dp)
             .onClick { activity.addEmptyItemAtFocused(FormatType.HEADING) })
         .child(bottomBarRoundIcon(context, colorConfig)

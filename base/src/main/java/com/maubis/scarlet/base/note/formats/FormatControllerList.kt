@@ -64,17 +64,11 @@ fun getFormatControllerItems(): List<MultiRecyclerViewControllerItem<Format>> {
           .holderClass(FormatListViewHolder::class.java)
           .build())
   list.add(
-          MultiRecyclerViewControllerItem.Builder<Format>()
-                  .viewType(FormatType.IMAGE.ordinal)
-                  .layoutFile(R.layout.item_format_image)
-                  .holderClass(FormatImageViewHolder::class.java)
-                  .build())
-  list.add(
-          MultiRecyclerViewControllerItem.Builder<Format>()
-                  .viewType(FormatType.SMART_NOTE.ordinal)
-                  .layoutFile(R.layout.item_format_smart_note)
-                  .holderClass(FormatSmartNoteViewHolder::class.java)
-                  .build())
+      MultiRecyclerViewControllerItem.Builder<Format>()
+          .viewType(FormatType.IMAGE.ordinal)
+          .layoutFile(R.layout.item_format_image)
+          .holderClass(FormatImageViewHolder::class.java)
+          .build())
   list.add(
       MultiRecyclerViewControllerItem.Builder<Format>()
           .viewType(FormatType.SEPARATOR.ordinal)

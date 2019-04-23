@@ -1,6 +1,5 @@
 package com.maubis.scarlet.base.note.creation.specs
 
-import android.content.Intent
 import android.graphics.Color
 import com.facebook.litho.*
 import com.facebook.litho.annotations.*
@@ -11,7 +10,6 @@ import com.facebook.yoga.YogaEdge
 import com.maubis.scarlet.base.R
 import com.maubis.scarlet.base.core.format.FormatType
 import com.maubis.scarlet.base.core.format.MarkdownType
-import com.maubis.scarlet.base.iink.IInkActivity
 import com.maubis.scarlet.base.note.copy
 import com.maubis.scarlet.base.note.creation.activity.CreateNoteActivity
 import com.maubis.scarlet.base.note.creation.activity.ViewAdvancedNoteActivity
@@ -192,6 +190,9 @@ object NoteCreationSegmentsBottomBarSpec {
     return Row.create(context)
         .alignItems(YogaAlign.CENTER)
         .child(bottomBarRoundIcon(context, colorConfig)
+            .iconRes(R.drawable.ic_image_camera)
+            .onClick { activity.addEmptyItemAtFocused(FormatType.SMART_NOTE) })
+        .child(bottomBarRoundIcon(context, colorConfig)
             .iconRes(R.drawable.ic_title_white_48dp)
             .onClick { activity.addEmptyItemAtFocused(FormatType.HEADING) })
         .child(bottomBarRoundIcon(context, colorConfig)
@@ -221,6 +222,9 @@ object NoteCreationMarkdownsBottomBarSpec {
     val activity = context.androidContext as CreateNoteActivity
     return Row.create(context)
         .alignItems(YogaAlign.CENTER)
+        .child(bottomBarRoundIcon(context, colorConfig)
+            .iconRes(R.drawable.ic_image_camera)
+            .onClick { activity.addEmptyItemAtFocused(FormatType.SMART_NOTE) })
         .child(bottomBarRoundIcon(context, colorConfig)
             .iconRes(R.drawable.ic_title_white_48dp)
             .onClick { activity.triggerMarkdown(MarkdownType.HEADER) })
@@ -253,6 +257,9 @@ object NoteCreationAllSegmentsBottomBarSpec {
         .alignSelf(YogaAlign.CENTER)
         .alignItems(YogaAlign.CENTER)
         .child(bottomBarRoundIcon(context, colorConfig)
+             .iconRes(R.drawable.ic_image_camera)
+             .onClick { activity.addEmptyItemAtFocused(FormatType.SMART_NOTE) })
+            .child(bottomBarRoundIcon(context, colorConfig)
             .iconRes(R.drawable.ic_title_white_48dp)
             .onClick { activity.addEmptyItemAtFocused(FormatType.HEADING) })
         .child(bottomBarRoundIcon(context, colorConfig)
