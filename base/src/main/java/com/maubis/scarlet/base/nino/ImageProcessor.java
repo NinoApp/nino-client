@@ -22,44 +22,6 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ImageProcessor {
-    /*
-    public MatOfPoint detectEdges(Bitmap bitmap) {
-        Mat src = new Mat();
-        Utils.bitmapToMat(bitmap, src);
-
-        Mat grayImage = null;
-        Mat cannedImage = null;
-        Mat resizedImage = null;
-
-        double ratio = src.size().height / 500;
-        int height = Double.valueOf(src.size().height / ratio).intValue();
-        int width = Double.valueOf(src.size().width / ratio).intValue();
-        Size size = new Size(width,height);
-
-        resizedImage = new Mat(size, CvType.CV_8UC4);
-        grayImage = new Mat(size, CvType.CV_8UC4);
-        cannedImage = new Mat(size, CvType.CV_8UC1);
-
-        Imgproc.resize(src,resizedImage,size);
-        Imgproc.cvtColor(resizedImage, grayImage, Imgproc.COLOR_BGR2HSV, 4);
-        Imgproc.GaussianBlur(grayImage, grayImage, new Size(5, 5), 0);
-        Imgproc.Canny(grayImage, cannedImage, 75, 200);
-
-        Bitmap bm = matToBit(cannedImage);
-
-        Imgproc.dilate(cannedImage, cannedImage, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 5)));
-        bm = matToBit(cannedImage);
-        Imgproc.dilate(cannedImage, cannedImage, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 3)));
-        bm = matToBit(cannedImage);
-
-        MatOfPoint maxContour = findContours(cannedImage);
-
-        resizedImage.release();
-        grayImage.release();
-        cannedImage.release();
-
-        return maxContour;
-    }*/
 
     public MatOfPoint findContours(Mat edges){
         List<MatOfPoint> contours = new ArrayList<>();

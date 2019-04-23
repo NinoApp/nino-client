@@ -292,8 +292,7 @@ public class CameraActivity extends AppCompatActivity {
             });
     }
 
-    public static Bitmap rotateBitmap(Bitmap source, float angle)
-    {
+    public static Bitmap rotateBitmap(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
@@ -310,52 +309,10 @@ public class CameraActivity extends AppCompatActivity {
             }
             if (photoFile != null) {
                 photoURI = FileProvider.getUriForFile(this,
-                        //"com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
                 "com.example.android.fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-
-                /*
-                List<ResolveInfo> resInfoList = this.getPackageManager().queryIntentActivities(takePictureIntent,
-                        PackageManager.MATCH_DEFAULT_ONLY);
-                for (ResolveInfo resolveInfo : resInfoList) {
-                    String packageName = resolveInfo.activityInfo.packageName;
-                    this.grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                }
-                */
-
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
-            /*
-            Intent intent = getIntent();
-            if(intent.hasExtra("pp")){
-                mCurrentPhotoPath = intent.getStringExtra("pp");
-                Uri photoURI = Uri.parse(intent.getExtras().getString("uri"));
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-            }else{
-                File photoFile = null;
-                try {
-                    photoFile = createImageFile();
-                } catch (IOException ex) {
-                }
-                if (photoFile != null) {
-                    photoURI = FileProvider.getUriForFile(this,
-                            "com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
-                    //"com.example.android.fileprovider", photoFile);
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-
-                    List<ResolveInfo> resInfoList = this.getPackageManager().queryIntentActivities(takePictureIntent,
-                            PackageManager.MATCH_DEFAULT_ONLY);
-                    for (ResolveInfo resolveInfo : resInfoList) {
-                        String packageName = resolveInfo.activityInfo.packageName;
-                        this.grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    }
-
-                    startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-                }
-            }*/
         }
     }
 
