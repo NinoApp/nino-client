@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.preference.PreferenceManager
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
 import android.support.v7.widget.RecyclerView
@@ -55,62 +56,38 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
   override val editModeValue: Boolean get() = true
 
+  private var ninoUid = 0
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setTouchListener()
     startHandler()
+
     val fab: View = findViewById(R.id.nino_fab)
     fab.setOnClickListener { view ->
+      addEmptyItem(FormatType.IMAGE)
       val intent = Intent(context, CameraActivity::class.java)
-
-      var photoFile: File? = null
-      try {
-        photoFile = createImageFile()
-      } catch (ex: IOException) {
-      }
-
-      if (photoFile != null) {
-        val photoURI = FileProvider.getUriForFile(this, GenericFileProvider.PROVIDER, photoFile)
-
-        /*var photoURI: Uri? = GenericFileProvider.getUriForFile(this,
-                "com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile)*/
-
-
-        /*
-        val resInfoList = this.packageManager.queryIntentActivities(intent,
-                PackageManager.MATCH_DEFAULT_ONLY)
-        for (resolveInfo in resInfoList) {
-          val packageName = resolveInfo.activityInfo.packageName
-          this.grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        */
-
-        intent.setData(photoURI)
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra("pp", mCurrentPhotoPath)
-        context.startActivity(intent)
-      }
+      context.startActivity(intent)
     }
-  }
 
-  var mCurrentPhotoPath:String = ""
-  @Throws(IOException::class)
-  private fun createImageFile(): File {
-    // Create an image file name
-    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-    val imageFileName = "JPEG_" + timeStamp + "_"
-    val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-    val image = File.createTempFile(imageFileName, ".jpg", storageDir)
-
-    // Save a file: path for use with ACTION_VIEW intents
-    mCurrentPhotoPath = image.absolutePath
-    return image
+    if (getSupportActionBar() != null) {
+      getSupportActionBar()?.setDisplayHomeAsUpEnabled(false);
+      getSupportActionBar()?.setHomeButtonEnabled(false);
+    }
   }
   
   override fun onCreationFinished() {
     super.onCreationFinished()
     history.add(NoteBuilder().copy(note!!))
     setFolderFromIntent()
+
+    if (intent.hasExtra("result_uri")) {
+      val targetFile = NoteImage(context).renameOrCopy(note!!, File(Uri.parse(intent.getStringExtra("result_uri")).path))
+      triggerImageLoaded(ninoUid, targetFile)
+      triggerImageLoaded(ninoUid + 1, targetFile)
+      triggerImageLoaded(maxUid - 1, targetFile)
+
+    }
   }
 
   private fun setFolderFromIntent() {
@@ -293,6 +270,8 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     format.uid = maxUid + 1
     maxUid++
 
+    ninoUid = position
+
     formats.add(position, format)
     adapter.addItem(format, position)
   }
@@ -392,6 +371,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
   private fun findImageViewHolderAtPosition(position: Int): FormatImageViewHolder? {
     val holder = findViewHolderAtPositionAggressively(position)
+    val bool = holder is FormatImageViewHolder
     return if (holder !== null && holder is FormatImageViewHolder) holder else null
   }
 

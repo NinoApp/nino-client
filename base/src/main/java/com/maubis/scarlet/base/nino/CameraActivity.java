@@ -303,6 +303,30 @@ public class CameraActivity extends AppCompatActivity {
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+            }
+            if (photoFile != null) {
+                photoURI = FileProvider.getUriForFile(this,
+                        //"com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
+                "com.example.android.fileprovider", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+
+                /*
+                List<ResolveInfo> resInfoList = this.getPackageManager().queryIntentActivities(takePictureIntent,
+                        PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolveInfo : resInfoList) {
+                    String packageName = resolveInfo.activityInfo.packageName;
+                    this.grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+                */
+
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+            /*
             Intent intent = getIntent();
             if(intent.hasExtra("pp")){
                 mCurrentPhotoPath = intent.getStringExtra("pp");
@@ -331,7 +355,7 @@ public class CameraActivity extends AppCompatActivity {
 
                     startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
                 }
-            }
+            }*/
         }
     }
 
