@@ -1,5 +1,6 @@
 package com.maubis.scarlet.base.note.creation.specs
 
+import android.content.Intent
 import android.graphics.Color
 import com.facebook.litho.*
 import com.facebook.litho.annotations.*
@@ -10,6 +11,7 @@ import com.facebook.yoga.YogaEdge
 import com.maubis.scarlet.base.R
 import com.maubis.scarlet.base.core.format.FormatType
 import com.maubis.scarlet.base.core.format.MarkdownType
+import com.maubis.scarlet.base.iink.IInkActivity
 import com.maubis.scarlet.base.note.copy
 import com.maubis.scarlet.base.note.creation.activity.CreateNoteActivity
 import com.maubis.scarlet.base.note.creation.activity.ViewAdvancedNoteActivity

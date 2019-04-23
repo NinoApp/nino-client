@@ -3,6 +3,7 @@ package com.maubis.scarlet.base.note.formats.recycler
 import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
@@ -56,9 +57,6 @@ class FormatImageViewHolder(context: Context, view: View) : FormatViewHolderBase
     actionCamera.setOnClickListener {
       try {
         EasyImage.openCamera(context as AppCompatActivity, data.uid)
-        //val intent = Intent(context, CameraActivity::class.java)
-        //intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-        //context.startActivity(intent)
       }  catch (e: Exception) {
         ToastHelper.show(context, "No camera app installed")
       }
@@ -86,6 +84,7 @@ class FormatImageViewHolder(context: Context, view: View) : FormatViewHolderBase
       when (file.exists()) {
         true -> populateFile(file)
         false -> {
+          Log.d("asdasd", "no image on device")
           noImageMessage.setText(R.string.image_not_on_current_device)
           noImageMessage.visibility = visibility(config.editable)
           image.visibility = View.GONE
