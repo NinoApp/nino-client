@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -23,6 +24,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -94,6 +96,9 @@ public class CameraActivity extends AppCompatActivity {
     CPB_STATE cpbState = CPB_STATE.CAMERA;
     //CircularProgressButton cpb;
 
+    final static float POLYGON_CIRCLE_RADIUS_IN_DP = 17f;
+    float POLYGON_CIRCLE_RADIUS;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,14 +108,23 @@ public class CameraActivity extends AppCompatActivity {
         rotation = 0;
 
         mainIv = (ImageView) findViewById(R.id.takenPhotoImageView);
+
+        Resources r = getResources();
+        POLYGON_CIRCLE_RADIUS = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POLYGON_CIRCLE_RADIUS_IN_DP,
+                r.getDisplayMetrics());
+
+        /*
         DisplayMetrics metrics = this.getResources().getDisplayMetrics();
         int width = metrics.widthPixels;
         int height = metrics.heightPixels;
 
+        mainIv.setAdjustViewBounds(true);
+        mainIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
         mainIv.getLayoutParams().width = (int) (width * ivScale);
         mainIv.getLayoutParams().height = (int) (height * ivScale);
-        //mainIv.requestLayout()
 
+        //mainIv.requestLayout()
+        */
 
         final Button processButton = (Button)findViewById(R.id.process_button);
         processButton.setVisibility(View.INVISIBLE);
@@ -314,14 +328,19 @@ public class CameraActivity extends AppCompatActivity {
 
         MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
 
-        pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView));
+        pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView), POLYGON_CIRCLE_RADIUS);
 
         Bitmap rgbaBit = matToBit(rgba);
         mainIv.setImageBitmap(rgbaBit);
 
+        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
+        int width = metrics.widthPixels;
+        mainIv.getLayoutParams().width = (int) (width * ivScale);
+
         double[] temp_double;
         Point p;
         List<Point> source = new ArrayList<Point>();
+        int ivNewHeight = width;
         try {
             Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
             if(approxCurve.total() > 0) {
@@ -329,15 +348,18 @@ public class CameraActivity extends AppCompatActivity {
                     temp_double = approxCurve.get(i, 0);
                     p = new Point(temp_double[0], temp_double[1]);
                     source.add(p);
-                    Imgproc.circle (rgba, p,10, new Scalar(255, 0, 0),10);
+                    //Imgproc.circle (rgba, p,10, new Scalar(255, 0, 0),10);
                 }
-                pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv, ivScale);
+                ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv, ivScale);
             }else{
-                pvc.createPolygonWithRect(rect, rgbaBit, mainIv, ivScale);
+                ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv, ivScale);
             }
         }catch(NullPointerException e){
             e.printStackTrace();
         }
+
+        mainIv.getLayoutParams().height = (int) (ivNewHeight);
+        mainIv.requestLayout();
 
         rgbaBit = matToBit(rgba);
         mainIv.setImageBitmap(rgbaBit);
@@ -351,7 +373,7 @@ public class CameraActivity extends AppCompatActivity {
         List<Point> pp = pvc.getPoints();
 
         for (Point p: pp) {
-            Log.i("warp pp", p.toString());
+            Log.i("POINT WARP", p.toString());
         }
 
         Mat startM = Converters.vector_Point2f_to_Mat(pp);
