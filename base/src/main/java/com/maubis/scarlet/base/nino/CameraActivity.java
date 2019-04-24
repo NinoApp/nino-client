@@ -21,6 +21,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
@@ -46,6 +47,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
@@ -78,6 +80,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private Bitmap edgeDetectedTakenImage;
     private Bitmap finalImage;
+    double ivScale = 0.9;
 
     private float rotation;
     Button rotateButton = null;
@@ -100,70 +103,17 @@ public class CameraActivity extends AppCompatActivity {
         rotation = 0;
 
         mainIv = (ImageView) findViewById(R.id.takenPhotoImageView);
+        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels;
+
+        mainIv.getLayoutParams().width = (int) (width * ivScale);
+        mainIv.getLayoutParams().height = (int) (height * ivScale);
+        //mainIv.requestLayout()
+
 
         final Button processButton = (Button)findViewById(R.id.process_button);
         processButton.setVisibility(View.INVISIBLE);
-
-        /*
-        Intent intent = getIntent();
-        if (intent.hasExtra("result_uri")) {
-            Uri resultUri = Uri.parse(intent.getExtras().getString("result_uri"));
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
-                mainIv.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        */
-
-        /*
-        cpb = findViewById(R.id.circular_prog_button);
-
-        final Button back = findViewById(R.id.back_button);
-        back.setVisibility(View.INVISIBLE);
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(cpbState == CPB_STATE.WARP){
-                    dispatchTakePictureIntent();
-                }
-                else if(cpbState == CPB_STATE.PROCESS){
-                    mainIv.setImageBitmap(matToBit(rgba));
-                    findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
-                    cpbState = CPB_STATE.WARP;
-                }
-            }
-        });
-
-        cpb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(cpbState == CPB_STATE.CAMERA){
-                    dispatchTakePictureIntent();
-                    cpbState = CPB_STATE.WARP;
-                    back.setVisibility(View.VISIBLE);
-                    back.setText("Re-take image");
-                }else if(cpbState == CPB_STATE.WARP){
-                    Mat result = warp(rgba);
-                    finalImage = matToBit(result);
-                    mainIv.setImageBitmap(finalImage);
-                    findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
-                    warpButton.setVisibility(View.INVISIBLE);
-                    processButton.setVisibility(View.VISIBLE);
-
-                    cpbState = CPB_STATE.PROCESS;
-                    back.setText("Re-warp image");
-                }
-                else if(cpbState == CPB_STATE.PROCESS){
-                    process();
-                    back.setVisibility(View.INVISIBLE);
-                    cpb.setProgress(1);
-                }
-            }
-        });
-
-        */
 
         warpButton = (Button) findViewById(R.id.warpButton);
         warpButton.setOnClickListener(new View.OnClickListener() {
@@ -178,17 +128,14 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
+        /*
         ((Button)findViewById(R.id.cameraButton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Intent i = new Intent(getApplicationContext(), TestActivity.class);
-                //startActivity(i);
-
                 dispatchTakePictureIntent();
-                //startActivity(new Intent(getApplicationContext(), PhotoEditorCameraActivity.class));
-                //startActivity(new Intent(getApplicationContext(), PhotoEditorActivity.class));
             }
         });
+        */
 
         rotateButton = (Button) findViewById(R.id.rotate_button);
         rotateButton.setVisibility(View.INVISIBLE);
@@ -255,6 +202,31 @@ public class CameraActivity extends AppCompatActivity {
         cameraView = findViewById(R.id.camera_view);
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideSystemUI();
+        }
+    }
+
+    private void hideSystemUI() {
+        // Enables regular immersive mode.
+        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
     private void process(){
         finalImage = rotateBitmap(finalImage, rotation);
         File finalImageFile = persistImage(finalImage);
@@ -296,32 +268,6 @@ public class CameraActivity extends AppCompatActivity {
             });
     }
 
-    public static Bitmap rotateBitmap(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-    }
-
-    private Uri photoURI;
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-            }
-            if (photoFile != null) {
-                /*photoURI = FileProvider.getUriForFile(this,
-                //"com.example.android.fileprovider", photoFile);*/
-                        photoURI = FileProvider.getUriForFile(this,
-                                "com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-            }
-        }
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO) {
@@ -347,6 +293,12 @@ public class CameraActivity extends AppCompatActivity {
         edgeDetectedTakenImage = detectNote(takenImage);
         warpButton.setVisibility(View.VISIBLE);
         rotateButton.setVisibility(View.VISIBLE);
+    }
+
+    public Bitmap matToBit(Mat mat){
+        Bitmap resultBitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(mat, resultBitmap);
+        return resultBitmap;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -377,24 +329,22 @@ public class CameraActivity extends AppCompatActivity {
                     temp_double = approxCurve.get(i, 0);
                     p = new Point(temp_double[0], temp_double[1]);
                     source.add(p);
+                    Imgproc.circle (rgba, p,10, new Scalar(255, 0, 0),10);
                 }
-                pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
+                pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv, ivScale);
             }else{
-                pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
+                pvc.createPolygonWithRect(rect, rgbaBit, mainIv, ivScale);
             }
         }catch(NullPointerException e){
             e.printStackTrace();
         }
 
+        rgbaBit = matToBit(rgba);
+        mainIv.setImageBitmap(rgbaBit);
+
         rgba = new Mat();
         Utils.bitmapToMat(bitmap, rgba);
         return matToBit(rgba);
-    }
-
-    public Bitmap matToBit(Mat mat){
-        Bitmap resultBitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(mat, resultBitmap);
-        return resultBitmap;
     }
 
     public Mat warp(Mat inputMat) {
@@ -440,6 +390,90 @@ public class CameraActivity extends AppCompatActivity {
                 Imgproc.INTER_CUBIC);
 
         return outputMat;
+    }
+
+    public void onResume() {
+        super.onResume();
+        if (!OpenCVLoader.initDebug()) {
+            Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+        } else {
+            Log.d("OpenCV", "OpenCV library found inside package. Using it!");
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+
+        Intent intent = getIntent();
+        if (intent.hasExtra("img_path")) {
+            mCurrentPhotoPath = intent.getExtras().getString("img_path");
+            afterImageTaken();
+        }
+    }
+
+    /*
+    private Uri photoURI;
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+            }
+            if (photoFile != null) {
+                photoURI = FileProvider.getUriForFile(this,
+                        "com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
+        }
+    }
+    */
+
+    /*
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+    */
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
+            cameraView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            progressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
     }
 
     private File persistImage(Bitmap bitmap) {
@@ -530,67 +564,10 @@ public class CameraActivity extends AppCompatActivity {
         return rotatedBitmap;
     }
 
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
-            cameraView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            progressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            cameraView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
-
-    public void onResume()
-    {
-        super.onResume();
-        if (!OpenCVLoader.initDebug()) {
-            Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
-        } else {
-            Log.d("OpenCV", "OpenCV library found inside package. Using it!");
-            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-        }
-
-        Intent intent = getIntent();
-        if (intent.hasExtra("img_path")) {
-            mCurrentPhotoPath = intent.getExtras().getString("img_path");
-            afterImageTaken();
-        }
+    public static Bitmap rotateBitmap(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
     }
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
