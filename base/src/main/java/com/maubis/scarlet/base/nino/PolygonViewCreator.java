@@ -84,6 +84,8 @@ public class PolygonViewCreator {
             Log.i("P: POLYGON_POINT VAL", p.toString());
         }
 
+        orderedPoints = configureOutOfScreenPoints(orderedPoints, (float) scaledBitWidth, (float) scaledBitHeight);
+
         polygonView.setPoints(orderedPoints);
         polygonView.setVisibility(View.VISIBLE);
     }
@@ -154,8 +156,31 @@ public class PolygonViewCreator {
             Log.i("P: POLYGON_POINT VAL", p.toString());
         }
 
+        orderedPoints = configureOutOfScreenPoints(orderedPoints, rect.width, rect.height);
+
         polygonView.setPoints(orderedPoints);
         polygonView.setVisibility(View.VISIBLE);
+    }
+
+    private Map<Integer, PointF> configureOutOfScreenPoints(Map<Integer, PointF> orderedPoints,
+                                                            float width, float height) {
+        Map<Integer, PointF> configuredPoints = new HashMap<>();
+        float margin = (float) 0.9;
+        int count  = 0;
+        for (PointF p: orderedPoints.values()) {
+            PointF newP = new PointF(p.x, p.y);
+            if((p.x >= width * margin) || (p.y >= height * margin)){
+                if(p.x > width * margin){
+                    newP.x = p.x * margin;
+                }
+                if(p.y > height * margin){
+                    newP.y = p.y * margin;
+                }
+            }
+            configuredPoints.put(count, newP);
+            count++;
+        }
+        return configuredPoints;
     }
 
     /**

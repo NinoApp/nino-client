@@ -1,10 +1,12 @@
 package com.maubis.scarlet.base.note.creation.activity
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.View
@@ -36,6 +38,7 @@ import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
 import java.util.*
 
+
 open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
   private var active = false
@@ -49,6 +52,8 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
   override val editModeValue: Boolean get() = true
 
   private var ninoUid = 0
+  private var ninoRequest = false
+  val NINO_REQUEST = 434
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -58,20 +63,13 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     val fab: View = findViewById(R.id.nino_fab)
     fab.setOnClickListener { view ->
       addEmptyItem(FormatType.IMAGE)
-      val intent = Intent(context, CameraActivity::class.java)
-      context.startActivity(intent)
-    }
 
-    if (getSupportActionBar() != null) {
-      getSupportActionBar()?.setDisplayHomeAsUpEnabled(false);
-      getSupportActionBar()?.setHomeButtonEnabled(false);
+      ninoRequest = true
+      EasyImage.openCamera(context as AppCompatActivity, ninoUid) //add all possible
+
+      //val intent = Intent(context, CameraActivity::class.java)
+      //context.startActivity(intent)
     }
-  }
-  
-  override fun onCreationFinished() {
-    super.onCreationFinished()
-    history.add(NoteBuilder().copy(note!!))
-    setFolderFromIntent()
 
     if (intent.hasExtra("result_uri")) {
       var targetFile = NoteImage(context).renameOrCopy(note!!, File(Uri.parse(intent.getStringExtra("result_uri")).path))
@@ -87,6 +85,17 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       triggerImageLoaded(maxUid - 1, targetFile)
 
     }
+
+    if (getSupportActionBar() != null) {
+      getSupportActionBar()?.setDisplayHomeAsUpEnabled(false);
+      getSupportActionBar()?.setHomeButtonEnabled(false);
+    }
+  }
+  
+  override fun onCreationFinished() {
+    super.onCreationFinished()
+    history.add(NoteBuilder().copy(note!!))
+    setFolderFromIntent()
   }
 
   private fun setFolderFromIntent() {
@@ -160,6 +169,12 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     super.onActivityResult(requestCode, resultCode, data)
     EasyImage.handleActivityResult(requestCode, resultCode, data, this, object : DefaultCallback() {
       override fun onImagePicked(imageFile: File?, source: EasyImage.ImageSource?, type: Int) {
+        if(ninoRequest){
+          val intent = Intent(context, CameraActivity::class.java)
+          intent.putExtra("img_path", imageFile?.absolutePath)
+          intent.putExtra("type", type)
+          startActivityForResult(intent, NINO_REQUEST)
+        }
         if (imageFile == null) {
           return
         }
@@ -167,12 +182,26 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
         val targetFile = NoteImage(context).renameOrCopy(note!!, imageFile)
         val index = getFormatIndex(type)
         triggerImageLoaded(index, targetFile)
+
       }
 
       override fun onImagePickerError(e: Exception, source: EasyImage.ImageSource, type: Int) {
         //Some error handling
       }
     })
+    if (requestCode == NINO_REQUEST) {
+      if(requestCode == Activity.RESULT_OK){
+        ninoRequest = false
+        //val uri = Uri.parse(data?.getStringExtra("result_uri"))
+        val uri = data?.data
+        val targetFile = NoteImage(context).renameOrCopy(note!!, File(uri?.getPath()))
+        val index = getFormatIndex(data!!.getIntExtra("type", ninoUid))
+        triggerImageLoaded(index, targetFile)
+        triggerImageLoaded(ninoUid, targetFile)
+        triggerImageLoaded(ninoUid + 1, targetFile)
+        triggerImageLoaded(maxUid - 1, targetFile)
+      }
+    }
   }
 
   override fun onPause() {
@@ -269,7 +298,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     format.uid = maxUid + 1
     maxUid++
 
-    ninoUid = position
+    ninoUid = format.uid
 
     formats.add(position, format)
     adapter.addItem(format, position)

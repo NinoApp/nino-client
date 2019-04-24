@@ -33,6 +33,7 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.maubis.scarlet.base.R;
+import com.maubis.scarlet.base.export.support.GenericFileProvider;
 import com.scanlibrary.PolygonView;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -62,6 +63,7 @@ import java.util.List;
 public class CameraActivity extends AppCompatActivity {
 
     static final int REQUEST_TAKE_PHOTO = 1;
+    private static final int PESDK_REQUEST = 18312;
     String mCurrentPhotoPath;
 
     private Mat mainMat;
@@ -102,6 +104,7 @@ public class CameraActivity extends AppCompatActivity {
         final Button processButton = (Button)findViewById(R.id.process_button);
         processButton.setVisibility(View.INVISIBLE);
 
+        /*
         Intent intent = getIntent();
         if (intent.hasExtra("result_uri")) {
             Uri resultUri = Uri.parse(intent.getExtras().getString("result_uri"));
@@ -112,6 +115,7 @@ public class CameraActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        */
 
         /*
         cpb = findViewById(R.id.circular_prog_button);
@@ -275,7 +279,7 @@ public class CameraActivity extends AppCompatActivity {
                     Intent editorIntent = new Intent(getApplicationContext(), PhotoEditorActivity.class);
                     try{
                         editorIntent.putExtra("result", result.toString());
-                        startActivity(editorIntent);
+                        startActivityForResult(editorIntent, PESDK_REQUEST);
                         //cpb.setProgress(100);
 
                     }catch (NullPointerException npe){
@@ -308,8 +312,10 @@ public class CameraActivity extends AppCompatActivity {
             } catch (IOException ex) {
             }
             if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(this,
-                "com.example.android.fileprovider", photoFile);
+                /*photoURI = FileProvider.getUriForFile(this,
+                //"com.example.android.fileprovider", photoFile);*/
+                        photoURI = FileProvider.getUriForFile(this,
+                                "com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
@@ -320,15 +326,27 @@ public class CameraActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO) {
             if (resultCode == RESULT_OK) {
-                //CropImage.activity(photoURI).start(this);
-                Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
-                edgeDetectedTakenImage = detectNote(takenImage);
-                warpButton.setVisibility(View.VISIBLE);
-                rotateButton.setVisibility(View.VISIBLE);
+                afterImageTaken();
             } else {
                 Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
+        if (requestCode == PESDK_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Intent resIntent = getIntent();
+                resIntent.putExtra("result_uri", data.getStringExtra("result_uri"));
+                resIntent.setData(data.getData());
+                setResult(RESULT_OK, resIntent);
+            }
+        }
+        finish();
+    }
+
+    public void afterImageTaken(){
+        Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
+        edgeDetectedTakenImage = detectNote(takenImage);
+        warpButton.setVisibility(View.VISIBLE);
+        rotateButton.setVisibility(View.VISIBLE);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -566,6 +584,12 @@ public class CameraActivity extends AppCompatActivity {
         } else {
             Log.d("OpenCV", "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+
+        Intent intent = getIntent();
+        if (intent.hasExtra("img_path")) {
+            mCurrentPhotoPath = intent.getExtras().getString("img_path");
+            afterImageTaken();
         }
     }
 
