@@ -36,19 +36,16 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="20dp"
             android:text="Web"
-            app:layout_constraintBottom_toTopOf="@+id/cameraButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.025"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.013" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/takenPhotoImageView"
-            android:layout_width="match_parent"
-            android:layout_height="576dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
@@ -77,55 +74,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:text="Process"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.58"
-            app:layout_constraintStart_toEndOf="@+id/cameraButton"
-            app:layout_constraintTop_toBottomOf="@+id/takenPhotoImageView"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintStart_toEndOf="@+id/cameraButton" />
 
         <Button
             android:id="@+id/cameraButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             android:text="Camera"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.953" />
-
-        <!--
-        <com.dd.CircularProgressButton
-            android:id="@+id/circular_prog_button"
-            android:layout_width="148dp"
-            android:layout_height="65dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="312dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            app:cpb_textComplete="@string/Complete"
-            app:cpb_textError="@string/Error"
-            app:cpb_textIdle="@string/Upload"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.546"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.144" />
-
-        -->
+            app:layout_constraintStart_toStartOf="parent" />
 
         <com.scanlibrary.PolygonView
             android:id="@+id/polygonView"
@@ -141,29 +109,11 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="20dp"
             android:text="Rotate"
-            app:layout_constraintBottom_toTopOf="@+id/cameraButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.922"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.013" />
-
-        <!--
-        <Button
-            android:id="@+id/back_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="132dp"
-            android:text="Back"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/circular_prog_button"
-            app:layout_constraintHorizontal_bias="0.564"
-            app:layout_constraintStart_toStartOf="parent" />
-        -->
+            app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
 

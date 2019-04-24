@@ -315,9 +315,17 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
             startActivity(intent);
             */
 
+            Intent resIntent = getIntent();
+            resIntent.putExtra("result_uri", resultURI.toString());
+            resIntent.setData(resultURI);
+            setResult(RESULT_OK, resIntent);
+            finish();
+
+            /*
             Intent intent = new Intent(this, CreateNoteActivity.class);
             intent.putExtra("result_uri", resultURI.toString());
             startActivity(intent);
+            */
 
         } else if (resultCode == RESULT_CANCELED && requestCode == PESDK_RESULT) {
             // Editor was canceled

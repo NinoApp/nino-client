@@ -1,6 +1,5 @@
 package com.maubis.scarlet.base.note.creation.specs
 
-import android.content.Intent
 import android.graphics.Color
 import com.facebook.litho.*
 import com.facebook.litho.annotations.*
@@ -11,7 +10,6 @@ import com.facebook.yoga.YogaEdge
 import com.maubis.scarlet.base.R
 import com.maubis.scarlet.base.core.format.FormatType
 import com.maubis.scarlet.base.core.format.MarkdownType
-import com.maubis.scarlet.base.iink.IInkActivity
 import com.maubis.scarlet.base.note.copy
 import com.maubis.scarlet.base.note.creation.activity.CreateNoteActivity
 import com.maubis.scarlet.base.note.creation.activity.ViewAdvancedNoteActivity
@@ -29,7 +27,11 @@ enum class NoteCreateBottomBarType {
   DEFAULT_MARKDOWNS,
   ALL_SEGMENTS,
   ALL_MARKDOWNS,
+
+  IINK,
+  NINO_SPECIAL,
   OPTIONS,
+  MAIN
 }
 
 @LayoutSpec
@@ -39,7 +41,7 @@ object NoteCreationBottomBarSpec {
   fun onCreateInitialState(
       context: ComponentContext,
       state: StateValue<NoteCreateBottomBarType>) {
-    state.set(if (sEditorMarkdownDefault) NoteCreateBottomBarType.DEFAULT_MARKDOWNS else NoteCreateBottomBarType.DEFAULT_SEGMENTS)
+    state.set(NoteCreateBottomBarType.MAIN)
   }
 
   @OnCreateLayout
@@ -54,7 +56,32 @@ object NoteCreationBottomBarSpec {
         .paddingDip(YogaEdge.HORIZONTAL, 4f)
         .alignItems(YogaAlign.CENTER)
 
+
+
+    if (state != NoteCreateBottomBarType.MAIN) {
+      row.child(bottomBarRoundIcon(context, colorConfig)
+              .iconRes(R.drawable.ic_chevron_left)
+              .onClick { }
+              .isClickDisabled(true)
+              .clickHandler(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.MAIN)))
+          //.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
+    }
+
     val content = when (state) {
+      NoteCreateBottomBarType.MAIN ->
+        NoteCreationMainBottomBar.create(context)
+                .colorConfig(colorConfig)
+                .flexGrow(1f)
+                .optionsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.OPTIONS))
+                .iinkClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.IINK))
+                .ninoSpecialClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.NINO_SPECIAL))
+                .segmentsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_SEGMENTS))
+                .markdownsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_MARKDOWNS))
+      NoteCreateBottomBarType.OPTIONS ->
+        NoteCreationOptionsBottomBar.create(context)
+                .colorConfig(colorConfig)
+                .flexGrow(1f)
+
       NoteCreateBottomBarType.DEFAULT_SEGMENTS ->
         NoteCreationSegmentsBottomBar.create(context)
             .colorConfig(colorConfig)
@@ -67,80 +94,35 @@ object NoteCreationBottomBarSpec {
       NoteCreateBottomBarType.ALL_SEGMENTS -> HorizontalScroll.create(context)
           .flexGrow(1f)
           .contentProps(NoteCreationAllSegmentsBottomBar.create(context).colorConfig(colorConfig))
+      NoteCreateBottomBarType.IINK ->
+        NoteCreationIInkBottomBar.create(context)
+                .colorConfig(colorConfig)
+                .flexGrow(1f)
+      NoteCreateBottomBarType.NINO_SPECIAL->
+        NoteCreationSegmentsBottomBar.create(context)
+                .colorConfig(colorConfig)
+                .flexGrow(1f)
+                .toggleButtonClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.ALL_SEGMENTS))
       NoteCreateBottomBarType.ALL_MARKDOWNS -> HorizontalScroll.create(context)
           .flexGrow(1f)
           .contentProps(NoteCreationAllMarkdownsBottomBar.create(context).colorConfig(colorConfig))
-      NoteCreateBottomBarType.OPTIONS ->
-        NoteCreationOptionsBottomBar.create(context)
-            .colorConfig(colorConfig)
-            .flexGrow(1f)
     }
     row.child(content)
 
-    val extraRoundIcon = bottomBarRoundIcon(context, colorConfig)
-        .bgColor(Color.TRANSPARENT)
-        .onClick { }
-        .isClickDisabled(true)
-    val icon = when (state) {
-      NoteCreateBottomBarType.DEFAULT_SEGMENTS -> extraRoundIcon
-          .iconRes(R.drawable.ic_markdown_logo)
-          .clickHandler(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_MARKDOWNS))
-      NoteCreateBottomBarType.DEFAULT_MARKDOWNS -> extraRoundIcon
-          .iconRes(R.drawable.ic_formats_logo)
-          .clickHandler(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_SEGMENTS))
-      NoteCreateBottomBarType.ALL_SEGMENTS -> extraRoundIcon
-          .marginDip(YogaEdge.HORIZONTAL, 4f)
-          .iconRes(R.drawable.ic_close_white_48dp)
-          .clickHandler(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_SEGMENTS))
-      NoteCreateBottomBarType.ALL_MARKDOWNS -> extraRoundIcon
-          .marginDip(YogaEdge.HORIZONTAL, 4f)
-          .iconRes(R.drawable.ic_close_white_48dp)
-          .clickHandler(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_MARKDOWNS))
-      NoteCreateBottomBarType.OPTIONS -> EmptyComponent.create(context)
-    }
-    row.child(icon)
 
-      val moreIcon = when (state) {
-          NoteCreateBottomBarType.DEFAULT_MARKDOWNS, NoteCreateBottomBarType.DEFAULT_SEGMENTS, NoteCreateBottomBarType.OPTIONS ->
-              bottomBarRoundIcon(context, colorConfig)
-                      .iconRes(R.drawable.ic_more_options)
-                      .bgColor(Color.TRANSPARENT)
-                      .onClick { }
-                      .isClickDisabled(true)
-                      .clickHandler(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.OPTIONS))
-          else -> EmptyComponent.create(context)
-      }
-      row.child(moreIcon)
+    row.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
+       .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_done_white_48dp)
+                    .iconColor(Color.GREEN)
+                    .onClick { activity.onBackPressed() })
 
-      val okeyIcon = when (state) {
-          NoteCreateBottomBarType.DEFAULT_MARKDOWNS, NoteCreateBottomBarType.DEFAULT_SEGMENTS, NoteCreateBottomBarType.OPTIONS ->
-              bottomBarRoundIcon(context, colorConfig)
-                      .iconRes(R.drawable.ic_action_enabled)
-                      .bgColor(Color.TRANSPARENT)
-                      .onClick { activity.onBackPressed() }
-          else -> EmptyComponent.create(context)
-      }
-      row.child(okeyIcon)
-
-      return bottomBarCard(context, row.build(), colorConfig).build()
+    return bottomBarCard(context, row.build(), colorConfig).build()
   }
 
   @OnEvent(ClickEvent::class)
   fun onStateChangeClick(context: ComponentContext,
                          @State state: NoteCreateBottomBarType,
                          @Param nextState: NoteCreateBottomBarType) {
-    if (state == NoteCreateBottomBarType.OPTIONS && nextState == NoteCreateBottomBarType.OPTIONS) {
-      NoteCreationBottomBar.onStateChange(context, NoteCreateBottomBarType.DEFAULT_SEGMENTS)
-      return
-    }
-    if (state == NoteCreateBottomBarType.ALL_MARKDOWNS && nextState == NoteCreateBottomBarType.DEFAULT_SEGMENTS) {
-      NoteCreationBottomBar.onStateChange(context, NoteCreateBottomBarType.ALL_SEGMENTS)
-      return
-    }
-    if (state == NoteCreateBottomBarType.ALL_SEGMENTS && nextState == NoteCreateBottomBarType.DEFAULT_MARKDOWNS) {
-      NoteCreationBottomBar.onStateChange(context, NoteCreateBottomBarType.ALL_MARKDOWNS)
-      return
-    }
     NoteCreationBottomBar.onStateChange(context, nextState)
   }
 
@@ -151,34 +133,77 @@ object NoteCreationBottomBarSpec {
 }
 
 @LayoutSpec
+object NoteCreationMainBottomBarSpec {
+  @OnCreateLayout
+  fun onCreate(context: ComponentContext,
+               @Prop colorConfig: ToolbarColorConfig,
+               @Prop optionsClick: EventHandler<ClickEvent>,
+               @Prop iinkClick: EventHandler<ClickEvent>,
+               @Prop ninoSpecialClick: EventHandler<ClickEvent>,
+               @Prop segmentsClick: EventHandler<ClickEvent>,
+               @Prop markdownsClick: EventHandler<ClickEvent>): Component {
+    val activity = context.androidContext as CreateNoteActivity
+    return Row.create(context)
+            .alignItems(YogaAlign.CENTER)
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_more_options)
+                    .bgColor(Color.TRANSPARENT)
+                    .iconColor(activity.note().color)
+                    .onClick { }
+                    .isClickDisabled(true)
+                    .clickHandler(optionsClick))
+            .child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .bgColor(Color.TRANSPARENT)
+                    .iconRes(R.drawable.ic_whats_new)
+                    .onClick { }
+                    .isClickDisabled(true)
+                    .clickHandler(ninoSpecialClick))
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .bgColor(Color.TRANSPARENT)
+                    .iconRes(R.drawable.ic_border_color_white_24dp)
+                    .onClick { }
+                    .isClickDisabled(true)
+                    .clickHandler(iinkClick))
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .bgColor(Color.TRANSPARENT)
+                    .iconRes(R.drawable.ic_action_grid)
+                    .onClick { }
+                    .isClickDisabled(true)
+                    .clickHandler(segmentsClick))
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .bgColor(Color.TRANSPARENT)
+                    .iconRes(R.drawable.icon_realtime_markdown)
+                    .onClick { }
+                    .isClickDisabled(true)
+                    .clickHandler(markdownsClick))
+            .build()
+  }
+}
+
+@LayoutSpec
 object NoteCreationOptionsBottomBarSpec {
   @OnCreateLayout
   fun onCreate(context: ComponentContext,
                @Prop colorConfig: ToolbarColorConfig): Component {
     val activity = context.androidContext as CreateNoteActivity
     return Row.create(context)
-        .alignItems(YogaAlign.CENTER)
-        .child(bottomBarRoundIcon(context, colorConfig)
-            .bgColor(Color.TRANSPARENT)
-            .iconRes(R.drawable.icon_markdown_help)
-            .onClick { openSheet(activity, MarkdownHelpBottomSheet()) })
-        .child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
-        .child(bottomBarRoundIcon(context, colorConfig)
-            .iconRes(R.drawable.ic_undo_history)
-            .onClick { activity.onHistoryClick(true) })
-        .child(bottomBarRoundIcon(context, colorConfig)
-            .bgColor(activity.note().color)
-            .bgAlpha(255)
-            .iconRes(R.drawable.ic_empty)
-            .onClick { activity.onColorChangeClick() }
-            .showBorder(true)
-            .iconMarginHorizontalRes(R.dimen.toolbar_round_small_icon_margin_horizontal)
-            .iconSizeRes(R.dimen.toolbar_round_small_icon_size))
-        .child(bottomBarRoundIcon(context, colorConfig)
-            .iconRes(R.drawable.ic_redo_history)
-            .onClick { activity.onHistoryClick(false) })
-        .child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
-        .build()
+            .alignItems(YogaAlign.CENTER)
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_undo_history)
+                    .onClick { activity.onHistoryClick(true) })
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .bgColor(activity.note().color)
+                    .bgAlpha(255)
+                    .iconRes(R.drawable.ic_empty)
+                    .onClick { activity.onColorChangeClick() }
+                    .showBorder(true)
+                    .iconMarginHorizontalRes(R.dimen.toolbar_round_small_icon_margin_horizontal)
+                    .iconSizeRes(R.dimen.toolbar_round_small_icon_size))
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_redo_history)
+                    .onClick { activity.onHistoryClick(false) })
+            .build()
   }
 }
 
@@ -190,25 +215,49 @@ object NoteCreationSegmentsBottomBarSpec {
                @Prop toggleButtonClick: EventHandler<ClickEvent>): Component {
     val activity = context.androidContext as CreateNoteActivity
     return Row.create(context)
-        .alignItems(YogaAlign.CENTER)
-        .child(bottomBarRoundIcon(context, colorConfig)
-            .iconRes(R.drawable.ic_title_white_48dp)
-            .onClick { activity.addEmptyItemAtFocused(FormatType.HEADING) })
-        .child(bottomBarRoundIcon(context, colorConfig)
-            .iconRes(R.drawable.ic_subject_white_48dp)
-            .onClick { activity.addEmptyItemAtFocused(FormatType.TEXT) })
-        .child(bottomBarRoundIcon(context, colorConfig)
-            .iconRes(R.drawable.ic_check_box_white_24dp)
-            .onClick { activity.addEmptyItemAtFocused(FormatType.CHECKLIST_UNCHECKED) })
-        .child(bottomBarRoundIcon(context, colorConfig)
-            .iconRes(R.drawable.ic_format_quote_white_48dp)
-            .onClick { activity.addEmptyItemAtFocused(FormatType.QUOTE) })
-        .child(bottomBarRoundIcon(context, colorConfig)
-            .iconRes(R.drawable.ic_more_horiz_white_48dp)
-            .onClick { }
-            .isClickDisabled(true)
-            .clickHandler(toggleButtonClick))
-        .build()
+            .alignItems(YogaAlign.CENTER)
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_title_white_48dp)
+                    .onClick { activity.addEmptyItemAtFocused(FormatType.HEADING) })
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_subject_white_48dp)
+                    .onClick { activity.addEmptyItemAtFocused(FormatType.TEXT) })
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_check_box_white_24dp)
+                    .onClick { activity.addEmptyItemAtFocused(FormatType.CHECKLIST_UNCHECKED) })
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_format_quote_white_48dp)
+                    .onClick { activity.addEmptyItemAtFocused(FormatType.QUOTE) })
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_more_horiz_white_48dp)
+                    .onClick { }
+                    .isClickDisabled(true)
+                    .clickHandler(toggleButtonClick))
+            .build()
+  }
+}
+
+@LayoutSpec
+object NoteCreationIInkBottomBarSpec {
+  @OnCreateLayout
+  fun onCreate(context: ComponentContext,
+               @Prop colorConfig: ToolbarColorConfig): Component {
+    val activity = context.androidContext as CreateNoteActivity
+    return Row.create(context)
+            .alignItems(YogaAlign.CENTER)
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.icon_realtime_markdown) // drawing to text block
+                    .onClick { activity.addEmptyItemAtFocused(FormatType.TEXT) })
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_formats_logo) // drawing to math equation in image format
+                    .onClick { activity.addEmptyItemAtFocused(FormatType.TEXT) })
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_action_grid) // drawing to diagrams in image format
+                    .onClick { activity.addEmptyItemAtFocused(FormatType.TEXT) })
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_border_color_white_24dp) // direct drawing in image format
+                    .onClick { activity.addEmptyItemAtFocused(FormatType.TEXT) })
+            .build()
   }
 }
 
