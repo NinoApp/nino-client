@@ -61,6 +61,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     startHandler()
 
     val fab: View = findViewById(R.id.nino_fab)
+    fab.visibility = View.VISIBLE
     fab.setOnClickListener { view ->
       addEmptyItem(FormatType.IMAGE)
 
@@ -71,6 +72,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       //context.startActivity(intent)
     }
 
+    /*
     if (intent.hasExtra("result_uri")) {
       var targetFile = NoteImage(context).renameOrCopy(note!!, File(Uri.parse(intent.getStringExtra("result_uri")).path))
       triggerImageLoaded(ninoUid, targetFile)
@@ -85,6 +87,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       triggerImageLoaded(maxUid - 1, targetFile)
 
     }
+    */
 
     if (getSupportActionBar() != null) {
       getSupportActionBar()?.setDisplayHomeAsUpEnabled(false);

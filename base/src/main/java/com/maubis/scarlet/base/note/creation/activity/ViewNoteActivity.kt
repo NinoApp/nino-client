@@ -83,6 +83,9 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
 
     setRecyclerView()
 
+    val fab: View = findViewById(R.id.nino_fab)
+    fab.visibility = View.INVISIBLE
+
     GlobalScope.launch(Dispatchers.IO) {
       var noteId = intent.getIntExtra(INTENT_KEY_NOTE_ID, 0)
       if (noteId == 0 && savedInstanceState != null) {
