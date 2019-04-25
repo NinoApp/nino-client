@@ -16,7 +16,6 @@
     <string name="main_add_a_quick_note">Add a quick note&#8230;</string>
 
     <string name="shortcut_add_note">Add Note</string>
-    <string name="shortcut_add_list">Add Checklist</string>
 
     <string name="open_note_night_mode">Night Mode</string>
     <string name="open_note_day_mode">Day Mode</string>
@@ -240,10 +239,11 @@
     %s is open source and anyone is open to contribute to making it better. It is currently built and maintained by %s.
   </string>
     <string name="about_page_description">
-    %s is a simple note taking app. It allows quick Rich Text input without making the experience very difficult to use. It makes multi-tasking a breeze.
+    %s is a mobile app that converts photos of study notes into an editable document. It is unique in the way it reads more than only alphanumeric characters; hence, Nino Is Not OCR. Nino may take any note with text, mathematical equations or plots, and creates a digital version of it. Once a user uploads or takes a photo, the system detects and digitizes the note while categorizing it. Users may create, update or delete categories for notes, as well as editing the notes and searching through them. Nino provides users with automated text summarization, based on keywords extracted from the text, which enables searching through notes and links keywords to related Wikipedia pages. Users may also share or export their notes in LaTeX or PDF format.
   </string>
-    <string name="about_page_about_us_details">Hi, we are a pair of designer and programmer, who created %s .
-    We endeavour to build beautiful, carefully designed free, ad-free or minimal ads apps which serve great utility to everyone!</string>
+    <string name="about_page_about_us_details">Hi, we are a pair of Bilkent University senior students, Selim Fırat Yılmaz &amp; Batuhan Kaynak, who created %s .
+    We endeavour to build beautiful, carefully designed free, ad-free or minimal ads apps which serve great utility to everyone!
+    </string>
 
     <string name="tag_sheet_create_title">Add New Tag&#8230;</string>
     <string name="tag_sheet_edit_title">Edit Tag&#8230;</string>
