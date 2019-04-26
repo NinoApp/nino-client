@@ -9,10 +9,14 @@ import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
+import android.util.Log
 import android.view.View
 import com.facebook.litho.ComponentContext
 import com.facebook.litho.LithoView
+import com.google.gson.JsonObject
+import com.koushikdutta.ion.Ion
 import com.maubis.scarlet.base.R
+import com.maubis.scarlet.base.config.CoreConfig
 import com.maubis.scarlet.base.config.CoreConfig.Companion.foldersDb
 import com.maubis.scarlet.base.core.format.Format
 import com.maubis.scarlet.base.core.format.FormatBuilder
@@ -20,19 +24,25 @@ import com.maubis.scarlet.base.core.format.FormatType
 import com.maubis.scarlet.base.core.format.MarkdownType
 import com.maubis.scarlet.base.core.note.*
 import com.maubis.scarlet.base.core.note.NoteImage.Companion.deleteIfExist
+import com.maubis.scarlet.base.core.tag.TagBuilder
 import com.maubis.scarlet.base.database.room.note.Note
 import com.maubis.scarlet.base.nino.CameraActivity
+import com.maubis.scarlet.base.note.*
 import com.maubis.scarlet.base.note.creation.specs.NoteCreationBottomBar
 import com.maubis.scarlet.base.note.creation.specs.NoteCreationTopBar
-import com.maubis.scarlet.base.note.delete
 import com.maubis.scarlet.base.note.formats.recycler.FormatImageViewHolder
 import com.maubis.scarlet.base.note.formats.recycler.FormatTextViewHolder
-import com.maubis.scarlet.base.note.saveToSync
+import com.maubis.scarlet.base.note.tag.save
 import com.maubis.scarlet.base.settings.sheet.ColorPickerBottomSheet
 import com.maubis.scarlet.base.settings.sheet.ColorPickerDefaultController
+import com.maubis.scarlet.base.settings.sheet.UISettingsOptionsBottomSheet
 import com.maubis.scarlet.base.support.recycler.SimpleItemTouchHelper
 import com.maubis.scarlet.base.support.specs.ToolbarColorConfig
 import kotlinx.android.synthetic.main.activity_advanced_note.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
@@ -207,13 +217,62 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     }
   }
 
+  fun smartTagging() {
+    val isSmartTaggingEnabled = CoreConfig.instance.store().get(UISettingsOptionsBottomSheet.KEY_SMART_TAGGING_ENABLED, true)
+    if (isSmartTaggingEnabled) {
+        val SERVER_POST_URL = "http://35.237.158.162:8000/api/analyze_text/"
+        val text = note!!.getTitle() + " \n " + note!!.getFullText()
+        Log.v("NoteExtensions", "entered smartTagging with text: " + text )
+        val json = JsonObject();
+        json.addProperty("text", text);
+
+        Ion.with(applicationContext)
+              .load(SERVER_POST_URL)
+              .setLogging("IONLOGS", Log.DEBUG)
+              .setJsonObjectBody(json)
+              .asJsonObject()
+              .setCallback { e, res ->
+                run {
+                  val entitylist = res
+                          .getAsJsonArray("entitylist")
+                          .iterator()
+
+                  Log.v("CreateNoteActivity", "ion result: " + res.toString())
+
+                  val tb = TagBuilder()
+                  for (jse in entitylist) {
+                    val tag = tb.emptyTag()
+
+                    tag.title = jse.asString
+                    Log.v("CreateNoteActivity", "tagtitle: " + tag.title)
+                    tag.save()
+                    note!!.addTag(tag)
+
+                  }
+
+                  notifyTagsChanged(note!!)
+                }
+              }
+
+
+
+      }
+
+
+
+  }
+
   override fun onPause() {
     super.onPause()
+
     active = false
     maybeUpdateNoteWithoutSync()
     val destroyed = destroyIfNeeded()
     if (!destroyed && !note!!.disableBackup) {
       note!!.saveToSync(this)
+    }
+    if (!destroyed){
+      smartTagging()
     }
   }
 

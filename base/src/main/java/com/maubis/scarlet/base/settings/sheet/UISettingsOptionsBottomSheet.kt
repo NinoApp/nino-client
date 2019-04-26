@@ -112,17 +112,28 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
         visible = flavor != Flavor.NONE,
         actionIcon = if (flavor == Flavor.PRO) 0 else R.drawable.ic_rating
     ))
-    options.add(LithoOptionsItem(
-        title = R.string.markdown_sheet_home_markdown_support,
-        subtitle = R.string.markdown_sheet_home_markdown_support_subtitle,
-        icon = R.drawable.ic_markdown_logo,
-        listener = {
-          sMarkdownEnabledHome = !sMarkdownEnabledHome
-          reset(activity, dialog)
-        },
-        isSelectable = true,
-        selected = sMarkdownEnabledHome
-    ))
+      options.add(LithoOptionsItem(
+              title = R.string.note_option_smart_tagging,
+              subtitle = R.string.note_option_smart_tagging_subtitle,
+              icon = R.drawable.ic_action_tags,
+              listener = {
+                  sSmartTaggingEnabled = !sSmartTaggingEnabled
+                  reset(activity, dialog)
+              },
+              isSelectable = true,
+              selected = sSmartTaggingEnabled
+      ))
+      options.add(LithoOptionsItem(
+              title = R.string.markdown_sheet_home_markdown_support,
+              subtitle = R.string.markdown_sheet_home_markdown_support_subtitle,
+              icon = R.drawable.ic_markdown_logo,
+              listener = {
+                  sMarkdownEnabledHome = !sMarkdownEnabledHome
+                  reset(activity, dialog)
+              },
+              isSelectable = true,
+              selected = sMarkdownEnabledHome
+      ))
     return options
   }
 
@@ -131,6 +142,7 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
     const val KEY_LIST_VIEW = "KEY_LIST_VIEW"
     const val KEY_NOTE_VIEWER_BG_COLOR = "KEY_NOTE_VIEWER_BG_COLOR"
     const val KEY_MARKDOWN_HOME_ENABLED = "KEY_MARKDOWN_HOME_ENABLED"
+    const val KEY_SMART_TAGGING_ENABLED = "KEY_SMART_TAGGING_ENABLED "
 
     fun openSheet(activity: MainActivity) {
       val sheet = UISettingsOptionsBottomSheet()
@@ -148,5 +160,9 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
     var sMarkdownEnabledHome: Boolean
       get() = CoreConfig.instance.store().get(KEY_MARKDOWN_HOME_ENABLED, true)
       set(value) = CoreConfig.instance.store().put(KEY_MARKDOWN_HOME_ENABLED, value)
+
+    var sSmartTaggingEnabled: Boolean
+      get() = CoreConfig.instance.store().get(KEY_SMART_TAGGING_ENABLED, true)
+      set(value) = CoreConfig.instance.store().put(KEY_SMART_TAGGING_ENABLED, value)
   }
 }

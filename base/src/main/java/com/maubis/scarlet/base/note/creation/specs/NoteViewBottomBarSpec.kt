@@ -8,6 +8,7 @@ import com.facebook.litho.widget.HorizontalScroll
 import com.facebook.yoga.YogaAlign
 import com.facebook.yoga.YogaEdge
 import com.maubis.scarlet.base.R
+import com.maubis.scarlet.base.config.CoreConfig
 import com.maubis.scarlet.base.core.format.FormatType
 import com.maubis.scarlet.base.core.format.MarkdownType
 import com.maubis.scarlet.base.note.copy
@@ -16,6 +17,7 @@ import com.maubis.scarlet.base.note.creation.activity.ViewAdvancedNoteActivity
 import com.maubis.scarlet.base.note.creation.sheet.MarkdownHelpBottomSheet
 import com.maubis.scarlet.base.note.creation.sheet.sEditorMarkdownDefault
 import com.maubis.scarlet.base.note.share
+import com.maubis.scarlet.base.settings.sheet.UISettingsOptionsBottomSheet
 import com.maubis.scarlet.base.support.sheets.openSheet
 import com.maubis.scarlet.base.support.specs.EmptySpec
 import com.maubis.scarlet.base.support.specs.ToolbarColorConfig
@@ -114,7 +116,9 @@ object NoteCreationBottomBarSpec {
        .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_done_white_48dp)
                     .iconColor(Color.GREEN)
-                    .onClick { activity.onBackPressed() })
+                    .onClick {
+                      activity.onBackPressed()
+                    })
 
     return bottomBarCard(context, row.build(), colorConfig).build()
   }

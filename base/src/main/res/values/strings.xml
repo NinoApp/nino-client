@@ -183,6 +183,8 @@
     <string name="markdown_sheet_markdown_support">Markdown Support</string>
     <string name="markdown_sheet_markdown_support_subtitle">Allow markdown supported formatting</string>
     <string name="markdown_sheet_home_markdown_support">Markdown in Note List</string>
+    <string name="note_option_smart_tagging" translatable="false">Automated Smart Tagging of Notes</string>
+    <string name="note_option_smart_tagging_subtitle" translatable="false">Enable creating tags from note contents using named entity recognition and keyphrase extraction models powered by machine learning.</string>
     <string name="markdown_sheet_home_markdown_support_subtitle">Enable Markdown formatting in the list of notes</string>
     <string name="markdown_sheet_examples">Examples</string>
     <string name="markdown_sheet_examples_list" translatable="false"># Heading \n## Subheading \n\n```\nblock of code\n```\n\n> quote\n\n- **bold**\n- *italics*\n- _underline_\n- ~~strike~~\n- `code`\n</string>

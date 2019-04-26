@@ -116,6 +116,8 @@ fun getInstallProInformationItem(context: Context): InformationRecyclerItem {
 }
 
 fun shouldShowSignInformationItem(): Boolean {
+  return !CoreConfig.instance.authenticator().isLoggedIn()
+  /*
   if (CoreConfig.instance.authenticator().isLoggedIn()
       || CoreConfig.instance.appFlavor() == Flavor.NONE) {
     return false
@@ -126,6 +128,7 @@ fun shouldShowSignInformationItem(): Boolean {
   }
   return probability(0.25f) //TODO  MAKE THIS 1.0F
       && !CoreConfig.instance.store().get(KEY_INFO_SIGN_IN, false)
+      */
 }
 
 fun getSignInInformationItem(context: Context): InformationRecyclerItem {
