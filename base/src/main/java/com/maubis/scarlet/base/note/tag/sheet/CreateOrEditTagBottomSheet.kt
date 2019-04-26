@@ -72,6 +72,7 @@ class CreateOrEditTagBottomSheet : ThemedBottomSheetFragment() {
 
   private fun onActionClick(tag: Tag, title: String): Boolean {
     tag.title = title
+    tag.uuid = title
     if (tag.title.isBlank()) {
       tag.delete()
       return false
