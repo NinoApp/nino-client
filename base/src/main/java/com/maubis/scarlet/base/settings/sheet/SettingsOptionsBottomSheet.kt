@@ -95,26 +95,7 @@ class SettingsOptionsBottomSheet : LithoOptionBottomSheet() {
         subtitle = R.string.home_option_about_subtitle,
         icon = R.drawable.ic_info,
         listener = {
-          openSheet(activity, AboutSettingsOptionsBottomSheet())
-        }
-    ))
-    options.add(LithoOptionsItem(
-        title = R.string.home_option_install_pro_app,
-        subtitle = R.string.home_option_install_pro_app_details,
-        icon = R.drawable.ic_favorite_white_48dp,
-        listener = {
-          IntentUtils.openAppPlayStore(context, PRO_APP_PACKAGE_NAME)
-          dismiss()
-        },
-        visible = CoreConfig.instance.appFlavor() == Flavor.LITE && !hasProAppInstalled(activity)
-    ))
-    options.add(LithoOptionsItem(
-        title = R.string.home_option_rate_and_review,
-        subtitle = R.string.home_option_rate_and_review_subtitle,
-        icon = R.drawable.ic_rating,
-        listener = {
-          IntentUtils.openAppPlayStore(activity)
-          dismiss()
+          openSheet(activity, AboutUsBottomSheet())
         }
     ))
     options.add(LithoOptionsItem(

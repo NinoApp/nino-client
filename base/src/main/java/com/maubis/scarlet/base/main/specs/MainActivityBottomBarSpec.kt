@@ -45,27 +45,20 @@ object MainActivityBottomBarSpec {
         .onClick {
           HomeNavigationBottomSheet.openSheet(activity)
         })
-    row.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
+
+      row.child(bottomBarRoundIcon(context, colorConfig)
+              .bgColor(Color.TRANSPARENT)
+              .iconRes(R.drawable.icon_add_notebook)
+              .onClick {
+                  CreateOrEditFolderBottomSheet.openSheet(
+                          activity,
+                          FolderBuilder().emptyFolder(sNoteDefaultColor),
+                          { _, _ -> activity.setupData() })
+              })
+      row.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
 
     row.child(bottomBarRoundIcon(context, colorConfig)
-        .iconRes(R.drawable.icon_add_notebook)
-        .onClick {
-          CreateOrEditFolderBottomSheet.openSheet(
-              activity,
-              FolderBuilder().emptyFolder(sNoteDefaultColor),
-              { _, _ -> activity.setupData() })
-        })
-      /*
-    row.child(bottomBarRoundIcon(context, colorConfig)
-        .iconRes(R.drawable.icon_add_list)
-        .onClick {
-          val intent = CreateNoteActivity.getNewChecklistNoteIntent(
-              activity,
-              activity.config.folders.firstOrNull()?.uuid ?: "")
-          activity.startActivity(intent)
-        })
-        */
-    row.child(bottomBarRoundIcon(context, colorConfig)
+            .bgColor(Color.TRANSPARENT)
         .iconRes(R.drawable.icon_add_note)
         .onClick {
           val intent = CreateNoteActivity.getNewNoteIntent(

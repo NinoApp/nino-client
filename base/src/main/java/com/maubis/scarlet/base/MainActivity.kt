@@ -240,11 +240,7 @@ class MainActivity : ThemedActivity(), INoteOptionSheetActivity {
 
   private fun addInformationItem(index: Int) {
     val informationItem = when {
-      shouldShowMigrateToProAppInformationItem(this) -> getMigrateToProAppInformationItem(this)
       shouldShowSignInformationItem() -> getSignInInformationItem(this)
-      shouldShowAppUpdateInformationItem() -> getAppUpdateInformationItem(this)
-      shouldShowReviewInformationItem() -> getReviewInformationItem(this)
-      shouldShowInstallProInformationItem() -> getInstallProInformationItem(this)
       shouldShowThemeInformationItem() -> getThemeInformationItem(this)
       shouldShowBackupInformationItem() -> getBackupInformationItem(this)
       else -> null

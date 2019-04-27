@@ -20,12 +20,7 @@ class AboutUsBottomSheet : LithoBottomSheet() {
   override fun getComponent(componentContext: ComponentContext, dialog: Dialog): Component {
     val activity = context as MainActivity
 
-    var version = ""
-    try {
-      val pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0)
-      version = pInfo.versionName
-    } catch (exception: Exception) {
-    }
+    var version = "1.0.0"
 
     val appName = getString(R.string.app_name)
     val aboutUsDetails = getString(R.string.about_page_about_us_details, appName)
@@ -65,15 +60,6 @@ class AboutUsBottomSheet : LithoBottomSheet() {
             .marginDip(YogaEdge.BOTTOM, 16f)
             .text(version)
             .textColor(CoreConfig.instance.themeController().get(ThemeColorType.TERTIARY_TEXT)))
-        .child(BottomSheetBar.create(componentContext)
-            .primaryActionRes(R.string.about_page_rate)
-            .onPrimaryClick {
-              try {
-                IntentUtils.openAppPlayStore(activity)
-                dismiss()
-              } catch (exception: Exception) {
-              }
-            }.paddingDip(YogaEdge.VERTICAL, 8f))
     return component.build()
   }
 }
