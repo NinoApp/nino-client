@@ -234,7 +234,9 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
         try {
             JSONObject result =  new JSONObject(getIntent().getStringExtra("result"));
             JSONArray linesJson = result.getJSONArray("lines");
-            jo = jh.createJsonTemplate(linesJson);
+            Intent intent = getIntent();
+            jo = jh.createJsonTemplate(linesJson, intent.getIntExtra("img_width", 1000),
+                    intent.getIntExtra("img_height", 1000));
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -20,13 +20,16 @@ import java.util.List;
 
 public class JsonHelper {
 
+    private static int multip = 1;
     private JSONObject getTextJson(String text, double x, double y, double maxWidth) throws JSONException {
         JSONObject jto = new JSONObject();
         jto.put("type", "text");
 
         JSONObject options = new JSONObject();
         options.put("text", text);
-        options.put("fontSize", 0.01);//0.10000000149011612);
+        //options.put("fontSize", 0.001 * multip);//0.10000000149011612);
+        multip++;
+        options.put("fontSize", 0.01);
         options.put("fontIdentifier", "imgly_font_open_sans_bold");
         options.put("alignment", "left");
 
@@ -60,7 +63,7 @@ public class JsonHelper {
         return jto;
     }
 
-    public JSONObject createJsonTemplate(JSONArray lines) throws JSONException {
+    public JSONObject createJsonTemplate(JSONArray lines, int imgWidth, int imgHeight) throws JSONException {
         JSONObject jo = new JSONObject();
         try {
             jo.put("version", "3.0.0");
@@ -73,9 +76,12 @@ public class JsonHelper {
 
             JSONObject image = new JSONObject();
             image.put("type", "image/jpeg");
-            image.put("width", 3096);
-            image.put("height", 5504);
+            image.put("width", imgWidth);
+            image.put("height", imgHeight);
             jo.put("image", image);
+
+            Log.i("JSON_HELPER W", String.valueOf(imgWidth));
+            Log.i("JSON_HELPER H", String.valueOf(imgHeight));
 
             JSONArray operations = new JSONArray();
             //JSONObject transform = new JSONObject();
@@ -89,6 +95,41 @@ public class JsonHelper {
 
             JSONArray operations_sprite_option_sprites = new JSONArray();
 
+            ArrayList<Double> rightArr = new ArrayList<Double>();
+            ArrayList<Double> topArr = new ArrayList<Double>();
+            for(int i = 0; i < lines.length(); i++) {
+                JSONObject entry = lines.getJSONObject(i);
+                rightArr.add(entry.getDouble("right"));
+                topArr.add(entry.getDouble("top"));
+            }
+            double maxRight = rightArr.get(rightArr.indexOf(Collections.max(rightArr)));
+            double maxTop = rightArr.get(topArr.indexOf(Collections.max(topArr)));
+            double minTop = topArr.get(topArr.indexOf(Collections.min(topArr)));
+
+            //left:0 --> 0.1, right: maxRight --> 0.9
+            double lowerBound = 0.3;
+            double upperBound = 0.7;
+            double shiftPerUnit = (upperBound - lowerBound) / maxRight;
+            for(int i = 0; i < lines.length(); i++) {
+                JSONObject entry = lines.getJSONObject(i);
+                String text = entry.getString("text");
+                double x = entry.getDouble("left");
+                double y = entry.getDouble("bottom");
+
+                x = lowerBound + x * shiftPerUnit;
+                y = 0.1 + y * (0.8 / maxTop);
+                //y = (y - minTop)/(maxTop - minTop);
+                //y = y / maxTop; // change this to be same with x because why not;
+
+                double r = lowerBound + entry.getDouble("right") * shiftPerUnit;
+                double width = r - x;
+
+                Log.d("ATTEMPTING: TEXT", "text: " + text + " x: " + x + " y: " + y + " r: " + r + " mW: " + width);
+                JSONObject jsonTextObject = getTextJson(text, x, y, width);
+                operations_sprite_option_sprites.put(jsonTextObject);
+            }
+
+            /*
             ArrayList<Double> leftArr = new ArrayList<Double>();
             ArrayList<Double> topArr = new ArrayList<Double>();
             ArrayList<Double> rightArr = new ArrayList<Double>();
@@ -153,6 +194,7 @@ public class JsonHelper {
                 JSONObject jsonTextObject = getTextJson(text, x, y, maxWidth);
                 operations_sprite_option_sprites.put(jsonTextObject);
             }
+            */
 
             operations_sprite_options.put("sprites", operations_sprite_option_sprites);
             operations_sprite.put("options", operations_sprite_options);

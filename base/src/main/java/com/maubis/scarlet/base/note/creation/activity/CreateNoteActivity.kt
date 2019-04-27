@@ -195,8 +195,8 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     if (requestCode == NINO_REQUEST) {
       if(requestCode == Activity.RESULT_OK){
         ninoRequest = false
-        //val uri = Uri.parse(data?.getStringExtra("result_uri"))
-        val uri = data?.data
+        val uri = Uri.parse(data?.getStringExtra("result_uri"))
+        //val uri = data?.data
         val targetFile = NoteImage(context).renameOrCopy(note!!, File(uri?.getPath()))
         val index = getFormatIndex(data!!.getIntExtra("type", ninoUid))
         triggerImageLoaded(index, targetFile)

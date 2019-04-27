@@ -261,6 +261,8 @@ public class CameraActivity extends AppCompatActivity {
                     Intent editorIntent = new Intent(getApplicationContext(), PhotoEditorActivity.class);
                     try{
                         editorIntent.putExtra("result", result.toString());
+                        editorIntent.putExtra("img_width", finalImage.getWidth());
+                        editorIntent.putExtra("img_height", finalImage.getHeight());
                         startActivityForResult(editorIntent, PESDK_REQUEST);
                         //cpb.setProgress(100);
 
@@ -300,9 +302,9 @@ public class CameraActivity extends AppCompatActivity {
 
     public void afterImageTaken(){
         Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
-        progressView.setVisibility(View.VISIBLE);
+        showProgress(true);
         edgeDetectedTakenImage = detectNote(takenImage);
-        progressView.setVisibility(View.INVISIBLE);
+        showProgress(false);
         warpButton.setVisibility(View.VISIBLE);
         rotateButton.setVisibility(View.VISIBLE);
     }
@@ -428,40 +430,6 @@ public class CameraActivity extends AppCompatActivity {
             afterImageTaken();
         }
     }
-
-    /*
-    private Uri photoURI;
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-            }
-            if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(this,
-                        "com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-            }
-        }
-    }
-    */
-
-    /*
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-    */
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
