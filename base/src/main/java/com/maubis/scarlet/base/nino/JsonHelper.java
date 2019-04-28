@@ -103,8 +103,8 @@ public class JsonHelper {
                 topArr.add(entry.getDouble("top"));
             }
             double maxRight = rightArr.get(rightArr.indexOf(Collections.max(rightArr)));
-            double maxTop = rightArr.get(topArr.indexOf(Collections.max(topArr)));
-            double minTop = topArr.get(topArr.indexOf(Collections.min(topArr)));
+            double maxTop = topArr.get(topArr.indexOf(Collections.max(topArr)));
+            //double minTop = topArr.get(topArr.indexOf(Collections.min(topArr)));
 
             //left:0 --> 0.1, right: maxRight --> 0.9
             double lowerBound = 0.3;
@@ -117,7 +117,7 @@ public class JsonHelper {
                 double y = entry.getDouble("bottom");
 
                 x = lowerBound + x * shiftPerUnit;
-                y = 0.1 + y * (0.8 / maxTop);
+                y = lowerBound + y * ((upperBound - lowerBound) / maxTop);
                 //y = (y - minTop)/(maxTop - minTop);
                 //y = y / maxTop; // change this to be same with x because why not;
 

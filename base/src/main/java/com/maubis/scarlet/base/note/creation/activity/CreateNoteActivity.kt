@@ -182,20 +182,20 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     super.onActivityResult(requestCode, resultCode, data)
     EasyImage.handleActivityResult(requestCode, resultCode, data, this, object : DefaultCallback() {
       override fun onImagePicked(imageFile: File?, source: EasyImage.ImageSource?, type: Int) {
+        if (imageFile == null) {
+          return
+        }
+
         if(ninoRequest){
           val intent = Intent(context, CameraActivity::class.java)
           intent.putExtra("img_path", imageFile?.absolutePath)
           intent.putExtra("type", type)
           startActivityForResult(intent, NINO_REQUEST)
+        }else{
+          val targetFile = NoteImage(context).renameOrCopy(note!!, imageFile)
+          val index = getFormatIndex(type)
+          triggerImageLoaded(index, targetFile)
         }
-        if (imageFile == null) {
-          return
-        }
-
-        val targetFile = NoteImage(context).renameOrCopy(note!!, imageFile)
-        val index = getFormatIndex(type)
-        triggerImageLoaded(index, targetFile)
-
       }
 
       override fun onImagePickerError(e: Exception, source: EasyImage.ImageSource, type: Int) {
@@ -203,16 +203,13 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       }
     })
     if (requestCode == NINO_REQUEST) {
-      if(requestCode == Activity.RESULT_OK){
+      if(resultCode == RESULT_OK){
         ninoRequest = false
         val uri = Uri.parse(data?.getStringExtra("result_uri"))
         //val uri = data?.data
         val targetFile = NoteImage(context).renameOrCopy(note!!, File(uri?.getPath()))
         val index = getFormatIndex(data!!.getIntExtra("type", ninoUid))
         triggerImageLoaded(index, targetFile)
-        triggerImageLoaded(ninoUid, targetFile)
-        triggerImageLoaded(ninoUid + 1, targetFile)
-        triggerImageLoaded(maxUid - 1, targetFile)
       }
     }
   }
