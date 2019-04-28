@@ -67,7 +67,7 @@ class TagShortcutsBottomSheet : TagOptionItemBottomSheetBase() {
         options.add(TagOptionsItem(
                 tag = tag,
                 listener = View.OnClickListener {
-                  FinestWebView.Builder(activity.applicationContext).titleDefault(tag.title).show(url + tag.title)
+                  FinestWebView.Builder(activity.applicationContext).titleDefault(tag.title).showUrl(false).show(url + tag.title)
                 },
                 selected = true
         ))
