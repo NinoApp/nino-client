@@ -251,7 +251,6 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
                     val tag = tb.emptyTag()
 
                     tag.title = jse.asString
-                    tag.uuid = jse.asString
                     Log.v("CreateNoteActivity", "tagtitle: " + tag.title)
                     tag.save()
                     note!!.addTag(tag)
