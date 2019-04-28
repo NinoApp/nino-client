@@ -18,8 +18,13 @@
     android:label="@string/app_name"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    <activity android:name="com.maubis.scarlet.base.nino.PhotoEditorCameraActivity" />
     <activity android:name="com.maubis.scarlet.base.nino.PhotoEditorActivity" />
+
+    <activity
+        android:name="com.thefinestartist.finestwebview.FinestWebViewActivity"
+        android:configChanges="keyboardHidden|orientation|screenSize"
+        android:screenOrientation="sensor"
+        android:theme="@style/AppTheme" />
 
     <activity
         android:name="com.maubis.scarlet.base.iink.IInkActivity"

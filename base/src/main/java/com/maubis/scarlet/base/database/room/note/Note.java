@@ -21,6 +21,7 @@ public class Note {
   @Deprecated
   public String displayTimestamp = "";
 
+
   public Long timestamp;
 
   public Integer color;

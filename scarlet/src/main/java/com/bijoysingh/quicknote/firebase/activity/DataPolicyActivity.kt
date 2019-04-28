@@ -12,7 +12,6 @@ import com.bijoysingh.quicknote.R
 import com.github.bijoysingh.starter.util.IntentUtils
 import com.github.bijoysingh.starter.util.ToastHelper
 import com.maubis.scarlet.base.config.CoreConfig
-import com.maubis.scarlet.base.settings.sheet.PRIVACY_POLICY_LINK
 import com.maubis.scarlet.base.support.utils.bind
 import com.maubis.scarlet.base.support.ui.ThemedActivity
 import com.maubis.scarlet.base.support.ui.visibility
@@ -27,7 +26,6 @@ class DataPolicyActivity : ThemedActivity() {
   val acceptCheckBox: CheckBox by bind(R.id.accept_policy)
   val refuseBtn: TextView by bind(R.id.btn_refuse)
   val doneBtn: TextView by bind(R.id.btn_done)
-  val privacyPolicy: View by bind(R.id.heading_4)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -63,11 +61,6 @@ class DataPolicyActivity : ThemedActivity() {
     }
     refuseBtn.visibility = visibility(CoreConfig.instance.authenticator().isLoggedIn())
 
-    privacyPolicy.setOnClickListener {
-      startActivity(Intent(
-          Intent.ACTION_VIEW,
-          Uri.parse(PRIVACY_POLICY_LINK)))
-    }
   }
 
   override fun notifyThemeChange() {

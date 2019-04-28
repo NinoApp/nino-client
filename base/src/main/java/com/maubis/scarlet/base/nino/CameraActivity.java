@@ -8,19 +8,13 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -36,20 +30,19 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.maubis.scarlet.base.R;
-import com.maubis.scarlet.base.export.support.GenericFileProvider;
 import com.scanlibrary.PolygonView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
@@ -132,7 +125,10 @@ public class CameraActivity extends AppCompatActivity {
         warpButton = (Button) findViewById(R.id.warpButton);
         warpButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v){
+                for (int i = 0; i < rotation / 90; i++){
+                    Core.flip(rgba.t(), rgba, 1);
+                }
                 Mat result = warp(rgba);
                 finalImage = matToBit(result);
                 mainIv.setImageBitmap(finalImage);
@@ -265,6 +261,8 @@ public class CameraActivity extends AppCompatActivity {
                     Intent editorIntent = new Intent(getApplicationContext(), PhotoEditorActivity.class);
                     try{
                         editorIntent.putExtra("result", result.toString());
+                        editorIntent.putExtra("img_width", finalImage.getWidth());
+                        editorIntent.putExtra("img_height", finalImage.getHeight());
                         startActivityForResult(editorIntent, PESDK_REQUEST);
                         //cpb.setProgress(100);
 
@@ -304,7 +302,9 @@ public class CameraActivity extends AppCompatActivity {
 
     public void afterImageTaken(){
         Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
+        showProgress(true);
         edgeDetectedTakenImage = detectNote(takenImage);
+        showProgress(false);
         warpButton.setVisibility(View.VISIBLE);
         rotateButton.setVisibility(View.VISIBLE);
     }
@@ -430,40 +430,6 @@ public class CameraActivity extends AppCompatActivity {
             afterImageTaken();
         }
     }
-
-    /*
-    private Uri photoURI;
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-            }
-            if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(this,
-                        "com.maubis.scarlet.base.export.support.GenericFileProvider", photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-            }
-        }
-    }
-    */
-
-    /*
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-    */
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {

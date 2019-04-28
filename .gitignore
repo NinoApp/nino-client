@@ -14,7 +14,7 @@
 *.apk
 *.ap_
 *.aab
-
+build
 # Files for the ART/Dalvik VM
 *.dex
 
@@ -29,7 +29,8 @@ out/
 # Gradle files
 .gradle/
 build/
-
+opencv/build/
+UIReferenceImplementation/build/
 # Local configuration file (sdk path, etc)
 local.properties
 

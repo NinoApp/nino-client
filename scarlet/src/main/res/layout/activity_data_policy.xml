@@ -107,16 +107,6 @@
         android:textColor="@color/dark_tertiary_text"
         android:textSize="@dimen/font_size_normal" />
 
-      <TextView
-        android:id="@+id/heading_4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_normal"
-        android:text="@string/data_policy_click_for_privacy"
-        android:textColor="@color/dark_secondary_text"
-        android:textSize="@dimen/font_size_normal"
-        android:textStyle="bold" />
-
     </LinearLayout>
   </ScrollView>
 
