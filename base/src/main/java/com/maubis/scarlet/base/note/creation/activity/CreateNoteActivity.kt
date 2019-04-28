@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.speech.RecognizerIntent
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
@@ -211,6 +212,15 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
         val index = getFormatIndex(data!!.getIntExtra("type", ninoUid))
         triggerImageLoaded(index, targetFile)
       }
+    } else if (requestCode == 10) {
+      Log.v("CreateNoteActivity", "request with requestCode 10")
+      Log.v("CreateNoteActivity", "ResultCode " + resultCode.toString())
+      if (resultCode == RESULT_OK && data != null) {
+        val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+        Log.v("CreateNoteActivity", result.toString())
+        // TODO: could not complete due to network error. Will see later.
+      }
+
     }
   }
 
