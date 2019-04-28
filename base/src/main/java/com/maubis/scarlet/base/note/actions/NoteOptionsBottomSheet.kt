@@ -25,6 +25,7 @@ import com.maubis.scarlet.base.note.selection.activity.KEY_SELECT_EXTRA_MODE
 import com.maubis.scarlet.base.note.selection.activity.KEY_SELECT_EXTRA_NOTE_ID
 import com.maubis.scarlet.base.note.selection.activity.SelectNotesActivity
 import com.maubis.scarlet.base.note.tag.sheet.TagChooseOptionsBottomSheet
+import com.maubis.scarlet.base.note.tag.sheet.TagShortcutsBottomSheet
 import com.maubis.scarlet.base.notification.NotificationConfig
 import com.maubis.scarlet.base.notification.NotificationHandler
 import com.maubis.scarlet.base.settings.sheet.ColorPickerBottomSheet
@@ -58,12 +59,14 @@ class NoteOptionsBottomSheet() : GridBottomSheetBase() {
   private fun setupGrid(dialog: Dialog, note: Note) {
     val gridLayoutIds = arrayOf(
         R.id.quick_actions_properties,
+        R.id.tag_shortcuts,
         R.id.note_properties,
         R.id.grid_layout)
 
     val gridOptionFunctions = arrayOf(
         { noteForAction: Note -> getQuickActions(noteForAction) },
-        { noteForAction: Note -> getNotePropertyOptions(noteForAction) },
+        { noteForAction: Note -> getTagShortcuts(noteForAction) },
+            { noteForAction: Note -> getNotePropertyOptions(noteForAction) },
         { noteForAction: Note -> getOptions(noteForAction) })
     gridOptionFunctions.forEachIndexed { index, function ->
       GlobalScope.launch(Dispatchers.Main) {
@@ -221,73 +224,123 @@ class NoteOptionsBottomSheet() : GridBottomSheetBase() {
     return options
   }
 
-  private fun getNotePropertyOptions(note: Note): List<OptionsItem> {
-    val activity = context as ThemedActivity
-    if (activity !is INoteOptionSheetActivity) {
-      return emptyList()
+    private fun getNotePropertyOptions(note: Note): List<OptionsItem> {
+        val activity = context as ThemedActivity
+        if (activity !is INoteOptionSheetActivity) {
+            return emptyList()
+        }
+
+        val options = ArrayList<OptionsItem>()
+        options.add(OptionsItem(
+                title = R.string.choose_note_color,
+                subtitle = R.string.tap_for_action_color,
+                icon = R.drawable.ic_action_color,
+                listener = View.OnClickListener {
+                    val config = ColorPickerDefaultController(
+                            title = R.string.choose_note_color,
+                            colors = listOf(activity.resources.getIntArray(R.array.bright_colors), activity.resources.getIntArray(R.array.bright_colors_accent)),
+                            selectedColor = note.color,
+                            onColorSelected = { color ->
+                                note.color = color
+                                activity.updateNote(note)
+                            }
+                    )
+                    com.maubis.scarlet.base.support.sheets.openSheet(activity, ColorPickerBottomSheet().apply { this.config = config })
+                    dismiss()
+                }
+        ))
+        options.add(OptionsItem(
+                title = if (note.pinned) R.string.unpin_note else R.string.pin_note,
+                subtitle = if (note.pinned) R.string.unpin_note else R.string.pin_note,
+                icon = R.drawable.ic_pin,
+                listener = View.OnClickListener {
+                    note.pinned = !note.pinned
+                    activity.updateNote(note)
+                    dismiss()
+                }
+        ))
+        options.add(OptionsItem(
+                title = R.string.lock_note,
+                subtitle = R.string.lock_note,
+                icon = R.drawable.ic_action_lock,
+                listener = View.OnClickListener {
+                    note.locked = true
+                    activity.updateNote(note)
+                    dismiss()
+                },
+                visible = !note.locked
+        ))
+        options.add(OptionsItem(
+                title = R.string.unlock_note,
+                subtitle = R.string.unlock_note,
+                icon = R.drawable.ic_action_unlock,
+                listener = View.OnClickListener {
+                    EnterPincodeBottomSheet.openUnlockSheet(
+                            activity,
+                            object : EnterPincodeBottomSheet.PincodeSuccessOnlyListener {
+                                override fun onSuccess() {
+                                    note.locked = false
+                                    activity.updateNote(note)
+                                    dismiss()
+                                }
+                            })
+                },
+                visible = note.locked
+        ))
+        return options
     }
 
-    val options = ArrayList<OptionsItem>()
-    options.add(OptionsItem(
-        title = R.string.choose_note_color,
-        subtitle = R.string.tap_for_action_color,
-        icon = R.drawable.ic_action_color,
-        listener = View.OnClickListener {
-          val config = ColorPickerDefaultController(
-              title = R.string.choose_note_color,
-              colors = listOf(activity.resources.getIntArray(R.array.bright_colors), activity.resources.getIntArray(R.array.bright_colors_accent)),
-              selectedColor = note.color,
-              onColorSelected = { color ->
-                note.color = color
-                activity.updateNote(note)
-              }
-          )
-          com.maubis.scarlet.base.support.sheets.openSheet(activity, ColorPickerBottomSheet().apply { this.config = config })
-          dismiss()
-        }
-    ))
-    options.add(OptionsItem(
-        title = if (note.pinned) R.string.unpin_note else R.string.pin_note,
-        subtitle = if (note.pinned) R.string.unpin_note else R.string.pin_note,
-        icon = R.drawable.ic_pin,
-        listener = View.OnClickListener {
-          note.pinned = !note.pinned
-          activity.updateNote(note)
-          dismiss()
-        }
-    ))
-    options.add(OptionsItem(
-        title = R.string.lock_note,
-        subtitle = R.string.lock_note,
-        icon = R.drawable.ic_action_lock,
-        listener = View.OnClickListener {
-          note.locked = true
-          activity.updateNote(note)
-          dismiss()
-        },
-        visible = !note.locked
-    ))
-    options.add(OptionsItem(
-        title = R.string.unlock_note,
-        subtitle = R.string.unlock_note,
-        icon = R.drawable.ic_action_unlock,
-        listener = View.OnClickListener {
-          EnterPincodeBottomSheet.openUnlockSheet(
-              activity,
-              object : EnterPincodeBottomSheet.PincodeSuccessOnlyListener {
-                override fun onSuccess() {
-                  note.locked = false
-                  activity.updateNote(note)
-                  dismiss()
-                }
-              })
-        },
-        visible = note.locked
-    ))
-    return options
-  }
 
-  private fun getOptions(note: Note): List<OptionsItem> {
+    private fun getTagShortcuts(note: Note): List<OptionsItem> {
+        val activity = context as ThemedActivity
+        if (activity !is INoteOptionSheetActivity) {
+            return emptyList()
+        }
+
+        val options = ArrayList<OptionsItem>()
+        options.add(OptionsItem(
+                title = R.string.tag_shortcut_google,
+                subtitle = R.string.tag_shortcut,
+                icon = R.drawable.google,
+                listener = View.OnClickListener {
+                    TagShortcutsBottomSheet.openSheet(
+                            activity,
+                            note,
+                            "google"
+                    ) {  }
+                    dismiss()
+                }
+        ))
+        options.add(OptionsItem(
+                title = R.string.tag_shortcut_youtube,
+                subtitle = R.string.tag_shortcut,
+                icon = R.drawable.youtube,
+                listener = View.OnClickListener {
+                    TagShortcutsBottomSheet.openSheet(
+                            activity,
+                            note,
+                            "youtube"
+                    ) {  }
+                    dismiss()
+                }
+        ))
+        options.add(OptionsItem(
+                title = R.string.tag_shortcut_wikipedia,
+                subtitle = R.string.tag_shortcut,
+                icon = R.drawable.wikipedia,
+                listener = View.OnClickListener {
+                    TagShortcutsBottomSheet.openSheet(
+                            activity,
+                            note,
+                            "wikipedia"
+                    ) {  }
+                    dismiss()
+                }
+        ))
+        return options
+    }
+
+    private fun getOptions(note: Note): List<OptionsItem> {
     val activity = context as ThemedActivity
     if (activity !is INoteOptionSheetActivity) {
       return emptyList()
