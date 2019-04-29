@@ -23,6 +23,13 @@ import com.maubis.scarlet.base.support.specs.EmptySpec
 import com.maubis.scarlet.base.support.specs.ToolbarColorConfig
 import com.maubis.scarlet.base.support.specs.bottomBarCard
 import com.maubis.scarlet.base.support.specs.bottomBarRoundIcon
+import android.widget.Toast
+import android.support.v4.app.ActivityCompat.startActivityForResult
+import android.speech.RecognizerIntent
+import android.content.Intent
+import android.support.annotation.ColorInt
+import java.util.*
+
 
 enum class NoteCreateBottomBarType {
   DEFAULT_SEGMENTS,
@@ -211,13 +218,31 @@ object NoteCreationOptionsBottomBarSpec {
   }
 }
 
+
+
 @LayoutSpec
 object NoteCreationNinoSpecialBottomBarSpec {
+  fun getSpeechInput(activity: CreateNoteActivity) {
+
+    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+
+    if (intent.resolveActivity(activity.packageManager) != null) {
+
+      startActivityForResult(activity, intent, 10, null)
+
+    } else {
+      Toast.makeText(activity, "Your Device Don't Support Speech Input", Toast.LENGTH_SHORT).show()
+    }
+  }
+
   @OnCreateLayout
   fun onCreate(context: ComponentContext,
                @Prop colorConfig: ToolbarColorConfig,
                @Prop toggleButtonClick: EventHandler<ClickEvent>): Component {
     val activity = context.androidContext as CreateNoteActivity
+    activity.packageManager
     return Row.create(context)
             .alignItems(YogaAlign.CENTER)
             .child(bottomBarRoundIcon(context, colorConfig)
@@ -226,9 +251,9 @@ object NoteCreationNinoSpecialBottomBarSpec {
                       // SMART NOTE
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
-                    .iconRes(R.drawable.ic_action_speak_aloud)
+                    .iconRes(R.drawable.baseline_mic_24)
                     .onClick {
-                      // SPEECH TO TEXT
+                      getSpeechInput(activity)
                     })
             .build()
   }
