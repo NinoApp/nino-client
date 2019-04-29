@@ -178,8 +178,7 @@ public class JsonHelper {
                 double t = lowerBound + entry.getDouble("top") * ((upperBound - lowerBound) / maxTop);
                 double dimY = t - y;
 
-                //String identifier = "image" + i; //"X" + i;
-                String identifier = "imgly_sticker_shapes_badge_35";
+                String identifier = "image" + i;
                 Log.d("ATTEMPTING: IMAGE", "identifier: " + identifier + " x: " + x +
                         " y: " + y + " dimX: " + dimX + " dimY: " + dimY);
                 JSONObject jsonImageObject = getImageJson(identifier, x, y, dimX, dimY);
