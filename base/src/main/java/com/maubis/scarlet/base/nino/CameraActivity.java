@@ -13,8 +13,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -47,6 +49,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -105,6 +108,8 @@ public class CameraActivity extends AppCompatActivity {
         Resources r = getResources();
         POLYGON_CIRCLE_RADIUS = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POLYGON_CIRCLE_RADIUS_IN_DP,
                 r.getDisplayMetrics());
+
+
 
         /*
         DisplayMetrics metrics = this.getResources().getDisplayMetrics();
@@ -263,6 +268,15 @@ public class CameraActivity extends AppCompatActivity {
                         editorIntent.putExtra("result", result.toString());
                         editorIntent.putExtra("img_width", finalImage.getWidth());
                         editorIntent.putExtra("img_height", finalImage.getHeight());
+
+                        /*
+                        ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+                        finalImage.compress(Bitmap.CompressFormat.PNG, 0, bStream);
+                        byte[] byteArray = bStream.toByteArray();
+                        editorIntent.putExtra("bitmap", byteArray);
+                        */
+
+                        editorIntent.setData(bitToUri(finalImage));
                         startActivityForResult(editorIntent, PESDK_REQUEST);
                         //cpb.setProgress(100);
 
@@ -278,6 +292,30 @@ public class CameraActivity extends AppCompatActivity {
                     }
                 }
             });
+    }
+
+    private Uri bitToUri(Bitmap bitmap){
+        File tempDir= Environment.getExternalStorageDirectory();
+        tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
+        tempDir.mkdir();
+        File tempFile = null;
+        FileOutputStream fos = null;
+        try {
+            tempFile = File.createTempFile("temp_bitToUri", ".jpg", tempDir);
+
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0, bytes);
+            byte[] bitmapData = bytes.toByteArray();
+
+            fos = new FileOutputStream(tempFile);
+            fos.write(bitmapData);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return Uri.fromFile(tempFile);
     }
 
     @Override

@@ -1,14 +1,14 @@
 package com.maubis.scarlet.base.nino;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,25 +20,20 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.maubis.scarlet.base.R;
-import com.maubis.scarlet.base.note.creation.activity.CreateNoteActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Set;
 
 import ly.img.android.pesdk.assets.filter.basic.FilterPackBasic;
 import ly.img.android.pesdk.assets.font.basic.FontPackBasic;
@@ -46,7 +41,10 @@ import ly.img.android.pesdk.assets.frame.basic.FramePackBasic;
 import ly.img.android.pesdk.assets.overlay.basic.OverlayPackBasic;
 import ly.img.android.pesdk.assets.sticker.emoticons.StickerPackEmoticons;
 import ly.img.android.pesdk.assets.sticker.shapes.StickerPackShapes;
+import ly.img.android.pesdk.backend.decoder.ImageSource;
+import ly.img.android.pesdk.backend.model.config.ImageStickerAsset;
 import ly.img.android.pesdk.backend.model.constant.Directory;
+import ly.img.android.pesdk.backend.model.state.AssetConfig;
 import ly.img.android.pesdk.backend.model.state.EditorLoadSettings;
 import ly.img.android.pesdk.backend.model.state.EditorSaveSettings;
 import ly.img.android.pesdk.backend.model.state.manager.SettingsList;
@@ -57,6 +55,8 @@ import ly.img.android.pesdk.ui.model.state.UiConfigFrame;
 import ly.img.android.pesdk.ui.model.state.UiConfigOverlay;
 import ly.img.android.pesdk.ui.model.state.UiConfigSticker;
 import ly.img.android.pesdk.ui.model.state.UiConfigText;
+import ly.img.android.pesdk.ui.panels.item.ImageStickerItem;
+import ly.img.android.pesdk.ui.panels.item.StickerCategoryItem;
 import ly.img.android.pesdk.ui.utils.PermissionRequest;
 import ly.img.android.serializer._3._0._0.PESDKFileReader;
 import ly.img.android.serializer._3._0._0.PESDKFileWriter;
@@ -65,28 +65,203 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class PhotoEditorActivity extends Activity implements PermissionRequest.Response {
-
     private static final int PERMISSION_REQUEST_CODE = 200;
+    public static int PESDK_RESULT = 1;
+    public static int GALLERY_RESULT = 2;
     private Uri uri;
-    /*
-    // Important permission request for Android 6.0 and above, don't forget to add this!
+
+    private String jsonFileName = "JSON_TEMPLATE.json";
+    private Bitmap origBitmap;
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        PermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }*/
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //byte[] byteArray = getIntent().getByteArrayExtra("bitmap");
+        //origBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+        Uri imageUri = getIntent().getData();
+        try {
+            origBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        uri = Uri.parse("android.resource://" + getPackageName() + "/drawable/bbg");
+        requestPermissionAndOpenEditor(uri);
+    }
+
+    private void openEditor(Uri inputImage) {
+        SettingsList settingsList = createPesdkSettingsList();
+        settingsList.getSettingsModel(EditorLoadSettings.class).setImageSource(inputImage);
+
+        addImagesToPesdk(settingsList);
+        createJson();
+        readJson(settingsList);
+
+        new PhotoEditorBuilder(this)
+                .setSettingsList(settingsList)
+                .startActivityForResult(this, PESDK_RESULT);
+    }
+
+    private void createJson(){
+        JsonHelper jh = new JsonHelper();
+        JSONObject jo = null;
+        try {
+            JSONObject result =  new JSONObject(getIntent().getStringExtra("result"));
+            JSONArray linesJson = result.getJSONArray("lines");
+            JSONArray imagesJson = result.getJSONArray("images");
+            Intent intent = getIntent();
+            jo = jh.createJsonTemplate(linesJson, imagesJson, intent.getIntExtra("img_width", 1000),
+                    intent.getIntExtra("img_height", 1000));
+            Log.i("JSON_RESULT", jo.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        jh.writeJson(jo, jsonFileName);
+    }
+
+    private ArrayList<ImageStickerItem> createImageArray(JSONArray imagesJson, AssetConfig assetConfig){
+        ArrayList<ImageStickerItem> imageStickers = new ArrayList<ImageStickerItem>();
+        for (int i = 0; i < imagesJson.length(); i++){
+            try {
+                JSONObject entry = imagesJson.getJSONObject(i);
+                double x = entry.getDouble("left");
+                double y = entry.getDouble("bottom");
+                double width = entry.getDouble("right") - x;
+                double height = entry.getDouble("top") - y;
+
+                String name = "image" + i;
+                Bitmap newBitmap = Bitmap.createBitmap(origBitmap, (int)x , (int)y, (int)width, (int)height);
+                Uri imgUri = bitToUri(newBitmap);
+                ImageStickerItem isi = new ImageStickerItem(name, name, ImageSource.create(
+                        imgUri
+                ));
+                assetConfig.addAsset(new ImageStickerAsset(name, ImageSource.create(imgUri)));
+                imageStickers.add(isi);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return imageStickers;
+    }
+
+    private void addImagesToPesdk(SettingsList settingsList) {
+        AssetConfig assetConfig = settingsList.getConfig();
+        ArrayList<ImageStickerItem> imageStickers = null;
+        try {
+            JSONObject result = new JSONObject(getIntent().getStringExtra("result"));
+            JSONArray imagesJson = result.getJSONArray("images");
+            imageStickers = createImageArray(imagesJson ,assetConfig);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        if(imageStickers != null) {
+            UiConfigSticker uiConfigSticker = settingsList.getSettingsModel(UiConfigSticker.class);
+            uiConfigSticker.setStickerLists(
+                    new StickerCategoryItem(
+                            "emojis",
+                            R.string.imgly_sticker_category_name_emoticons,
+                            ImageSource.create(R.drawable.imgly_sticker_emoticons_alien),
+                            new ImageStickerItem("imgly_sticker_emoticons_grin", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_grin, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_grin))
+                    ),
+                    new StickerCategoryItem(
+                            "shapes",
+                            R.string.imgly_sticker_category_name_shapes,
+                            ImageSource.create(R.drawable.imgly_sticker_shapes_badge_35),
+                            new ImageStickerItem("imgly_sticker_shapes_badge_01", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_01, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_01))
+                    ),
+                    new StickerCategoryItem(
+                            "det_im",
+                            "Detected Images",
+                            ImageSource.create(R.drawable.imgly_sticker_emoticons_alien),
+                            imageStickers
+                    )
+            );
+        }
+
+        /*
+        UiConfigSticker uiConfigSticker = settingsList.getSettingsModel(UiConfigSticker.class);
+        uiConfigSticker.setStickerLists(
+            new StickerCategoryItem(
+                "emojis",
+                R.string.imgly_sticker_category_name_emoticons,
+                ImageSource.create(R.drawable.imgly_sticker_emoticons_alien),
+                new ImageStickerItem("imgly_sticker_emoticons_grin", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_grin, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_grin)),
+                new ImageStickerItem("imgly_sticker_emoticons_laugh", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_laugh, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_laugh)),
+                new ImageStickerItem("imgly_sticker_emoticons_smile", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_smile, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_smile)),
+                new ImageStickerItem("imgly_sticker_emoticons_wink", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_wink, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_wink)),
+                new ImageStickerItem("imgly_sticker_emoticons_tongue_out_wink", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_tongue_out_wink, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_tongue_out_wink)),
+                new ImageStickerItem("imgly_sticker_emoticons_angel", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_angel, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_angel))
+                //...
+            ),
+            new StickerCategoryItem(
+                "shapes",
+                R.string.imgly_sticker_category_name_shapes,
+                ImageSource.create(R.drawable.imgly_sticker_shapes_badge_35),
+                new ImageStickerItem("imgly_sticker_shapes_badge_01", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_01, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_01)),
+                new ImageStickerItem("imgly_sticker_shapes_badge_04", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_04, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_04)),
+                new ImageStickerItem("imgly_sticker_shapes_badge_12", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_12, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_12)),
+                new ImageStickerItem("imgly_sticker_shapes_badge_06", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_06, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_06)),
+                new ImageStickerItem("imgly_sticker_shapes_badge_13", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_13, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_13))
+                //...
+            ),
+            new StickerCategoryItem(
+                "det_im",
+                "Detected Images",
+                ImageSource.create(R.drawable.imgly_sticker_shapes_badge_35),
+                new ImageStickerItem("imgly_sticker_shapes_badge_13", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_13, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_13))
+            )
+        );
+        */
+    }
+
+    private Uri bitToUri(Bitmap bitmap){
+        File tempDir= Environment.getExternalStorageDirectory();
+        tempDir=new File(tempDir.getAbsolutePath()+"/.temp/");
+        tempDir.mkdir();
+        File tempFile = null;
+        FileOutputStream fos = null;
+        try {
+            tempFile = File.createTempFile("temp_bitToUri", ".jpg", tempDir);
+
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0, bytes);
+            byte[] bitmapData = bytes.toByteArray();
+
+            fos = new FileOutputStream(tempFile);
+            fos.write(bitmapData);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return Uri.fromFile(tempFile);
+    }
+
+    private void readJson(SettingsList settingsList){
+        File file = new File(Environment.getExternalStorageDirectory(), jsonFileName);
+        if (file.exists()) {
+            PESDKFileReader reader = new PESDKFileReader(settingsList);
+            try {
+                reader.readJson(file);
+            } catch (IOException e) {
+                Toast.makeText(this, "Error while opening json.", Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+                return;
+            }
+        } else {
+            Toast.makeText(this, "No save state found.", Toast.LENGTH_LONG).show();
+            return;
+        }
+    }
 
     @Override
     public void permissionGranted() {}
 
     @Override
-    public void permissionDenied() {
-        /*
-         * Show a hint to the user and try again. */
-    }
-
-    public static int PESDK_RESULT = 1;
-    public static int GALLERY_RESULT = 2;
+    public void permissionDenied() {}
 
     private SettingsList createPesdkSettingsList() {
         // Create a empty new SettingsList and apply the changes on this referance.
@@ -124,35 +299,6 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
                 .setSavePolicy(EditorSaveSettings.SavePolicy.RETURN_ALWAYS_ONLY_OUTPUT);
 
         return settingsList;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        /*
-        try {
-            JSONObject result = new JSONObject(getIntent().getStringExtra("lines"));
-            JSONArray linesJson = result.getJSONArray("lines");
-            ArrayList<String> lines = new ArrayList<String>();
-            for(int i = 0; i < linesJson.length(); i++){
-                JSONObject entry = linesJson.getJSONObject(i);
-                lines.add(entry.getString("text"));
-            }
-
-            for(String s : lines){
-                Log.d("TEXT_FROM_IMAGE", s);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }*/
-
-        //openSystemGalleryToSelectAnImage();
-
-        uri = Uri.parse("android.resource://" + getPackageName() + "/drawable/bbg");
-
-        requestPermissionAndOpenEditor(uri);
     }
 
     private void requestPermissionAndOpenEditor(Uri uri) {
@@ -210,61 +356,6 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
         }
     }
 
-
-    private void openSystemGalleryToSelectAnImage() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intent, GALLERY_RESULT);
-        } else {
-            Toast.makeText(
-                    this,
-                    "No Gallery APP installed",
-                    Toast.LENGTH_LONG
-            ).show();
-        }
-    }
-
-    private void openEditor(Uri inputImage) {
-        SettingsList settingsList = createPesdkSettingsList();
-        settingsList.getSettingsModel(EditorLoadSettings.class)
-                .setImageSource(inputImage);
-
-        JsonHelper jh = new JsonHelper();
-        JSONObject jo = null;
-        try {
-            JSONObject result =  new JSONObject(getIntent().getStringExtra("result"));
-            JSONArray linesJson = result.getJSONArray("lines");
-            Intent intent = getIntent();
-            jo = jh.createJsonTemplate(linesJson, intent.getIntExtra("img_width", 1000),
-                    intent.getIntExtra("img_height", 1000));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        String jsonFileName = "JSON_TEMPLATE.json";
-        jh.writeJson(jo, jsonFileName);
-
-        File file = new File(Environment.getExternalStorageDirectory(), jsonFileName);
-
-        if (file.exists()) {
-            PESDKFileReader reader = new PESDKFileReader(settingsList);
-            try {
-                reader.readJson(file);
-            } catch (IOException e) {
-                Toast.makeText(this, "Error while opening json.", Toast.LENGTH_LONG).show();
-                e.printStackTrace();
-                return;
-            }
-        } else {
-            Toast.makeText(this, "No save state found.", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        new PhotoEditorBuilder(this)
-                .setSettingsList(settingsList)
-                .startActivityForResult(this, PESDK_RESULT);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -292,14 +383,6 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
             Log.i("PESDK", "Source image is located here " + sourceURI);
             Log.i("PESDK", "Result image is located here " + resultURI);
 
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), sourceURI);
-                Bitmap bitmap2 = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultURI);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
             // TODO: Do something with the result image
 
             // OPTIONAL: read the latest state to save it as a serialisation
@@ -311,23 +394,14 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
                 ));
             } catch (IOException e) { e.printStackTrace(); }
 
-            /*
-            Intent intent = new Intent(this, CameraActivity.class);
-            intent.putExtra("result_uri", resultURI.toString());
-            startActivity(intent);
-            */
+            JsonHelper jh = new JsonHelper();
+            jh.readNprintJson("serialisationReadyToReadWithPESDKFileReader.json");
 
             Intent resIntent = getIntent();
             resIntent.putExtra("result_uri", resultURI.toString());
             resIntent.setData(resultURI);
             setResult(RESULT_OK, resIntent);
             finish();
-
-            /*
-            Intent intent = new Intent(this, CreateNoteActivity.class);
-            intent.putExtra("result_uri", resultURI.toString());
-            startActivity(intent);
-            */
 
         } else if (resultCode == RESULT_CANCELED && requestCode == PESDK_RESULT) {
             // Editor was canceled
