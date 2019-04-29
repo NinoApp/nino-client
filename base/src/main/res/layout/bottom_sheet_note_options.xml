@@ -93,13 +93,23 @@
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
-      style="@style/BottomSheetCardView"
-      app:cardBackgroundColor="@color/material_red_800">
+        style="@style/BottomSheetCardView"
+        app:cardBackgroundColor="@color/material_red_800">
 
       <GridLayout
-        android:id="@+id/note_properties"
-        style="@style/NoteOptionGridLayout"
-        android:padding="@dimen/spacing_small" />
+          android:id="@+id/tag_shortcuts"
+          style="@style/NoteOptionGridLayout"
+          android:padding="@dimen/spacing_small" />
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        style="@style/BottomSheetCardView"
+        app:cardBackgroundColor="@color/material_red_800">
+
+      <GridLayout
+          android:id="@+id/note_properties"
+          style="@style/NoteOptionGridLayout"
+          android:padding="@dimen/spacing_small" />
     </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
