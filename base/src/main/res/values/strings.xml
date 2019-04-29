@@ -38,6 +38,8 @@
     <string name="tag_shortcut_youtube" translatable="false">Find Entities in Youtube</string>
     <string name="tag_shortcut" translatable="false">Search Entities</string>
     <string name="lock_note">Lock Note</string>
+    <string name="generate_quiz" translatable="false">Generate Quiz</string>
+    <string name="generate_quiz_sub" translatable="false">Automatically Generate Quiz</string>
     <string name="change_tags">Change Tags</string>
     <string name="unlock_note">Unlock Note</string>
     <string name="reminder">Reminder</string>

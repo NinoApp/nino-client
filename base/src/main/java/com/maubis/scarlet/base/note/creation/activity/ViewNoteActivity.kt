@@ -6,11 +6,14 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.View
 import com.facebook.litho.ComponentContext
 import com.facebook.litho.LithoView
 import com.github.bijoysingh.starter.recyclerview.MultiRecyclerViewControllerItem
 import com.github.bijoysingh.starter.recyclerview.RecyclerViewBuilder
+import com.google.gson.JsonObject
+import com.koushikdutta.ion.Ion
 import com.maubis.scarlet.base.R
 import com.maubis.scarlet.base.config.CoreConfig
 import com.maubis.scarlet.base.config.CoreConfig.Companion.notesDb
@@ -43,6 +46,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.collections.ArrayList
 
 
 const val INTENT_KEY_NOTE_ID = "NOTE_ID"
@@ -107,6 +111,7 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
         onCreationFinished()
       }
       creationFinished.set(true)
+
     }
   }
 
@@ -122,7 +127,38 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
   }
 
   protected open fun onCreationFinished() {
+    val SERVER_POST_URL = "http://35.237.158.162:8000/api/analyze_text/"
 
+    val text:String = note!!.getTitle() + " \n " + note!!.getFullText()
+
+    val json = JsonObject();
+    json.addProperty("text", text);
+
+    Log.v("IONViewNote", "text" + text)
+    Ion.with(context)
+            .load(SERVER_POST_URL)
+            .setLogging("IONLOGS", Log.DEBUG)
+            .setJsonObjectBody(json)
+            .asJsonObject()
+            .setCallback { e, res -> run {
+              //Log.v("IONViewNote", res.toString())
+              //Log.v("IONViewNote", e.toString())
+              val questionsJsonArray = res
+                      .getAsJsonArray("questions")
+                      .iterator()
+
+              val questions = ArrayList<String>()
+              val answers = ArrayList<String>()
+              for (jsq in questionsJsonArray) {
+                val jso = jsq.asJsonObject
+                val question = jso.getAsJsonPrimitive("question").asString
+                val answer = jso.getAsJsonPrimitive("answer").asString
+                questions.add(question)
+                answers.add(answer)
+              }
+              notifyQuestions(questions, answers)
+
+            } }
   }
 
   protected open fun onResumeAction() {
@@ -383,6 +419,10 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
 
   override fun notifyTagsChanged(note: Note) {
     setNote()
+  }
+
+  fun notifyQuestions(questions: ArrayList<String>, answers: ArrayList<String>) {
+    Log.v("notifyQuestionnnnnssss", questions.size.toString())
   }
 
   override fun getSelectMode(note: Note): String {
