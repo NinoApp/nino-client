@@ -108,11 +108,16 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
         JSONObject jo = null;
         try {
             JSONObject result =  new JSONObject(getIntent().getStringExtra("result"));
-            JSONArray linesJson = result.getJSONArray("lines");
+            JSONArray linesJson = result.getJSONArray("paragraphs");
             JSONArray imagesJson = result.getJSONArray("images");
+            JSONObject pageJSon = result.getJSONObject("page");
             Intent intent = getIntent();
+            jo = jh.createJsonTemplate(linesJson, imagesJson, pageJSon.getInt("width"),
+                    pageJSon.getInt("height"));
+            /*
             jo = jh.createJsonTemplate(linesJson, imagesJson, intent.getIntExtra("img_width", 1000),
                     intent.getIntExtra("img_height", 1000));
+            */
             Log.i("JSON_RESULT", jo.toString());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -126,9 +131,9 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
             try {
                 JSONObject entry = imagesJson.getJSONObject(i);
                 double x = entry.getDouble("left");
-                double y = entry.getDouble("bottom");
+                double y = entry.getDouble("top");
                 double width = entry.getDouble("right") - x;
-                double height = entry.getDouble("top") - y;
+                double height = entry.getDouble("bottom") - y;
 
                 String name = "image" + i;
                 Bitmap newBitmap = Bitmap.createBitmap(origBitmap, (int)x , (int)y, (int)width, (int)height);

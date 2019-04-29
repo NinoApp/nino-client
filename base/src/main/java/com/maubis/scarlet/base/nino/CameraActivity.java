@@ -11,12 +11,14 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -136,6 +138,20 @@ public class CameraActivity extends AppCompatActivity {
                 }
                 Mat result = warp(rgba);
                 finalImage = matToBit(result);
+                /*
+                Uri uri = Uri.parse("android.resource://" + getPackageName() + "/drawable/bbg");
+                try {
+                    Bitmap bbg = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
+                    Log.i("BITMAP_COMB", "w: " + bbg.getWidth() + "h: " + bbg.getHeight());
+                    Log.i("BITMAP_COMB", "w: " + finalImage.getWidth() + "h: " + finalImage.getHeight());
+                    Bitmap combined = overlay(bbg, finalImage);
+                    Log.i("BITMAP_COMB", "w: " + combined.getWidth() + "h: " + combined.getHeight());
+                    finalImage = combined;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                */
+
                 mainIv.setImageBitmap(finalImage);
                 findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
                 warpButton.setVisibility(View.INVISIBLE);
@@ -215,6 +231,14 @@ public class CameraActivity extends AppCompatActivity {
 
         progressView = findViewById(R.id.process_progress);
         cameraView = findViewById(R.id.camera_view);
+    }
+
+    public static Bitmap overlay(Bitmap bmp1, Bitmap bmp2) {
+        Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
+        Canvas canvas = new Canvas(bmOverlay);
+        canvas.drawBitmap(bmp1, new Matrix(), null);
+        canvas.drawBitmap(bmp2, 0, 0, null);
+        return bmOverlay;
     }
 
     @Override

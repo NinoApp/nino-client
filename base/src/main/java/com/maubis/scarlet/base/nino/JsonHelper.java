@@ -19,18 +19,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class JsonHelper {
-
-    private static int multip = 1;
-    private JSONObject getTextJson(String text, double x, double y, double maxWidth) throws JSONException {
+    private JSONObject getTextJson(String text, double x, double y, double maxWidth, double height) throws JSONException {
         JSONObject jto = new JSONObject();
         jto.put("type", "text");
 
         JSONObject options = new JSONObject();
         options.put("text", text);
-        //options.put("fontSize", 0.001 * multip);//0.10000000149011612);
-        multip++;
-        options.put("fontSize", 0.01);
-        options.put("fontIdentifier", "imgly_font_open_sans_bold");
+        options.put("fontSize", height);//0.01);
+        options.put("fontIdentifier", "times-new-roman");
         options.put("alignment", "left");
 
         JSONObject color = new JSONObject();
@@ -133,6 +129,66 @@ public class JsonHelper {
             //handleTexts(operations_sprite_option_sprites, lines);
             //handleImages(operations_sprite_option_sprites, images);
 
+            for(int i = 0; i < lines.length(); i++) {
+                JSONObject entry = lines.getJSONObject(i);
+                String text = entry.getString("text");
+                double left = entry.getDouble("left") / imgWidth;
+                double bottom = entry.getDouble("bottom") / imgHeight;
+                double right = entry.getDouble("right") / imgWidth;
+                double top = entry.getDouble("top") / imgHeight;
+
+                double width = right - left;
+                double height = bottom - top;
+
+                Log.d("ATTEMPTING: TEXT", "text: " + text + "l: " + left + "r: " + right +
+                        " b: " + bottom + "t: " + top + "mW: " + width + "fs: " + height);
+                double xToPut;
+                double yToPut;
+                double margin = (double) (Math.abs(imgWidth - imgHeight) / 2);
+                if(imgWidth > imgHeight){
+                    xToPut = left + width/2;
+                    yToPut = (margin / imgHeight) + bottom + height/2;
+                }else{
+                    xToPut = (margin / imgWidth) + left + width/2;
+                    yToPut = bottom + height/2;
+                }
+                int paragraphCount = text.split("\\r?\\n").length;
+                Log.d("ATTEMPTING: TEXT", " x: " + xToPut + " y: " + yToPut + " w: " + width
+                        + " h: " + 0.5 * (height/paragraphCount));
+                JSONObject jsonTextObject = getTextJson(text, xToPut, yToPut, width,
+                        0.5 * (height/paragraphCount));
+                operations_sprite_option_sprites.put(jsonTextObject);
+            }
+
+            for(int i = 0; i < images.length(); i++) {
+                JSONObject entry = lines.getJSONObject(i);
+                double left = entry.getDouble("left") / imgWidth;
+                double bottom = entry.getDouble("bottom") / imgHeight;
+                double right = entry.getDouble("right") / imgWidth;
+                double top = entry.getDouble("top") / imgHeight;
+
+                double width = right - left;
+                double height = bottom - top;
+
+                Log.d("ATTEMPTING: IMAGE", " l: " + left + " r: " + right +
+                        " b: " + bottom + " t: " + top + " mW: " + width + " fs: " + height);
+                double xToPut;
+                double yToPut;
+                double margin = (double) (Math.abs(imgWidth - imgHeight) / 2);
+                if(imgWidth > imgHeight){
+                    xToPut = left + width/2;
+                    yToPut = (margin / imgHeight) + bottom + height/2;
+                }else{
+                    xToPut = (margin / imgWidth) + left + width/2;
+                    yToPut = bottom + height/2;
+                }
+                String identifier = "image" + i;
+                JSONObject jsonImageObject = getImageJson(identifier, xToPut, yToPut, width, height);
+                //Log.i("JSON_IMAGE_OBJECT", jsonImageObject.toString());
+                operations_sprite_option_sprites.put(jsonImageObject);
+            }
+
+            /*
             ArrayList<Double> rightArr = new ArrayList<Double>();
             ArrayList<Double> topArr = new ArrayList<Double>();
             for(int i = 0; i < lines.length(); i++) {
@@ -144,38 +200,53 @@ public class JsonHelper {
             double maxTop = topArr.get(topArr.indexOf(Collections.max(topArr)));
 
             //left:0 --> 0.1, right: maxRight --> 0.9
-            double lowerBound = 0.3;
-            double upperBound = 0.7;
-            double shiftPerUnit = (upperBound - lowerBound) / maxRight;
+            double lowerBound = 0.1;
+            double upperBound = 0.9;
+            double xShiftPerUnit = (upperBound - lowerBound) / maxRight;
+            double yShiftPerUnit = (upperBound - lowerBound) / maxTop;
             for(int i = 0; i < lines.length(); i++) {
                 JSONObject entry = lines.getJSONObject(i);
                 String text = entry.getString("text");
                 double x = entry.getDouble("left");
                 double y = entry.getDouble("bottom");
 
-                x = lowerBound + x * shiftPerUnit;
-                y = lowerBound + y * ((upperBound - lowerBound) / maxTop);
+                x = lowerBound + x * xShiftPerUnit;
+                y = lowerBound + y * yShiftPerUnit;
 
-                double r = lowerBound + entry.getDouble("right") * shiftPerUnit;
+                double r = lowerBound + entry.getDouble("right") * xShiftPerUnit;
                 double width = r - x;
+                double t = lowerBound + entry.getDouble("top") * yShiftPerUnit;
+                double height = t - y;
 
                 Log.d("ATTEMPTING: TEXT", "text: " + text + " x: " + x + " y: " + y + " r: " + r + " mW: " + width);
-                JSONObject jsonTextObject = getTextJson(text, x, y, width);
+                double xToPut;
+                double yToPut;
+                double margin = ((double)imgWidth - (double)imgHeight) / 2;
+                if(imgWidth > imgHeight){
+                    xToPut = (x + width) / 2;
+                    yToPut =  margin * yShiftPerUnit + (y + height) / 2;
+                }else{
+                    xToPut = margin * xShiftPerUnit + (x + width) / 2;
+                    yToPut = (y + height) / 2;
+                }
+                JSONObject jsonTextObject = getTextJson(text, xToPut, yToPut, width);
                 operations_sprite_option_sprites.put(jsonTextObject);
             }
+            */
 
+            /*
             for(int i = 0; i < images.length(); i++) {
                 JSONObject entry = images.getJSONObject(i);
                 double x = entry.getDouble("left");
                 double y = entry.getDouble("bottom");
 
-                x = lowerBound + x * shiftPerUnit;
-                y = lowerBound + y * ((upperBound - lowerBound) / maxTop);
+                x = lowerBound + x * xShiftPerUnit;
+                y = lowerBound + y * yShiftPerUnit;
 
-                double r = lowerBound + entry.getDouble("right") * shiftPerUnit;
+                double r = lowerBound + entry.getDouble("right") * xShiftPerUnit;
                 double dimX = r - x;
 
-                double t = lowerBound + entry.getDouble("top") * ((upperBound - lowerBound) / maxTop);
+                double t = lowerBound + entry.getDouble("top") * yShiftPerUnit;
                 double dimY = t - y;
 
                 String identifier = "image" + i;
@@ -185,6 +256,7 @@ public class JsonHelper {
                 Log.i("JSON_IMAGE_OBJECT", jsonImageObject.toString());
                 operations_sprite_option_sprites.put(jsonImageObject);
             }
+            */
 
             operations_sprite_options.put("sprites", operations_sprite_option_sprites);
             operations_sprite.put("options", operations_sprite_options);
@@ -199,38 +271,7 @@ public class JsonHelper {
     }
 
     private void handleTexts(JSONArray operations_sprite_option_sprites, JSONArray lines) throws JSONException {
-        ArrayList<Double> rightArr = new ArrayList<Double>();
-        ArrayList<Double> topArr = new ArrayList<Double>();
-        for(int i = 0; i < lines.length(); i++) {
-            JSONObject entry = lines.getJSONObject(i);
-            rightArr.add(entry.getDouble("right"));
-            topArr.add(entry.getDouble("top"));
-        }
-        double maxRight = rightArr.get(rightArr.indexOf(Collections.max(rightArr)));
-        double maxTop = topArr.get(topArr.indexOf(Collections.max(topArr)));
 
-        //left:0 --> 0.1, right: maxRight --> 0.9
-        double lowerBound = 0.3;
-        double upperBound = 0.7;
-        double shiftPerUnit = (upperBound - lowerBound) / maxRight;
-        for(int i = 0; i < lines.length(); i++) {
-            JSONObject entry = lines.getJSONObject(i);
-            String text = entry.getString("text");
-            double x = entry.getDouble("left");
-            double y = entry.getDouble("bottom");
-
-            x = lowerBound + x * shiftPerUnit;
-            y = lowerBound + y * ((upperBound - lowerBound) / maxTop);
-            //y = (y - minTop)/(maxTop - minTop);
-            //y = y / maxTop; // change this to be same with x because why not;
-
-            double r = lowerBound + entry.getDouble("right") * shiftPerUnit;
-            double width = r - x;
-
-            Log.d("ATTEMPTING: TEXT", "text: " + text + " x: " + x + " y: " + y + " r: " + r + " mW: " + width);
-            JSONObject jsonTextObject = getTextJson(text, x, y, width);
-            operations_sprite_option_sprites.put(jsonTextObject);
-        }
     }
 
     private void handleImages(JSONArray operations_sprite_option_sprites, JSONArray images){
