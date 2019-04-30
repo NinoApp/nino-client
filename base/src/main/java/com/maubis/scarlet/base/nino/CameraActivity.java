@@ -111,21 +111,6 @@ public class CameraActivity extends AppCompatActivity {
         POLYGON_CIRCLE_RADIUS = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POLYGON_CIRCLE_RADIUS_IN_DP,
                 r.getDisplayMetrics());
 
-
-
-        /*
-        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
-        int width = metrics.widthPixels;
-        int height = metrics.heightPixels;
-
-        mainIv.setAdjustViewBounds(true);
-        mainIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        mainIv.getLayoutParams().width = (int) (width * ivScale);
-        mainIv.getLayoutParams().height = (int) (height * ivScale);
-
-        //mainIv.requestLayout()
-        */
-
         final Button processButton = (Button)findViewById(R.id.process_button);
         processButton.setVisibility(View.INVISIBLE);
 
@@ -138,19 +123,6 @@ public class CameraActivity extends AppCompatActivity {
                 }
                 Mat result = warp(rgba);
                 finalImage = matToBit(result);
-                /*
-                Uri uri = Uri.parse("android.resource://" + getPackageName() + "/drawable/bbg");
-                try {
-                    Bitmap bbg = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
-                    Log.i("BITMAP_COMB", "w: " + bbg.getWidth() + "h: " + bbg.getHeight());
-                    Log.i("BITMAP_COMB", "w: " + finalImage.getWidth() + "h: " + finalImage.getHeight());
-                    Bitmap combined = overlay(bbg, finalImage);
-                    Log.i("BITMAP_COMB", "w: " + combined.getWidth() + "h: " + combined.getHeight());
-                    finalImage = combined;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                */
 
                 mainIv.setImageBitmap(finalImage);
                 findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
@@ -233,14 +205,6 @@ public class CameraActivity extends AppCompatActivity {
         cameraView = findViewById(R.id.camera_view);
     }
 
-    public static Bitmap overlay(Bitmap bmp1, Bitmap bmp2) {
-        Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
-        Canvas canvas = new Canvas(bmOverlay);
-        canvas.drawBitmap(bmp1, new Matrix(), null);
-        canvas.drawBitmap(bmp2, 0, 0, null);
-        return bmOverlay;
-    }
-
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -292,13 +256,6 @@ public class CameraActivity extends AppCompatActivity {
                         editorIntent.putExtra("result", result.toString());
                         editorIntent.putExtra("img_width", finalImage.getWidth());
                         editorIntent.putExtra("img_height", finalImage.getHeight());
-
-                        /*
-                        ByteArrayOutputStream bStream = new ByteArrayOutputStream();
-                        finalImage.compress(Bitmap.CompressFormat.PNG, 0, bStream);
-                        byte[] byteArray = bStream.toByteArray();
-                        editorIntent.putExtra("bitmap", byteArray);
-                        */
 
                         editorIntent.setData(bitToUri(finalImage));
                         startActivityForResult(editorIntent, PESDK_REQUEST);
@@ -627,8 +584,6 @@ public class CameraActivity extends AppCompatActivity {
                 case LoaderCallbackInterface.SUCCESS:
                 {
                     Log.i("OpenCV", "OpenCV loaded successfully");
-                    //mainMat = new Mat();
-                    //Log.d("HMMMMMMM", "I AM HERE");
                 } break;
                 default:
                 {

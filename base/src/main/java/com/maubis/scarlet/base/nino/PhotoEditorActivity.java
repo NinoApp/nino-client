@@ -57,6 +57,7 @@ import ly.img.android.pesdk.ui.model.state.UiConfigSticker;
 import ly.img.android.pesdk.ui.model.state.UiConfigText;
 import ly.img.android.pesdk.ui.panels.item.ImageStickerItem;
 import ly.img.android.pesdk.ui.panels.item.StickerCategoryItem;
+import ly.img.android.pesdk.ui.utils.DataSourceIdItemList;
 import ly.img.android.pesdk.ui.utils.PermissionRequest;
 import ly.img.android.serializer._3._0._0.PESDKFileReader;
 import ly.img.android.serializer._3._0._0.PESDKFileWriter;
@@ -104,7 +105,7 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
     }
 
     private void createJson(){
-        JsonHelper jh = new JsonHelper();
+        JsonHelper jh = null;
         JSONObject jo = null;
         try {
             JSONObject result =  new JSONObject(getIntent().getStringExtra("result"));
@@ -112,17 +113,17 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
             JSONArray imagesJson = result.getJSONArray("images");
             JSONObject pageJSon = result.getJSONObject("page");
             Intent intent = getIntent();
-            jo = jh.createJsonTemplate(linesJson, imagesJson, pageJSon.getInt("width"),
-                    pageJSon.getInt("height"));
+            jh = new JsonHelper(pageJSon.getInt("width"), pageJSon.getInt("height"));
+            jo = jh.createJsonTemplate(linesJson, imagesJson);
             /*
             jo = jh.createJsonTemplate(linesJson, imagesJson, intent.getIntExtra("img_width", 1000),
                     intent.getIntExtra("img_height", 1000));
             */
             Log.i("JSON_RESULT", jo.toString());
+            jh.writeJson(jo, jsonFileName);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        jh.writeJson(jo, jsonFileName);
     }
 
     private ArrayList<ImageStickerItem> createImageArray(JSONArray imagesJson, AssetConfig assetConfig){
@@ -150,6 +151,33 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
         return imageStickers;
     }
 
+    /*
+    private ArrayList<ImageStickerItem> createImageArray(JSONArray imagesJson, AssetConfig assetConfig){
+        ArrayList<ImageStickerItem> imageStickers = new ArrayList<ImageStickerItem>();
+        for (int i = 0; i < imagesJson.length(); i++){
+            try {
+                JSONObject entry = imagesJson.getJSONObject(i);
+                double x = entry.getDouble("left");
+                double y = entry.getDouble("top");
+                double width = entry.getDouble("right") - x;
+                double height = entry.getDouble("bottom") - y;
+
+                String name = "image" + i;
+                Bitmap newBitmap = Bitmap.createBitmap(origBitmap, (int)x , (int)y, (int)width, (int)height);
+                Uri imgUri = bitToUri(newBitmap);
+                ImageStickerItem isi = new ImageStickerItem(name, name, ImageSource.create(
+                        imgUri
+                ));
+                assetConfig.addAsset(new ImageStickerAsset(name, ImageSource.create(imgUri)));
+                imageStickers.add(isi);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return imageStickers;
+    }
+    */
+
     private void addImagesToPesdk(SettingsList settingsList) {
         AssetConfig assetConfig = settingsList.getConfig();
         ArrayList<ImageStickerItem> imageStickers = null;
@@ -163,6 +191,14 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
 
         if(imageStickers != null) {
             UiConfigSticker uiConfigSticker = settingsList.getSettingsModel(UiConfigSticker.class);
+            DataSourceIdItemList stickerList = uiConfigSticker.getStickerLists();
+            stickerList.add(new StickerCategoryItem(
+                    "det_im",
+                    "Detected Images",
+                    ImageSource.create(R.drawable.imgly_sticker_shapes_badge_13),
+                    imageStickers
+            ));
+            /*
             uiConfigSticker.setStickerLists(
                     new StickerCategoryItem(
                             "emojis",
@@ -183,42 +219,8 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
                             imageStickers
                     )
             );
+            */
         }
-
-        /*
-        UiConfigSticker uiConfigSticker = settingsList.getSettingsModel(UiConfigSticker.class);
-        uiConfigSticker.setStickerLists(
-            new StickerCategoryItem(
-                "emojis",
-                R.string.imgly_sticker_category_name_emoticons,
-                ImageSource.create(R.drawable.imgly_sticker_emoticons_alien),
-                new ImageStickerItem("imgly_sticker_emoticons_grin", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_grin, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_grin)),
-                new ImageStickerItem("imgly_sticker_emoticons_laugh", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_laugh, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_laugh)),
-                new ImageStickerItem("imgly_sticker_emoticons_smile", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_smile, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_smile)),
-                new ImageStickerItem("imgly_sticker_emoticons_wink", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_wink, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_wink)),
-                new ImageStickerItem("imgly_sticker_emoticons_tongue_out_wink", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_tongue_out_wink, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_tongue_out_wink)),
-                new ImageStickerItem("imgly_sticker_emoticons_angel", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_angel, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_angel))
-                //...
-            ),
-            new StickerCategoryItem(
-                "shapes",
-                R.string.imgly_sticker_category_name_shapes,
-                ImageSource.create(R.drawable.imgly_sticker_shapes_badge_35),
-                new ImageStickerItem("imgly_sticker_shapes_badge_01", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_01, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_01)),
-                new ImageStickerItem("imgly_sticker_shapes_badge_04", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_04, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_04)),
-                new ImageStickerItem("imgly_sticker_shapes_badge_12", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_12, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_12)),
-                new ImageStickerItem("imgly_sticker_shapes_badge_06", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_06, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_06)),
-                new ImageStickerItem("imgly_sticker_shapes_badge_13", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_13, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_13))
-                //...
-            ),
-            new StickerCategoryItem(
-                "det_im",
-                "Detected Images",
-                ImageSource.create(R.drawable.imgly_sticker_shapes_badge_35),
-                new ImageStickerItem("imgly_sticker_shapes_badge_13", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_13, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_13))
-            )
-        );
-        */
     }
 
     private Uri bitToUri(Bitmap bitmap){
@@ -399,8 +401,8 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
                 ));
             } catch (IOException e) { e.printStackTrace(); }
 
-            JsonHelper jh = new JsonHelper();
-            jh.readNprintJson("serialisationReadyToReadWithPESDKFileReader.json");
+            //JsonHelper jh = new JsonHelper();
+            //jh.readNprintJson("serialisationReadyToReadWithPESDKFileReader.json");
 
             Intent resIntent = getIntent();
             resIntent.putExtra("result_uri", resultURI.toString());

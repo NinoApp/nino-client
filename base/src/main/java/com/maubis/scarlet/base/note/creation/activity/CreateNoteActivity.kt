@@ -1,6 +1,5 @@
 package com.maubis.scarlet.base.note.creation.activity
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -40,10 +39,6 @@ import com.maubis.scarlet.base.settings.sheet.UISettingsOptionsBottomSheet
 import com.maubis.scarlet.base.support.recycler.SimpleItemTouchHelper
 import com.maubis.scarlet.base.support.specs.ToolbarColorConfig
 import kotlinx.android.synthetic.main.activity_advanced_note.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
@@ -78,27 +73,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
       ninoRequest = true
       EasyImage.openCamera(context as AppCompatActivity, ninoUid) //add all possible
-
-      //val intent = Intent(context, CameraActivity::class.java)
-      //context.startActivity(intent)
     }
-
-    /*
-    if (intent.hasExtra("result_uri")) {
-      var targetFile = NoteImage(context).renameOrCopy(note!!, File(Uri.parse(intent.getStringExtra("result_uri")).path))
-      triggerImageLoaded(ninoUid, targetFile)
-      triggerImageLoaded(ninoUid + 1, targetFile)
-      triggerImageLoaded(maxUid - 1, targetFile)
-
-      val uri = Uri.parse(intent.getStringExtra("result_uri"))
-      val photoFile = com.maubis.scarlet.base.nino.EasyImageFiles.pickedExistingPicture(context, uri)
-      targetFile = NoteImage(context).renameOrCopy(note!!, photoFile)
-      triggerImageLoaded(ninoUid, targetFile)
-      triggerImageLoaded(ninoUid + 1, targetFile)
-      triggerImageLoaded(maxUid - 1, targetFile)
-
-    }
-    */
 
     if (getSupportActionBar() != null) {
       getSupportActionBar()?.setDisplayHomeAsUpEnabled(false);
@@ -256,17 +231,10 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
                     note!!.addTag(tag)
 
                   }
-
                   notifyTagsChanged(note!!)
                 }
               }
-
-
-
       }
-
-
-
   }
 
   override fun onPause() {
