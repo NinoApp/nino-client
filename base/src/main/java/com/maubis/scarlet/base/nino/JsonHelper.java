@@ -26,7 +26,7 @@ public class JsonHelper {
         JSONObject options = new JSONObject();
         options.put("text", text);
         options.put("fontSize", height);//0.01);
-        options.put("fontIdentifier", "times-new-roman");
+        options.put("fontIdentifier", "imgly_font_fira_sans_regular");
         options.put("alignment", "left");
 
         JSONObject color = new JSONObject();
@@ -51,7 +51,7 @@ public class JsonHelper {
         options.put("position", position);
 
         options.put("rotation", "0");
-        options.put("maxWidth", maxWidth);//0.35370001196861267);
+        options.put("maxWidth", maxWidth);
         options.put("flipHorizontally", false);
         options.put("flipVertically", false);
 
@@ -140,23 +140,23 @@ public class JsonHelper {
                 double width = right - left;
                 double height = bottom - top;
 
-                Log.d("ATTEMPTING: TEXT", "text: " + text + "l: " + left + "r: " + right +
-                        " b: " + bottom + "t: " + top + "mW: " + width + "fs: " + height);
+                Log.d("ATTEMPTING: TEXT", "text: " + text + " l: " + left + " r: " + right +
+                        " b: " + bottom + " t: " + top + " mW: " + width + " fs: " + height);
                 double xToPut;
                 double yToPut;
                 double margin = (double) (Math.abs(imgWidth - imgHeight) / 2);
                 if(imgWidth > imgHeight){
                     xToPut = left + width/2;
-                    yToPut = (margin / imgHeight) + bottom + height/2;
+                    yToPut = (margin / imgHeight) + top + height/2;
                 }else{
                     xToPut = (margin / imgWidth) + left + width/2;
-                    yToPut = bottom + height/2;
+                    yToPut = top + height/2;
                 }
-                int paragraphCount = text.split("\\r?\\n").length;
+                int lineCount = text.split("\\r?\\n").length - 1;
                 Log.d("ATTEMPTING: TEXT", " x: " + xToPut + " y: " + yToPut + " w: " + width
-                        + " h: " + 0.5 * (height/paragraphCount));
+                        + " fs: " + (height/lineCount));
                 JSONObject jsonTextObject = getTextJson(text, xToPut, yToPut, width,
-                        0.5 * (height/paragraphCount));
+                        (height/lineCount)/1.42857);
                 operations_sprite_option_sprites.put(jsonTextObject);
             }
 
@@ -177,7 +177,7 @@ public class JsonHelper {
                 double margin = (double) (Math.abs(imgWidth - imgHeight) / 2);
                 if(imgWidth > imgHeight){
                     xToPut = left + width/2;
-                    yToPut = (margin / imgHeight) + bottom + height/2;
+                    yToPut = (margin / imgHeight) + top + height/2;
                 }else{
                     xToPut = (margin / imgWidth) + left + width/2;
                     yToPut = bottom + height/2;
