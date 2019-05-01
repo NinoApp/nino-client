@@ -59,9 +59,6 @@ class NoteOptionsBottomSheet() : GridBottomSheetBase() {
     makeBackgroundTransparent(dialog, R.id.root_layout)
   }
 
-    fun notifyQuestions(questions: ArrayList<String>, answers: ArrayList<String>) {
-        quizBottomSheet.notifyQuestions(questions, answers)
-    }
 
   private fun setupGrid(dialog: Dialog, note: Note) {
     val gridLayoutIds = arrayOf(
@@ -493,10 +490,13 @@ class NoteOptionsBottomSheet() : GridBottomSheetBase() {
   }
 
   companion object {
-    fun openSheet(activity: ThemedActivity, note: Note) {
+    fun openSheet(activity: ThemedActivity, note: Note, questions:ArrayList<String> = ArrayList<String>(), answers: ArrayList<String> = ArrayList<String>()): NoteOptionsBottomSheet {
       val sheet = NoteOptionsBottomSheet()
       sheet.noteFn = { note }
+      sheet.quizBottomSheet.notifyQuestions(questions, answers)
       sheet.show(activity.supportFragmentManager, sheet.tag)
+
+      return sheet
     }
   }
 }
