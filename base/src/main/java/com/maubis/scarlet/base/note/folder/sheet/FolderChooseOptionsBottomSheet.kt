@@ -110,13 +110,14 @@ class FolderChooseOptionsBottomSheet : FolderOptionItemBottomSheetBase() {
         continue
 
       val folder = FolderBuilder().emptyFolder()
-      folder.title = fname
+      folder.title = "Suggestion: " + fname
       folder.uuid = fname
 
       options.add(FolderOptionsItem(
               folder = folder,
               usages = 0,
               listener = {
+                folder.title = folder.title.replace("Suggestion: ", "")
                 folder.updateTimestamp = System.currentTimeMillis()
                 folder.save()
                 toggleFolder(activity, note, folder)
