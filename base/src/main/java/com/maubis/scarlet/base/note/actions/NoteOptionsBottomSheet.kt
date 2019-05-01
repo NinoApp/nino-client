@@ -19,6 +19,7 @@ import com.maubis.scarlet.base.main.sheets.InstallProUpsellBottomSheet
 import com.maubis.scarlet.base.main.sheets.openDeleteNotePermanentlySheet
 import com.maubis.scarlet.base.note.*
 import com.maubis.scarlet.base.note.activity.INoteOptionSheetActivity
+import com.maubis.scarlet.base.note.creation.sheet.QuizBottomSheet
 import com.maubis.scarlet.base.note.folder.sheet.FolderChooseOptionsBottomSheet
 import com.maubis.scarlet.base.note.reminders.sheet.ReminderBottomSheet
 import com.maubis.scarlet.base.note.selection.activity.KEY_SELECT_EXTRA_MODE
@@ -34,6 +35,7 @@ import com.maubis.scarlet.base.support.option.OptionsItem
 import com.maubis.scarlet.base.support.sheets.GridBottomSheetBase
 import com.maubis.scarlet.base.support.ui.ThemedActivity
 import com.maubis.scarlet.base.support.utils.Flavor
+import kotlinx.android.synthetic.main.add_note_widget_layout.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -42,6 +44,7 @@ import kotlinx.coroutines.launch
 class NoteOptionsBottomSheet() : GridBottomSheetBase() {
 
   var noteFn: () -> Note? = { null }
+    val quizBottomSheet = QuizBottomSheet()
 
   override fun setupViewWithDialog(dialog: Dialog) {
     val note = noteFn()
@@ -55,6 +58,7 @@ class NoteOptionsBottomSheet() : GridBottomSheetBase() {
     setupCardViews(note)
     makeBackgroundTransparent(dialog, R.id.root_layout)
   }
+
 
   private fun setupGrid(dialog: Dialog, note: Note) {
     val gridLayoutIds = arrayOf(
@@ -118,6 +122,7 @@ class NoteOptionsBottomSheet() : GridBottomSheetBase() {
     if (activity !is INoteOptionSheetActivity) {
       return emptyList()
     }
+
 
     val options = ArrayList<OptionsItem>()
     options.add(OptionsItem(
@@ -269,6 +274,17 @@ class NoteOptionsBottomSheet() : GridBottomSheetBase() {
                     dismiss()
                 },
                 visible = !note.locked
+        ))
+        options.add(OptionsItem(
+                title = R.string.generate_quiz,
+                subtitle = R.string.generate_quiz_sub,
+                icon = R.drawable.imgly_sticker_emoticons_question,
+                listener = View.OnClickListener {
+                    com.maubis.scarlet.base.support.sheets.openSheet(activity, quizBottomSheet)
+
+                    dismiss()
+                },
+                visible = true
         ))
         options.add(OptionsItem(
                 title = R.string.unlock_note,
@@ -474,10 +490,13 @@ class NoteOptionsBottomSheet() : GridBottomSheetBase() {
   }
 
   companion object {
-    fun openSheet(activity: ThemedActivity, note: Note) {
+    fun openSheet(activity: ThemedActivity, note: Note, questions:ArrayList<String> = ArrayList<String>(), answers: ArrayList<String> = ArrayList<String>()): NoteOptionsBottomSheet {
       val sheet = NoteOptionsBottomSheet()
       sheet.noteFn = { note }
+      sheet.quizBottomSheet.notifyQuestions(questions, answers)
       sheet.show(activity.supportFragmentManager, sheet.tag)
+
+      return sheet
     }
   }
 }

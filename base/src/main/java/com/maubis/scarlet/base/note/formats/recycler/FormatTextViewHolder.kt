@@ -104,6 +104,23 @@ open class FormatTextViewHolder(context: Context, view: View) : FormatViewHolder
     edit.requestFocus()
   }
 
+  fun requestSpeechToTextAction(text: String) {
+    val cursorStartPosition = edit.selectionStart
+    val cursorEndPosition = edit.selectionEnd
+    val content = edit.text
+
+    val startString = content.substring(0, cursorStartPosition)
+    val middleString = text
+    val endString = content.substring(cursorEndPosition, content.length)
+
+    val stringBuilder = StringBuilder()
+    stringBuilder.append(startString)
+    stringBuilder.append(middleString)
+    stringBuilder.append(endString)
+
+    edit.setText(stringBuilder.toString())
+  }
+
   fun requestMarkdownAction(markdownType: MarkdownType) {
     val cursorStartPosition = edit.selectionStart
     val cursorEndPosition = edit.selectionEnd

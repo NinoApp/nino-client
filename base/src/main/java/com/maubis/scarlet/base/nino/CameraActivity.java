@@ -11,12 +11,14 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -109,21 +111,6 @@ public class CameraActivity extends AppCompatActivity {
         POLYGON_CIRCLE_RADIUS = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POLYGON_CIRCLE_RADIUS_IN_DP,
                 r.getDisplayMetrics());
 
-
-
-        /*
-        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
-        int width = metrics.widthPixels;
-        int height = metrics.heightPixels;
-
-        mainIv.setAdjustViewBounds(true);
-        mainIv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        mainIv.getLayoutParams().width = (int) (width * ivScale);
-        mainIv.getLayoutParams().height = (int) (height * ivScale);
-
-        //mainIv.requestLayout()
-        */
-
         final Button processButton = (Button)findViewById(R.id.process_button);
         processButton.setVisibility(View.INVISIBLE);
 
@@ -136,6 +123,7 @@ public class CameraActivity extends AppCompatActivity {
                 }
                 Mat result = warp(rgba);
                 finalImage = matToBit(result);
+
                 mainIv.setImageBitmap(finalImage);
                 findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
                 warpButton.setVisibility(View.INVISIBLE);
@@ -268,13 +256,6 @@ public class CameraActivity extends AppCompatActivity {
                         editorIntent.putExtra("result", result.toString());
                         editorIntent.putExtra("img_width", finalImage.getWidth());
                         editorIntent.putExtra("img_height", finalImage.getHeight());
-
-                        /*
-                        ByteArrayOutputStream bStream = new ByteArrayOutputStream();
-                        finalImage.compress(Bitmap.CompressFormat.PNG, 0, bStream);
-                        byte[] byteArray = bStream.toByteArray();
-                        editorIntent.putExtra("bitmap", byteArray);
-                        */
 
                         editorIntent.setData(bitToUri(finalImage));
                         startActivityForResult(editorIntent, PESDK_REQUEST);
@@ -603,8 +584,6 @@ public class CameraActivity extends AppCompatActivity {
                 case LoaderCallbackInterface.SUCCESS:
                 {
                     Log.i("OpenCV", "OpenCV loaded successfully");
-                    //mainMat = new Mat();
-                    //Log.d("HMMMMMMM", "I AM HERE");
                 } break;
                 default:
                 {

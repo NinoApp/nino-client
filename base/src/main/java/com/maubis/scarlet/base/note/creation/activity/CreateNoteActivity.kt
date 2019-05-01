@@ -1,6 +1,5 @@
 package com.maubis.scarlet.base.note.creation.activity
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -40,10 +39,6 @@ import com.maubis.scarlet.base.settings.sheet.UISettingsOptionsBottomSheet
 import com.maubis.scarlet.base.support.recycler.SimpleItemTouchHelper
 import com.maubis.scarlet.base.support.specs.ToolbarColorConfig
 import kotlinx.android.synthetic.main.activity_advanced_note.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
@@ -78,27 +73,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
       ninoRequest = true
       EasyImage.openCamera(context as AppCompatActivity, ninoUid) //add all possible
-
-      //val intent = Intent(context, CameraActivity::class.java)
-      //context.startActivity(intent)
     }
-
-    /*
-    if (intent.hasExtra("result_uri")) {
-      var targetFile = NoteImage(context).renameOrCopy(note!!, File(Uri.parse(intent.getStringExtra("result_uri")).path))
-      triggerImageLoaded(ninoUid, targetFile)
-      triggerImageLoaded(ninoUid + 1, targetFile)
-      triggerImageLoaded(maxUid - 1, targetFile)
-
-      val uri = Uri.parse(intent.getStringExtra("result_uri"))
-      val photoFile = com.maubis.scarlet.base.nino.EasyImageFiles.pickedExistingPicture(context, uri)
-      targetFile = NoteImage(context).renameOrCopy(note!!, photoFile)
-      triggerImageLoaded(ninoUid, targetFile)
-      triggerImageLoaded(ninoUid + 1, targetFile)
-      triggerImageLoaded(maxUid - 1, targetFile)
-
-    }
-    */
 
     if (getSupportActionBar() != null) {
       getSupportActionBar()?.setDisplayHomeAsUpEnabled(false);
@@ -215,10 +190,21 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     } else if (requestCode == 10) {
       Log.v("CreateNoteActivity", "request with requestCode 10")
       Log.v("CreateNoteActivity", "ResultCode " + resultCode.toString())
+
+
       if (resultCode == RESULT_OK && data != null) {
         val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         Log.v("CreateNoteActivity", result.toString())
-        // TODO: could not complete due to network error. Will see later.
+        val res = result.joinToString(" ")
+
+        this.addEmptyItemAtFocused(FormatType.TEXT)
+        val position = getFormatIndex(focusedFormat!!) + 1
+
+        val handler = Handler()
+        handler.postDelayed(Runnable {
+          val holder = findTextViewHolderAtPosition(position) ?: return@Runnable
+          holder.requestSpeechToTextAction(res)
+        }, 100)
       }
 
     }
@@ -228,7 +214,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     val isSmartTaggingEnabled = CoreConfig.instance.store().get(UISettingsOptionsBottomSheet.KEY_SMART_TAGGING_ENABLED, true)
     if (isSmartTaggingEnabled) {
         val SERVER_POST_URL = "http://35.237.158.162:8000/api/analyze_text/"
-        val text = note!!.getTitle() + " \n " + note!!.getFullText()
+        val text:String = note!!.getFullText()
         Log.v("NoteExtensions", "entered smartTagging with text: " + text )
         val json = JsonObject();
         json.addProperty("text", text);
@@ -251,22 +237,16 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
                     val tag = tb.emptyTag()
 
                     tag.title = jse.asString
+                    tag.uuid = jse.asString
                     Log.v("CreateNoteActivity", "tagtitle: " + tag.title)
                     tag.save()
                     note!!.addTag(tag)
 
                   }
-
                   notifyTagsChanged(note!!)
                 }
               }
-
-
-
       }
-
-
-
   }
 
   override fun onPause() {
