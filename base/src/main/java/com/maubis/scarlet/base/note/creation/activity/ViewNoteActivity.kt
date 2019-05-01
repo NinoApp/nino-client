@@ -129,7 +129,7 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
   protected open fun onCreationFinished() {
     val SERVER_POST_URL = "http://35.237.158.162:8000/api/analyze_text/"
 
-    val text:String = note!!.getTitle() + " \n " + note!!.getFullText()
+    val text:String = note!!.getFullText()
 
     val json = JsonObject();
     json.addProperty("text", text);

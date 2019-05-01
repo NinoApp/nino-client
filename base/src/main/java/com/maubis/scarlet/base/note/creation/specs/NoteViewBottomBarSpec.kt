@@ -222,6 +222,7 @@ object NoteCreationOptionsBottomBarSpec {
 
 @LayoutSpec
 object NoteCreationNinoSpecialBottomBarSpec {
+
   fun getSpeechInput(activity: CreateNoteActivity) {
 
     val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
