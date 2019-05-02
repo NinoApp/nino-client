@@ -16,52 +16,89 @@ import com.maubis.scarlet.base.support.ui.ThemeColorType
 
 const val STORE_KEY_TEXT_SIZE = "KEY_TEXT_SIZE"
 const val TEXT_SIZE_DEFAULT = 16
-const val TEXT_SIZE_MIN = 12
-const val TEXT_SIZE_MAX = 24
 
-var sEditorTextSize: Int
-  get() = CoreConfig.instance.store().get(STORE_KEY_TEXT_SIZE, TEXT_SIZE_DEFAULT)
-  set(value) = CoreConfig.instance.store().put(STORE_KEY_TEXT_SIZE, value)
+var curQuestionId = 1
+var showAnswer = false
 
 class QuizBottomSheet : LithoBottomSheet() {
   var questions = ArrayList<String>()
   var answers = ArrayList<String>()
+  var isLoaded = false
 
   fun notifyQuestions(questions: ArrayList<String>, answers: ArrayList<String>) {
       this.questions = questions
       this.answers = answers
+      this.isLoaded = true
   }
+
+    fun showAnswer() {
+        showAnswer = true
+        reset(context!!, dialog)
+    }
+
+    fun hideAnswer() {
+        showAnswer = false
+        reset(context!!, dialog)
+    }
 
   override fun getComponent(componentContext: ComponentContext, dialog: Dialog): Component {
 
       val component = Column.create(componentContext)
               .widthPercent(100f);
+      if (!isLoaded)
+          component.child(BottomSheetBar.create(componentContext)
+                  .secondaryActionRes(R.string.quiz_loading)
+                  .onPrimaryClick {
+                      hideAnswer()
+                  }.paddingDip(YogaEdge.VERTICAL, 8f))
       if (questions.size > 0){
               component.child(CounterChooser.create(componentContext)
-                      .value(sEditorTextSize)
+                      .value(curQuestionId)
                       .minValue(1)
                       .maxValue(questions.size)
                       .onValueChange { value ->
-                          sEditorTextSize = value
+                          curQuestionId = value
+                          showAnswer = false
                           reset(context!!, dialog)
                       }
                       .paddingDip(YogaEdge.VERTICAL, 16f))
-        }
         component.paddingDip(YogaEdge.VERTICAL, 8f)
         .paddingDip(YogaEdge.HORIZONTAL, 20f)
         .child(getLithoBottomSheetTitle(componentContext)
-            .textRes(R.string.note_option_font_size)
+            .textRes(R.string.generate_quiz)
             .marginDip(YogaEdge.HORIZONTAL, 0f))
         .child(Text.create(componentContext)
-            .textSizeDip(sEditorTextSize.toFloat())
-            .marginDip(YogaEdge.BOTTOM, 16f)
-            .textRes(R.string.note_option_font_size_example)
-            .textColor(CoreConfig.instance.themeController().get(ThemeColorType.TERTIARY_TEXT)))
-        .child(BottomSheetBar.create(componentContext)
-            .primaryActionRes(R.string.import_export_layout_exporting_done)
-            .onPrimaryClick {
-              dismiss()
-            }.paddingDip(YogaEdge.VERTICAL, 8f))
+                .marginDip(YogaEdge.BOTTOM, 16f)
+                .textSizeRes(R.dimen.font_size_normal)
+                .text(this.questions.get(curQuestionId - 1))
+                .textColor(CoreConfig.instance.themeController().get(ThemeColorType.TERTIARY_TEXT)))
+        if (showAnswer)
+            component.child(Text.create(componentContext)
+                .marginDip(YogaEdge.BOTTOM, 16f)
+                .textSizeRes(R.dimen.font_size_large)
+                .text(this.answers.get(curQuestionId - 1))
+                .textColor(CoreConfig.instance.themeController().get(ThemeColorType.PRIMARY_TEXT)))
+
+        if (!showAnswer)
+            component.child(BottomSheetBar.create(componentContext)
+                .primaryActionRes(R.string.quiz_show_answer)
+                .onPrimaryClick {
+                    showAnswer()
+                }.paddingDip(YogaEdge.VERTICAL, 8f))
+          else
+            component.child(BottomSheetBar.create(componentContext)
+                    .primaryActionRes(R.string.quiz_hide_answer)
+                    .onPrimaryClick {
+                        hideAnswer()
+                    }
+                    .paddingDip(YogaEdge.VERTICAL, 8f))
+        } else {
+          component.child(BottomSheetBar.create(componentContext)
+                  .secondaryActionRes(R.string.quiz_hide_answer)
+                  .onPrimaryClick {
+                      hideAnswer()
+                  }.paddingDip(YogaEdge.VERTICAL, 8f))
+      }
     return component.build()
   }
 }

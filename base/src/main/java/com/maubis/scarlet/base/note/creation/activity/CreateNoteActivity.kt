@@ -190,10 +190,21 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     } else if (requestCode == 10) {
       Log.v("CreateNoteActivity", "request with requestCode 10")
       Log.v("CreateNoteActivity", "ResultCode " + resultCode.toString())
+
+
       if (resultCode == RESULT_OK && data != null) {
         val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         Log.v("CreateNoteActivity", result.toString())
-        // TODO: could not complete due to network error. Will see later.
+        val res = result.joinToString(" ")
+
+        this.addEmptyItemAtFocused(FormatType.TEXT)
+        val position = getFormatIndex(focusedFormat!!) + 1
+
+        val handler = Handler()
+        handler.postDelayed(Runnable {
+          val holder = findTextViewHolderAtPosition(position) ?: return@Runnable
+          holder.requestSpeechToTextAction(res)
+        }, 100)
       }
 
     }
@@ -203,7 +214,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     val isSmartTaggingEnabled = CoreConfig.instance.store().get(UISettingsOptionsBottomSheet.KEY_SMART_TAGGING_ENABLED, true)
     if (isSmartTaggingEnabled) {
         val SERVER_POST_URL = "http://35.237.158.162:8000/api/analyze_text/"
-        val text:String = note!!.getTitle() + " \n " + note!!.getFullText()
+        val text:String = note!!.getFullText()
         Log.v("NoteExtensions", "entered smartTagging with text: " + text )
         val json = JsonObject();
         json.addProperty("text", text);
@@ -226,6 +237,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
                     val tag = tb.emptyTag()
 
                     tag.title = jse.asString
+                    tag.uuid = jse.asString
                     Log.v("CreateNoteActivity", "tagtitle: " + tag.title)
                     tag.save()
                     note!!.addTag(tag)

@@ -39,6 +39,11 @@
     <string name="tag_shortcut" translatable="false">Search Entities</string>
     <string name="lock_note">Lock Note</string>
     <string name="generate_quiz" translatable="false">Generate Quiz</string>
+    <string name="quiz_title" translatable="false">Quiz</string>
+    <string name="quiz_show_answer" translatable="false">Show Answer</string>
+    <string name="quiz_hide_answer" translatable="false">Hide Answer</string>
+    <string name="quiz_loading" translatable="false">Laoding...</string>
+    <string name="quiz_no_questions" translatable="false">The content of note is not rich enough to be able to create questions about.</string>
     <string name="generate_quiz_sub" translatable="false">Automatically Generate Quiz</string>
     <string name="change_tags">Change Tags</string>
     <string name="unlock_note">Unlock Note</string>

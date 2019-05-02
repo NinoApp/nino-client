@@ -37,6 +37,7 @@ import com.maubis.scarlet.base.settings.sheet.*
 import com.maubis.scarlet.base.settings.sheet.SettingsOptionsBottomSheet.Companion.KEY_MARKDOWN_ENABLED
 import com.maubis.scarlet.base.settings.sheet.UISettingsOptionsBottomSheet.Companion.useNoteColorAsBackground
 import com.maubis.scarlet.base.support.specs.ToolbarColorConfig
+import com.maubis.scarlet.base.support.specs.ToolbarQuizConfig
 import com.maubis.scarlet.base.support.ui.*
 import com.maubis.scarlet.base.support.ui.ColorUtil.darkerColor
 import com.maubis.scarlet.base.support.utils.bind
@@ -75,6 +76,8 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
   var lastKnownNoteColor = 0
 
   val rootView: View by bind(R.id.root_layout)
+  var questions: ArrayList<String> = ArrayList()
+  var answers: ArrayList<String> = ArrayList()
 
   protected open val editModeValue: Boolean
     get() = false
@@ -129,7 +132,7 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
   protected open fun onCreationFinished() {
     val SERVER_POST_URL = "http://35.237.158.162:8000/api/analyze_text/"
 
-    val text:String = note!!.getTitle() + " \n " + note!!.getFullText()
+    val text:String = note!!.getFullText()
 
     val json = JsonObject();
     json.addProperty("text", text);
@@ -278,8 +281,9 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
     maybeSaveNote(true)
   }
 
+  var optionsBottomSheet: NoteOptionsBottomSheet? = null
   fun openMoreOptions() {
-    NoteOptionsBottomSheet.openSheet(this@ViewAdvancedNoteActivity, note!!)
+    optionsBottomSheet = NoteOptionsBottomSheet.openSheet(this@ViewAdvancedNoteActivity, note!!, questions, answers)
   }
 
   fun openEditor() {
@@ -332,7 +336,7 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
         LithoView.create(componentContext,
             NoteViewBottomBar.create(componentContext)
                 .colorConfig(ToolbarColorConfig(colorConfig.toolbarBackgroundColor, colorConfig.toolbarIconColor))
-                .build()))
+                    .build()))
   }
 
   protected open fun setTopToolbar() {
@@ -423,6 +427,9 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
 
   fun notifyQuestions(questions: ArrayList<String>, answers: ArrayList<String>) {
     Log.v("notifyQuestionnnnnssss", questions.size.toString())
+    optionsBottomSheet?.quizBottomSheet?.notifyQuestions(questions, answers)
+    this.questions = questions
+    this.answers = answers
   }
 
   override fun getSelectMode(note: Note): String {

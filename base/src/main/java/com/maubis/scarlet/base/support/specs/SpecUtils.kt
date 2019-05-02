@@ -41,8 +41,13 @@ fun separatorSpec(context: ComponentContext): Component.Builder<*> {
 
 
 data class ToolbarColorConfig(
-    var toolbarBackgroundColor: Int = CoreConfig.instance.themeController().get(ThemeColorType.TOOLBAR_BACKGROUND),
-    var toolbarIconColor: Int = CoreConfig.instance.themeController().get(ThemeColorType.TOOLBAR_ICON))
+        var toolbarBackgroundColor: Int = CoreConfig.instance.themeController().get(ThemeColorType.TOOLBAR_BACKGROUND),
+        var toolbarIconColor: Int = CoreConfig.instance.themeController().get(ThemeColorType.TOOLBAR_ICON))
+
+
+data class ToolbarQuizConfig(
+        var questions: ArrayList<String> = ArrayList<String>(),
+        var answers: ArrayList<String> = ArrayList<String>())
 
 
 fun bottomBarRoundIcon(context: ComponentContext, colorConfig: ToolbarColorConfig): RoundIcon.Builder {
