@@ -205,6 +205,7 @@ public class CameraActivity extends AppCompatActivity {
         cameraView = findViewById(R.id.camera_view);
     }
 
+    /*
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -229,6 +230,7 @@ public class CameraActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
+    */
 
     private void process(){
         finalImage = rotateBitmap(finalImage, rotation);
