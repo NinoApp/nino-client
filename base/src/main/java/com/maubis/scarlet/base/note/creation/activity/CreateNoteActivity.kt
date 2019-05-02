@@ -44,7 +44,6 @@ import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
 import java.util.*
 
-
 open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
   private var active = false
@@ -195,10 +194,13 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       if (resultCode == RESULT_OK && data != null) {
         val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         Log.v("CreateNoteActivity", result.toString())
-        val res = result.joinToString(" ")
+        val res = result[0]
 
         this.addEmptyItemAtFocused(FormatType.TEXT)
-        val position = getFormatIndex(focusedFormat!!) + 1
+        var position = 0
+        if(focusedFormat != null){
+          position = getFormatIndex(focusedFormat!!) + 1
+        }
 
         val handler = Handler()
         handler.postDelayed(Runnable {
