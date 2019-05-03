@@ -196,20 +196,33 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
         Log.v("CreateNoteActivity", result.toString())
         val res = result[0]
 
-        this.addEmptyItemAtFocused(FormatType.TEXT)
-        var position = 0
-        if(focusedFormat != null){
-          position = getFormatIndex(focusedFormat!!) + 1
-        }
-
-        val handler = Handler()
-        handler.postDelayed(Runnable {
-          val holder = findTextViewHolderAtPosition(position) ?: return@Runnable
-          holder.requestSpeechToTextAction(res)
-        }, 100)
+        insertTextSegment(res)
       }
 
+    } else if (requestCode == 801) {
+
+      if (resultCode == RESULT_OK && data != null) {
+        val res = data.getStringExtra("result");
+        Log.v("CreateNoteActivity", res.toString())
+
+        insertTextSegment(res)
+      }
     }
+  }
+
+  private fun insertTextSegment(res: String) {
+    this.addEmptyItemAtFocused(FormatType.TEXT)
+    var position = formats.size - 1
+    if(focusedFormat != null){
+      position = getFormatIndex(focusedFormat!!) + 1
+    }
+
+    val handler = Handler()
+    handler.postDelayed(Runnable {
+      val holder = findTextViewHolderAtPosition(position) ?: return@Runnable
+      holder.requestSpeechToTextAction(res)
+    }, 100)
+
   }
 
   fun smartTagging() {

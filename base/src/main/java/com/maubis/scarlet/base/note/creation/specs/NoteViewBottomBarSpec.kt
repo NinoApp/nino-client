@@ -28,6 +28,7 @@ import android.support.v4.app.ActivityCompat.startActivityForResult
 import android.speech.RecognizerIntent
 import android.content.Intent
 import android.support.annotation.ColorInt
+import com.maubis.scarlet.base.iink.IInkActivity
 import java.util.*
 
 
@@ -36,8 +37,6 @@ enum class NoteCreateBottomBarType {
   DEFAULT_MARKDOWNS,
   ALL_SEGMENTS,
   ALL_MARKDOWNS,
-
-  IINK,
   NINO_SPECIAL,
   OPTIONS,
   MAIN
@@ -82,7 +81,6 @@ object NoteCreationBottomBarSpec {
                 .colorConfig(colorConfig)
                 .flexGrow(1f)
                 .optionsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.OPTIONS))
-                .iinkClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.IINK))
                 .ninoSpecialClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.NINO_SPECIAL))
                 .segmentsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_SEGMENTS))
                 .markdownsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_MARKDOWNS))
@@ -103,10 +101,6 @@ object NoteCreationBottomBarSpec {
       NoteCreateBottomBarType.ALL_SEGMENTS -> HorizontalScroll.create(context)
           .flexGrow(1f)
           .contentProps(NoteCreationAllSegmentsBottomBar.create(context).colorConfig(colorConfig))
-      NoteCreateBottomBarType.IINK ->
-        NoteCreationIInkBottomBar.create(context)
-                .colorConfig(colorConfig)
-                .flexGrow(1f)
       NoteCreateBottomBarType.NINO_SPECIAL->
         NoteCreationNinoSpecialBottomBar.create(context)
                 .colorConfig(colorConfig)
@@ -149,7 +143,6 @@ object NoteCreationMainBottomBarSpec {
   fun onCreate(context: ComponentContext,
                @Prop colorConfig: ToolbarColorConfig,
                @Prop optionsClick: EventHandler<ClickEvent>,
-               @Prop iinkClick: EventHandler<ClickEvent>,
                @Prop ninoSpecialClick: EventHandler<ClickEvent>,
                @Prop segmentsClick: EventHandler<ClickEvent>,
                @Prop markdownsClick: EventHandler<ClickEvent>): Component {
@@ -170,12 +163,6 @@ object NoteCreationMainBottomBarSpec {
                     .onClick { }
                     .isClickDisabled(true)
                     .clickHandler(ninoSpecialClick))
-            .child(bottomBarRoundIcon(context, colorConfig)
-                    .bgColor(Color.TRANSPARENT)
-                    .iconRes(R.drawable.ic_border_color_white_24dp)
-                    .onClick { }
-                    .isClickDisabled(true)
-                    .clickHandler(iinkClick))
             .child(bottomBarRoundIcon(context, colorConfig)
                     .bgColor(Color.TRANSPARENT)
                     .iconRes(R.drawable.ic_action_grid)
@@ -255,40 +242,51 @@ object NoteCreationNinoSpecialBottomBarSpec {
                     .onClick {
                       getSpeechInput(activity)
                     })
-            .build()
-  }
-}
-
-@LayoutSpec
-object NoteCreationIInkBottomBarSpec {
-  @OnCreateLayout
-  fun onCreate(context: ComponentContext,
-               @Prop colorConfig: ToolbarColorConfig): Component {
-    val activity = context.androidContext as CreateNoteActivity
-    return Row.create(context)
-            .alignItems(YogaAlign.CENTER)
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.icon_realtime_markdown)
                     .onClick {
                       // drawing to text block
+                      openIinkActivity(activity, "Text")
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_formats_logo)
                     .onClick {
                       // drawing to math equation in image format
+                      openIinkActivity(activity, "Math")
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_action_grid)
                     .onClick {
                       // drawing to diagrams in image format
+                      openIinkActivity(activity, "Diagram")
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_border_color_white_24dp)
                     .onClick {
                       // direct drawing in image format
+                      openIinkActivity(activity, "Drawing")
                     })
             .build()
   }
+
+  fun openIinkActivity(activity: CreateNoteActivity, type:String) {
+
+    val intent = Intent(activity, IInkActivity::class.java)
+    intent.putExtra("iink_type", type)
+
+    var requestCode = -1
+
+    when(type) {
+      "Text" -> requestCode = 801
+      "Math" -> requestCode = 802
+      "Diagram" -> requestCode = 803
+      "Drawing" -> requestCode = 804
+    }
+
+    startActivityForResult(activity, intent, requestCode, null)
+
+  }
+
 }
 
 @LayoutSpec

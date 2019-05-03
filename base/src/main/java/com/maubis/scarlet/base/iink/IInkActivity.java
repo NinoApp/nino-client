@@ -2,6 +2,7 @@
 
 package com.maubis.scarlet.base.iink;
 
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import com.myscript.iink.ConversionState;
 import com.myscript.iink.Editor;
 import com.myscript.iink.Engine;
 import com.myscript.iink.IEditorListener;
+import com.myscript.iink.MimeType;
 import com.myscript.iink.uireferenceimplementation.EditorView;
 import com.myscript.iink.uireferenceimplementation.FontUtils;
 import com.myscript.iink.uireferenceimplementation.InputController;
@@ -37,6 +39,22 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
   private ContentPackage contentPackage;
   private ContentPart contentPart;
   private EditorView editorView;
+
+
+  @Override
+  public void onBackPressed() {
+
+      Editor editor = editorView.getEditor();
+      try {
+        String result = editor.export_(editor.getRootBlock(), MimeType.TEXT);
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("result",result);
+        setResult(RESULT_OK, returnIntent);
+        finish();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+  }
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -65,7 +83,12 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
 
     editorView.setEngine(engine);
 
+
+
+
     final Editor editor = editorView.getEditor();
+
+
     editor.addListener(new IEditorListener()
     {
       @Override
@@ -101,8 +124,10 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
     File file = new File(getFilesDir(), packageName);
     try
     {
+      Intent intent = getIntent();
+      String type = intent.getStringExtra("iink_type");
       contentPackage = engine.createPackage(file);
-      contentPart = contentPackage.createPart("Math"); // Choose type of content (possible values are: "Text Document", "Text", "Diagram", "Math", and "Drawing")
+      contentPart = contentPackage.createPart(type); // Choose type of content (possible values are: "Text Document", "Text", "Diagram", "Math", and "Drawing")
     }
     catch (IOException e)
     {
