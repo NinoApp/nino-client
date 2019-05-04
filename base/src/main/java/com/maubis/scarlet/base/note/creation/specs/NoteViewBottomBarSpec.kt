@@ -28,6 +28,7 @@ import android.support.v4.app.ActivityCompat.startActivityForResult
 import android.speech.RecognizerIntent
 import android.content.Intent
 import android.support.annotation.ColorInt
+import com.maubis.scarlet.base.core.note.getFormats
 import com.maubis.scarlet.base.iink.IInkActivity
 import java.util.*
 
@@ -38,8 +39,7 @@ enum class NoteCreateBottomBarType {
   ALL_SEGMENTS,
   ALL_MARKDOWNS,
   NINO_SPECIAL,
-  OPTIONS,
-  MAIN
+  OPTIONS
 }
 
 @LayoutSpec
@@ -49,7 +49,7 @@ object NoteCreationBottomBarSpec {
   fun onCreateInitialState(
       context: ComponentContext,
       state: StateValue<NoteCreateBottomBarType>) {
-    state.set(NoteCreateBottomBarType.MAIN)
+    state.set(NoteCreateBottomBarType.NINO_SPECIAL)
   }
 
   @OnCreateLayout
@@ -65,7 +65,7 @@ object NoteCreationBottomBarSpec {
         .alignItems(YogaAlign.CENTER)
 
 
-
+    /*
     if (state != NoteCreateBottomBarType.MAIN) {
       row.child(bottomBarRoundIcon(context, colorConfig)
               .iconRes(R.drawable.ic_chevron_left)
@@ -74,16 +74,9 @@ object NoteCreationBottomBarSpec {
               .clickHandler(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.MAIN)))
           //.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
     }
+    */
 
     val content = when (state) {
-      NoteCreateBottomBarType.MAIN ->
-        NoteCreationMainBottomBar.create(context)
-                .colorConfig(colorConfig)
-                .flexGrow(1f)
-                .optionsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.OPTIONS))
-                .ninoSpecialClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.NINO_SPECIAL))
-                .segmentsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_SEGMENTS))
-                .markdownsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_MARKDOWNS))
       NoteCreateBottomBarType.OPTIONS ->
         NoteCreationOptionsBottomBar.create(context)
                 .colorConfig(colorConfig)
@@ -111,9 +104,17 @@ object NoteCreationBottomBarSpec {
           .contentProps(NoteCreationAllMarkdownsBottomBar.create(context).colorConfig(colorConfig))
     }
     row.child(content)
+            .child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
 
-
-    row.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
+    row.child(NoteCreationMainBottomBar.create(context)
+            .colorConfig(colorConfig)
+            //.flexGrow(1f)
+            .state(state)
+            .optionsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.OPTIONS))
+            .ninoSpecialClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.NINO_SPECIAL))
+            .segmentsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_SEGMENTS))
+            .markdownsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_MARKDOWNS))
+    )
        .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_done_white_48dp)
                     .iconColor(Color.GREEN)
@@ -145,36 +146,43 @@ object NoteCreationMainBottomBarSpec {
                @Prop optionsClick: EventHandler<ClickEvent>,
                @Prop ninoSpecialClick: EventHandler<ClickEvent>,
                @Prop segmentsClick: EventHandler<ClickEvent>,
-               @Prop markdownsClick: EventHandler<ClickEvent>): Component {
+               @Prop markdownsClick: EventHandler<ClickEvent>,
+               @Prop state: NoteCreateBottomBarType): Component {
     val activity = context.androidContext as CreateNoteActivity
     return Row.create(context)
             .alignItems(YogaAlign.CENTER)
-            .child(bottomBarRoundIcon(context, colorConfig)
+/*            .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_more_options)
                     .bgColor(Color.TRANSPARENT)
                     .iconColor(activity.note().color)
                     .onClick { }
                     .isClickDisabled(true)
                     .clickHandler(optionsClick))
-            .child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
+            .child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))*/
             .child(bottomBarRoundIcon(context, colorConfig)
-                    .bgColor(Color.TRANSPARENT)
+                    .bgColor( if (state.equals(NoteCreateBottomBarType.NINO_SPECIAL)) Color.GREEN else Color.TRANSPARENT)
                     .iconRes(R.drawable.ic_whats_new)
                     .onClick { }
                     .isClickDisabled(true)
                     .clickHandler(ninoSpecialClick))
             .child(bottomBarRoundIcon(context, colorConfig)
-                    .bgColor(Color.TRANSPARENT)
+                    .bgColor( if (state.equals(NoteCreateBottomBarType.DEFAULT_SEGMENTS) || state.equals(NoteCreateBottomBarType.ALL_SEGMENTS) ) Color.GREEN else Color.TRANSPARENT)
                     .iconRes(R.drawable.ic_action_grid)
                     .onClick { }
                     .isClickDisabled(true)
                     .clickHandler(segmentsClick))
             .child(bottomBarRoundIcon(context, colorConfig)
-                    .bgColor(Color.TRANSPARENT)
+                    .bgColor( if (state.equals(NoteCreateBottomBarType.DEFAULT_MARKDOWNS) || state.equals(NoteCreateBottomBarType.ALL_MARKDOWNS) ) Color.GREEN else Color.TRANSPARENT)
                     .iconRes(R.drawable.icon_realtime_markdown)
                     .onClick { }
                     .isClickDisabled(true)
                     .clickHandler(markdownsClick))
+            .child(bottomBarRoundIcon(context, colorConfig)
+                    .iconRes(R.drawable.ic_more_options)
+                    .bgColor(if (state.equals(NoteCreateBottomBarType.OPTIONS)) Color.GREEN else Color.TRANSPARENT)
+                    .onClick { }
+                    .isClickDisabled(true)
+                    .clickHandler(optionsClick))
             .build()
   }
 }
