@@ -207,6 +207,16 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
         insertTextSegment(res)
       }
+    } else if (requestCode > 801 && requestCode < 805) {
+      if (resultCode == RESULT_OK && data != null) {
+        val uri = Uri.parse(data.getStringExtra("result_uri"))
+        Log.v("CreateNoteActivity", uri.toString())
+
+        val targetFile = NoteImage(context).renameOrCopy(note!!, File(uri?.getPath()))
+        val index = getFormatIndex(data.getIntExtra("type", ninoUid))
+        triggerImageLoaded(index, targetFile)
+
+      }
     }
   }
 
@@ -353,7 +363,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     }, HANDLER_UPDATE_TIME.toLong())
   }
 
-  protected fun addEmptyItem(type: FormatType) {
+  fun addEmptyItem(type: FormatType) {
     addEmptyItem(formats.size, type)
   }
 

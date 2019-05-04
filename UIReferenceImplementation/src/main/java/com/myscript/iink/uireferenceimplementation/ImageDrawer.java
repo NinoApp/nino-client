@@ -105,7 +105,7 @@ public class ImageDrawer implements IImageDrawer
     }
     catch (Exception e)
     {
-      throw new IOException("Can't save image");
+      throw new IOException("Can't save image"  + e.toString());
     }
 
     bitmap.recycle();

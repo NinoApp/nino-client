@@ -260,18 +260,21 @@ object NoteCreationNinoSpecialBottomBarSpec {
                     .iconRes(R.drawable.ic_formats_logo)
                     .onClick {
                       // drawing to math equation in image format
+                      activity.addEmptyItem(FormatType.IMAGE)
                       openIinkActivity(activity, "Math")
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_action_grid)
                     .onClick {
                       // drawing to diagrams in image format
+                      activity.addEmptyItem(FormatType.IMAGE)
                       openIinkActivity(activity, "Diagram")
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_border_color_white_24dp)
                     .onClick {
                       // direct drawing in image format
+                      activity.addEmptyItem(FormatType.IMAGE)
                       openIinkActivity(activity, "Drawing")
                     })
             .build()

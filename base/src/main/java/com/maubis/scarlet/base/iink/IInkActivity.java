@@ -2,9 +2,14 @@
 
 package com.maubis.scarlet.base.iink;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -22,14 +27,18 @@ import com.myscript.iink.ConversionState;
 import com.myscript.iink.Editor;
 import com.myscript.iink.Engine;
 import com.myscript.iink.IEditorListener;
+import com.myscript.iink.IImageDrawer;
 import com.myscript.iink.MimeType;
 import com.myscript.iink.uireferenceimplementation.EditorView;
 import com.myscript.iink.uireferenceimplementation.FontUtils;
+import com.myscript.iink.uireferenceimplementation.ImageDrawer;
 import com.myscript.iink.uireferenceimplementation.InputController;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class IInkActivity extends AppCompatActivity implements View.OnClickListener
 {
@@ -39,21 +48,42 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
   private ContentPackage contentPackage;
   private ContentPart contentPart;
   private EditorView editorView;
+  private String iinkType;
 
 
   @Override
   public void onBackPressed() {
 
       Editor editor = editorView.getEditor();
-      try {
-        String result = editor.export_(editor.getRootBlock(), MimeType.TEXT);
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("result",result);
-        setResult(RESULT_OK, returnIntent);
-        finish();
-      } catch (IOException e) {
-        e.printStackTrace();
+      if (editor == null)
+        return;
+
+      editor.waitForIdle();
+      if (iinkType.equals("Text")) {
+        try {
+          String result = editor.export_(editor.getRootBlock(), MimeType.TEXT);
+          Intent returnIntent = new Intent();
+          returnIntent.putExtra("result", result);
+          setResult(RESULT_OK, returnIntent);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      } else {
+        try {
+          String outputFileName = getApplicationContext().getFilesDir().getAbsolutePath() + "/" + UUID.randomUUID() + ".jpeg";
+          IImageDrawer imageDrawer = new ImageDrawer();
+          // imageDrawer.prepareImage(100, 100);
+          // imageDrawer.saveImage(outputFileName);
+          Log.v("IInkActity", outputFileName);
+          editor.export_(editor.getRootBlock(), outputFileName, MimeType.JPEG, imageDrawer);
+          Intent returnIntent = new Intent();
+          returnIntent.putExtra("result_uri", outputFileName);
+          setResult(RESULT_OK, returnIntent);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       }
+      finish();
   }
 
   @Override
@@ -120,14 +150,15 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
 
     setInputMode(InputController.INPUT_MODE_FORCE_PEN); // If using an active pen, put INPUT_MODE_AUTO here
 
-    String packageName = "File1.iink";
+    String packageName = UUID.randomUUID() + ".iink";
     File file = new File(getFilesDir(), packageName);
     try
     {
       Intent intent = getIntent();
-      String type = intent.getStringExtra("iink_type");
+      iinkType = intent.getStringExtra("iink_type");
+
       contentPackage = engine.createPackage(file);
-      contentPart = contentPackage.createPart(type); // Choose type of content (possible values are: "Text Document", "Text", "Diagram", "Math", and "Drawing")
+      contentPart = contentPackage.createPart(iinkType); // Choose type of content (possible values are: "Text Document", "Text", "Diagram", "Math", and "Drawing")
     }
     catch (IOException e)
     {
