@@ -68,10 +68,15 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     val fab: View = findViewById(R.id.nino_fab)
     fab.visibility = View.VISIBLE
     fab.setOnClickListener { view ->
+
       addEmptyItem(FormatType.IMAGE)
 
-      ninoRequest = true
-      EasyImage.openCamera(context as AppCompatActivity, ninoUid) //add all possible
+      val handler = Handler()
+
+      handler.postDelayed({
+        ninoRequest = true
+        EasyImage.openCamera(context as AppCompatActivity, ninoUid + 0) //add all possible
+      }, 1000)
     }
 
     if (getSupportActionBar() != null) {
@@ -183,8 +188,12 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
         val uri = Uri.parse(data?.getStringExtra("result_uri"))
         //val uri = data?.data
         val targetFile = NoteImage(context).renameOrCopy(note!!, File(uri?.getPath()))
-        val index = getFormatIndex(data!!.getIntExtra("type", ninoUid))
+
+        val handler = Handler()
+        handler.postDelayed({
+        val index = getFormatIndex(data!!.getIntExtra("type", ninoUid+0))
         triggerImageLoaded(index, targetFile)
+      }, 1000)
       }
     } else if (requestCode == 10) {
       Log.v("CreateNoteActivity", "request with requestCode 10")
@@ -209,15 +218,41 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       }
     } else if (requestCode > 801 && requestCode < 805) {
       if (resultCode == RESULT_OK && data != null) {
-        val uri = Uri.parse(data.getStringExtra("result_uri"))
-        Log.v("CreateNoteActivity", uri.toString())
 
-        val targetFile = NoteImage(context).renameOrCopy(note!!, File(uri?.getPath()))
-        val index = getFormatIndex(data.getIntExtra("type", ninoUid))
-        triggerImageLoaded(index, targetFile)
+
+          val uri = Uri.parse(data.getStringExtra("result_uri"))
+          Log.v("nino uri", uri?.getPath().toString())
+          val targetFile = NoteImage(context).renameOrCopy(note!!, File(uri.getPath()))
+        val handler = Handler()
+          handler.postDelayed({
+          val index = getFormatIndex(data.getIntExtra("type", ninoUid + 0))
+          Log.v("iink ninoUid index", ninoUid.toString() + " " + index.toString())
+
+            val handler = Handler()
+
+          handler.postDelayed({
+            Log.v(" can read targetFile", targetFile.canRead().toString())
+            Log.v(" can  targetFile", targetFile.toURI().path.toString())
+
+            triggerImageLoaded(index, targetFile)
+          }, 1000)
+
+          }, 1000)
 
       }
     }
+  }
+
+  private fun retryTriggerImageLoaded(position: Int, file: File) {
+    val handler = Handler()
+    handler.postDelayed(Runnable {
+
+      if (file.canRead())
+        triggerImageLoaded(position, file)
+      else
+        retryTriggerImageLoaded(position, file)
+
+    }, 100)
   }
 
   private fun insertTextSegment(res: String) {
@@ -283,9 +318,17 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     if (!destroyed && !note!!.disableBackup) {
       note!!.saveToSync(this)
     }
+  }
+
+  fun onSave() {
+    onBackPressed()
+    val destroyed = destroyIfNeeded()
     if (!destroyed){
       smartTagging()
     }
+
+
+
   }
 
   override fun onBackPressed() {
@@ -372,7 +415,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     format.uid = maxUid + 1
     maxUid++
 
-    ninoUid = format.uid
+    ninoUid = format.uid + 0
 
     formats.add(position, format)
     adapter.addItem(format, position)

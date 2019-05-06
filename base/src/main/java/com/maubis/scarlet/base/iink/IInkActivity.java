@@ -59,7 +59,7 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
         return;
 
       editor.waitForIdle();
-      if (iinkType.equals("Text")) {
+    if (iinkType.equals("Text")) {
         try {
           String result = editor.export_(editor.getRootBlock(), MimeType.TEXT);
           Intent returnIntent = new Intent();
@@ -68,14 +68,17 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
         } catch (IOException e) {
           e.printStackTrace();
         }
-      } else {
+    } else {
         try {
-          String outputFileName = getApplicationContext().getFilesDir().getAbsolutePath() + "/" + UUID.randomUUID() + ".jpeg";
+          String outputFileName = getApplicationContext().getFilesDir().getAbsolutePath() + "/images/" + UUID.randomUUID() + ".jpeg";
           IImageDrawer imageDrawer = new ImageDrawer();
           // imageDrawer.prepareImage(100, 100);
           // imageDrawer.saveImage(outputFileName);
           Log.v("IInkActity", outputFileName);
           editor.export_(editor.getRootBlock(), outputFileName, MimeType.JPEG, imageDrawer);
+          editor.waitForIdle();
+          editor.close();
+
           Intent returnIntent = new Intent();
           returnIntent.putExtra("result_uri", outputFileName);
           setResult(RESULT_OK, returnIntent);

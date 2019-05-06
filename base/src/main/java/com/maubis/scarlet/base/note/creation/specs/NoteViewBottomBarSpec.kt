@@ -27,6 +27,7 @@ import android.widget.Toast
 import android.support.v4.app.ActivityCompat.startActivityForResult
 import android.speech.RecognizerIntent
 import android.content.Intent
+import android.os.Handler
 import android.support.annotation.ColorInt
 import com.maubis.scarlet.base.core.note.getFormats
 import com.maubis.scarlet.base.iink.IInkActivity
@@ -119,7 +120,7 @@ object NoteCreationBottomBarSpec {
                     .iconRes(R.drawable.ic_done_white_48dp)
                     .iconColor(Color.GREEN)
                     .onClick {
-                      activity.onBackPressed()
+                      activity.onSave()
                     })
 
     return bottomBarCard(context, row.build(), colorConfig).build()
@@ -246,7 +247,8 @@ object NoteCreationNinoSpecialBottomBarSpec {
                       // SMART NOTE
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
-                    .iconRes(R.drawable.baseline_mic_24)
+                    .iconRes(R.drawable.voice_recognition)
+                    .iconColor(Color.WHITE)
                     .onClick {
                       getSpeechInput(activity)
                     })
@@ -254,28 +256,41 @@ object NoteCreationNinoSpecialBottomBarSpec {
                     .iconRes(R.drawable.icon_realtime_markdown)
                     .onClick {
                       // drawing to text block
-                      openIinkActivity(activity, "Text")
+
+                      val handler = Handler()
+                      handler.postDelayed(Runnable {
+                        openIinkActivity(activity, "Text")
+                      }, 100)
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_formats_logo)
                     .onClick {
                       // drawing to math equation in image format
                       activity.addEmptyItem(FormatType.IMAGE)
-                      openIinkActivity(activity, "Math")
+                      val handler = Handler()
+                      handler.postDelayed(Runnable {
+                        openIinkActivity(activity, "Math")
+                      }, 100)
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_action_grid)
                     .onClick {
                       // drawing to diagrams in image format
                       activity.addEmptyItem(FormatType.IMAGE)
+                      val handler = Handler()
+                      handler.postDelayed(Runnable {
                       openIinkActivity(activity, "Diagram")
+                    }, 100)
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_border_color_white_24dp)
                     .onClick {
                       // direct drawing in image format
                       activity.addEmptyItem(FormatType.IMAGE)
+                      val handler = Handler()
+                      handler.postDelayed(Runnable {
                       openIinkActivity(activity, "Drawing")
+                      }, 100)
                     })
             .build()
   }
