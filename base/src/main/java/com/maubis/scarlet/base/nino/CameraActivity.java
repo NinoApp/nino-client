@@ -230,6 +230,7 @@ public class CameraActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
+
     private void process(){
         finalImage = rotateBitmap(finalImage, rotation);
         File finalImageFile = persistImage(finalImage);
@@ -357,17 +358,6 @@ public class CameraActivity extends AppCompatActivity {
         int width = metrics.widthPixels;
         mainIv.getLayoutParams().width = (int) (width * ivScale);
 
-        float origBitWidth = rgbaBit.getWidth();
-        float origBitHeight = rgbaBit.getHeight();
-
-        int ivWidth = mainIv.getLayoutParams().width;
-
-        float rWidth = ivWidth / origBitWidth;
-        float rHeight = rWidth;
-        int ivHeight = (int) (rHeight * origBitHeight);
-        mainIv.getLayoutParams().height = ivHeight;
-        mainIv.requestLayout();
-
         double[] temp_double;
         Point p;
         List<Point> source = new ArrayList<Point>();
@@ -381,16 +371,16 @@ public class CameraActivity extends AppCompatActivity {
                     source.add(p);
                     //Imgproc.circle (rgba, p,10, new Scalar(255, 0, 0),10);
                 }
-                pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv, ivScale);
+                ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv, ivScale);
             }else{
-                pvc.createPolygonWithRect(rect, rgbaBit, mainIv, ivScale);
+                ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv, ivScale);
             }
         }catch(NullPointerException e){
             e.printStackTrace();
         }
 
-        //mainIv.getLayoutParams().height = (int) (ivNewHeight);
-        //mainIv.requestLayout();
+        mainIv.getLayoutParams().height = (int) (ivNewHeight);
+        mainIv.requestLayout();
 
         rgbaBit = matToBit(rgba);
         mainIv.setImageBitmap(rgbaBit);
