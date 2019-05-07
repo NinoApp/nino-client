@@ -71,6 +71,8 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
     public static int GALLERY_RESULT = 2;
     private Uri uri;
 
+    private String ninoText = "";
+
     private String jsonFileName = "JSON_TEMPLATE.json";
     private Bitmap origBitmap;
     @Override
@@ -116,8 +118,13 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
             jo = jh.createJsonTemplate(linesJson, imagesJson);
             Log.i("JSON_RESULT", jo.toString());
             jh.writeJson(jo, jsonFileName);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            for(int i = 0; i < linesJson.length(); i++) {
+                JSONObject entry = linesJson.getJSONObject(i);
+                String text = entry.getString("text");
+                this.ninoText += text + "\n";
+            }
+            } catch (JSONException e1) {
+            e1.printStackTrace();
         }
     }
 
@@ -369,6 +376,7 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
 
             Intent resIntent = getIntent();
             resIntent.putExtra("result_uri", resultURI.toString());
+            resIntent.putExtra("text", "text goes here"); // TODO: add final text here
             resIntent.setData(resultURI);
             setResult(RESULT_OK, resIntent);
             finish();

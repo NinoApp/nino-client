@@ -186,13 +186,14 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       if(resultCode == RESULT_OK){
         ninoRequest = false
         val uri = Uri.parse(data?.getStringExtra("result_uri"))
-        //val uri = data?.data
+        val text = data!!.getStringExtra("text")
+
         val targetFile = NoteImage(context).renameOrCopy(note!!, File(uri?.getPath()))
 
         val handler = Handler()
         handler.postDelayed({
-        val index = getFormatIndex(data!!.getIntExtra("type", ninoUid+0))
-        triggerImageLoaded(index, targetFile)
+        val index = getFormatIndex(data.getIntExtra("type", ninoUid+0))
+        triggerImageLoaded(index, targetFile, text)
       }, 1000)
       }
     } else if (requestCode == 10) {
@@ -464,7 +465,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     }, 100)
   }
 
-  fun triggerImageLoaded(position: Int, file: File) {
+  fun triggerImageLoaded(position: Int, file: File, ninoText: String = "") {
     if (position == -1) {
       return
     }
@@ -477,7 +478,11 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       val noteImage = NoteImage(context)
       deleteIfExist(noteImage.getFile(note!!.uuid, formatToChange.text))
     }
-    formatToChange.text = file.name
+    if (ninoText.isNotEmpty())
+      formatToChange.text = ninoText
+    else
+      formatToChange.text = file.name
+
     setFormat(formatToChange)
   }
 

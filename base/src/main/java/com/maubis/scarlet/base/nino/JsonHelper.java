@@ -75,6 +75,7 @@ public class JsonHelper {
         for(int i = 0; i < lines.length(); i++) {
             JSONObject entry = lines.getJSONObject(i);
             String text = entry.getString("text");
+
             double left = entry.getDouble("left") / imgWidth;
             double bottom = entry.getDouble("bottom") / imgHeight;
             double right = entry.getDouble("right") / imgWidth;
