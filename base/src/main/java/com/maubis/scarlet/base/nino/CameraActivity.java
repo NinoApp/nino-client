@@ -413,6 +413,7 @@ public class CameraActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Intent resIntent = getIntent();
                 resIntent.putExtra("result_uri", data.getStringExtra("result_uri"));
+                resIntent.putExtra("text", data.getStringExtra("text"));
                 resIntent.setData(data.getData());
                 setResult(RESULT_OK, resIntent);
             }

@@ -371,8 +371,8 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
 
             Intent resIntent = getIntent();
             resIntent.putExtra("result_uri", resultURI.toString());
-            resIntent.putExtra("text", "text goes here"); // TODO: add final text here
             resIntent.setData(resultURI);
+            resIntent.putExtra("text", ninoText);
             setResult(RESULT_OK, resIntent);
             finish();
 
