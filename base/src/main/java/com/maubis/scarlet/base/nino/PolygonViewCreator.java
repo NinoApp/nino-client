@@ -272,23 +272,16 @@ public class PolygonViewCreator {
         return outlinePoints;
     }
 
-    public List<Point> getPoints(CameraActivity.WARP_MODE mode){
+    public List<Point> getPoints() {
         Map<Integer, PointF> map = polygonView.getPoints();
         List<PointF> list = new ArrayList<PointF>(map.values());
         List<Point> points = new ArrayList<Point>();
 
-        if(mode == CameraActivity.WARP_MODE.MAIN){
-            for(PointF pf : list){
-                double x = (pf.x - widthMargin + POLYGON_CIRCLE_RADIUS) / rWidth;
-                double y = (pf.y - heightMargin + POLYGON_CIRCLE_RADIUS) / rHeight;
-                points.add(new Point(Math.floor(x), Math.floor(y)));
-            }
-        }else{
-            for(PointF pf : list){
-                points.add(new Point(Math.floor(pf.x), Math.floor(pf.y)));
-            }
+        for(PointF pf : list){
+            double x = (pf.x - widthMargin + POLYGON_CIRCLE_RADIUS) / rWidth;
+            double y = (pf.y - heightMargin + POLYGON_CIRCLE_RADIUS) / rHeight;
+            points.add(new Point(Math.floor(x), Math.floor(y)));
         }
-
         List<Point> sortedPoints = new ArrayList<Point>();
         sortedPoints.add(points.get(0));
         sortedPoints.add(points.get(2));
