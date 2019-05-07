@@ -40,7 +40,7 @@ enum class NoteCreateBottomBarType {
   ALL_SEGMENTS,
   ALL_MARKDOWNS,
   NINO_SPECIAL,
-  OPTIONS
+  //OPTIONS
 }
 
 @LayoutSpec
@@ -78,11 +78,12 @@ object NoteCreationBottomBarSpec {
     */
 
     val content = when (state) {
+      /*
       NoteCreateBottomBarType.OPTIONS ->
         NoteCreationOptionsBottomBar.create(context)
                 .colorConfig(colorConfig)
                 .flexGrow(1f)
-
+*/
       NoteCreateBottomBarType.DEFAULT_SEGMENTS ->
         NoteCreationSegmentsBottomBar.create(context)
             .colorConfig(colorConfig)
@@ -111,7 +112,7 @@ object NoteCreationBottomBarSpec {
             .colorConfig(colorConfig)
             //.flexGrow(1f)
             .state(state)
-            .optionsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.OPTIONS))
+//            .optionsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.OPTIONS))
             .ninoSpecialClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.NINO_SPECIAL))
             .segmentsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_SEGMENTS))
             .markdownsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_MARKDOWNS))
@@ -144,7 +145,7 @@ object NoteCreationMainBottomBarSpec {
   @OnCreateLayout
   fun onCreate(context: ComponentContext,
                @Prop colorConfig: ToolbarColorConfig,
-               @Prop optionsClick: EventHandler<ClickEvent>,
+               //@Prop optionsClick: EventHandler<ClickEvent>,
                @Prop ninoSpecialClick: EventHandler<ClickEvent>,
                @Prop segmentsClick: EventHandler<ClickEvent>,
                @Prop markdownsClick: EventHandler<ClickEvent>,
@@ -178,12 +179,14 @@ object NoteCreationMainBottomBarSpec {
                     .onClick { }
                     .isClickDisabled(true)
                     .clickHandler(markdownsClick))
+            /*
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_more_options)
                     .bgColor(if (state.equals(NoteCreateBottomBarType.OPTIONS)) Color.GREEN else Color.TRANSPARENT)
                     .onClick { }
                     .isClickDisabled(true)
                     .clickHandler(optionsClick))
+                    */
             .build()
   }
 }
@@ -472,7 +475,7 @@ object NoteViewBottomBarSpec {
         .iconRes(R.drawable.ic_apps_white_48dp)
         .onClick { activity.openMoreOptions() })
     row.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
-
+/*
     row.child(bottomBarRoundIcon(context, colorConfig)
         .iconRes(R.drawable.icon_delete)
         .onClick { activity.moveItemToTrashOrDelete(activity.note()) })
@@ -482,7 +485,7 @@ object NoteViewBottomBarSpec {
     row.child(bottomBarRoundIcon(context, colorConfig)
         .iconRes(R.drawable.ic_share_white_48dp)
         .onClick { activity.note().share(activity) })
-
+*/
 
     row.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
     row.child(bottomBarRoundIcon(context, colorConfig)
