@@ -45,6 +45,7 @@ object MainActivityBottomBarSpec {
         .onClick {
           HomeNavigationBottomSheet.openSheet(activity)
         })
+      row.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
 
       row.child(bottomBarRoundIcon(context, colorConfig)
               .bgColor(Color.TRANSPARENT)
@@ -55,8 +56,7 @@ object MainActivityBottomBarSpec {
                           FolderBuilder().emptyFolder(sNoteDefaultColor),
                           { _, _ -> activity.setupData() })
               })
-      row.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
-
+      
     row.child(bottomBarRoundIcon(context, colorConfig)
             .bgColor(Color.TRANSPARENT)
         .iconRes(R.drawable.icon_add_note)

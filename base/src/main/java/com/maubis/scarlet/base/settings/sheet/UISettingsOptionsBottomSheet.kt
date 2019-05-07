@@ -83,7 +83,7 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
         },
         visible = flavor != Flavor.NONE,
         actionIcon = if (flavor == Flavor.PRO) 0 else R.drawable.ic_rating
-    ))
+    ))/*
     options.add(LithoOptionsItem(
         title = R.string.note_option_number_lines,
         subtitle = 0,
@@ -93,6 +93,7 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
           openSheet(activity, LineCountBottomSheet())
         }
     ))
+    */
     options.add(LithoOptionsItem(
         title = R.string.ui_options_note_background_color,
         subtitle = when (useNoteColorAsBackground) {
@@ -112,6 +113,7 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
         visible = flavor != Flavor.NONE,
         actionIcon = if (flavor == Flavor.PRO) 0 else R.drawable.ic_rating
     ))
+
       options.add(LithoOptionsItem(
               title = R.string.note_option_smart_tagging,
               subtitle = R.string.note_option_smart_tagging_subtitle,
@@ -122,17 +124,6 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
               },
               isSelectable = true,
               selected = sSmartTaggingEnabled
-      ))
-      options.add(LithoOptionsItem(
-              title = R.string.markdown_sheet_home_markdown_support,
-              subtitle = R.string.markdown_sheet_home_markdown_support_subtitle,
-              icon = R.drawable.ic_markdown_logo,
-              listener = {
-                  sMarkdownEnabledHome = !sMarkdownEnabledHome
-                  reset(activity, dialog)
-              },
-              isSelectable = true,
-              selected = sMarkdownEnabledHome
       ))
     return options
   }

@@ -138,10 +138,16 @@ open class NoteRecyclerViewHolderBase(context: Context, view: View) : RecyclerVi
   }
 
   private fun setActionBar(note: NoteRecyclerItem, extra: Bundle?) {
+    /*
     delete.setOnClickListener { deleteIconClick(note.note, extra) }
     share.setOnClickListener { shareIconClick(note.note, extra) }
     edit.setOnClickListener { editIconClick(note.note, extra) }
     copy.setOnClickListener { copyIconClick(note.note, extra) }
+    */
+    delete.visibility = View.GONE
+    share.visibility = View.GONE
+    edit.visibility = View.GONE
+    copy.visibility = View.GONE
     moreOptions.setOnClickListener { moreOptionsIconClick(note.note, extra) }
 
     delete.setColorFilter(note.actionBarIconColor)

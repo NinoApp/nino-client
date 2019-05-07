@@ -124,8 +124,10 @@ class NoteOptionsBottomSheet() : GridBottomSheetBase() {
 
       } else {
 
+          selectCardLayout.visibility = View.GONE/*
           val containerLayout = dialog.findViewById<LinearLayout>(R.id.container_layout)
           containerLayout.removeView(selectCardLayout)
+          */
       }
   }
 

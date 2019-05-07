@@ -76,7 +76,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       handler.postDelayed({
         ninoRequest = true
         EasyImage.openCamera(context as AppCompatActivity, ninoUid + 0) //add all possible
-      }, 1000)
+      }, 100)
     }
 
     if (getSupportActionBar() != null) {

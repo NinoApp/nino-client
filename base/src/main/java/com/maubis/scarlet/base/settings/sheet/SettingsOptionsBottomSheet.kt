@@ -29,17 +29,7 @@ class SettingsOptionsBottomSheet : LithoOptionBottomSheet() {
     val firebaseUser = CoreConfig.instance.authenticator().userId()
 
     val migrateToPro = getMigrateToProAppInformationItem(activity)
-    options.add(LithoOptionsItem(
-        title = migrateToPro.title,
-        subtitle = migrateToPro.source,
-        icon = migrateToPro.icon,
-        listener = {
-          migrateToPro.function()
-          dismiss()
-        },
-        visible = CoreConfig.instance.appFlavor() == Flavor.LITE && FlavourUtils.hasProAppInstalled(activity),
-        selected = true
-    ))
+
     options.add(LithoOptionsItem(
         title = R.string.home_option_login_with_app,
         subtitle = R.string.home_option_login_with_app_subtitle,
@@ -58,14 +48,17 @@ class SettingsOptionsBottomSheet : LithoOptionBottomSheet() {
           UISettingsOptionsBottomSheet.openSheet(activity)
         }
     ))
-    options.add(LithoOptionsItem(
-        title = R.string.home_option_note_settings,
-        subtitle = R.string.home_option_note_settings_subtitle,
-        icon = R.drawable.ic_subject_white_48dp,
-        listener = {
-          openSheet(activity, NoteSettingsOptionsBottomSheet())
-        }
-    ))
+      options.add(LithoOptionsItem(
+              title = R.string.home_option_security,
+              subtitle = R.string.home_option_security_subtitle,
+              icon = R.drawable.ic_option_security,
+              listener = {
+                  SecurityOptionsBottomSheet.openSheet(activity)
+                  dismiss()
+              }
+      ))
+
+      /*
     options.add(LithoOptionsItem(
         title = R.string.home_option_editor_options_title,
         subtitle = R.string.home_option_editor_options_description,
@@ -74,6 +67,7 @@ class SettingsOptionsBottomSheet : LithoOptionBottomSheet() {
           openSheet(activity, EditorOptionsBottomSheet())
         }
     ))
+
     options.add(LithoOptionsItem(
         title = R.string.home_option_backup_options,
         subtitle = R.string.home_option_backup_options_subtitle,
@@ -90,6 +84,7 @@ class SettingsOptionsBottomSheet : LithoOptionBottomSheet() {
           openSheet(activity, WidgetOptionsBottomSheet())
         }
     ))
+
     options.add(LithoOptionsItem(
         title = R.string.home_option_about,
         subtitle = R.string.home_option_about_subtitle,
@@ -97,7 +92,7 @@ class SettingsOptionsBottomSheet : LithoOptionBottomSheet() {
         listener = {
           openSheet(activity, AboutUsBottomSheet())
         }
-    ))
+    ))*/
     options.add(LithoOptionsItem(
         title = R.string.home_option_delete_notes_and_more,
         subtitle = R.string.home_option_delete_notes_and_more_details,
