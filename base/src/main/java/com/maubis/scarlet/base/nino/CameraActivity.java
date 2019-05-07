@@ -20,7 +20,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -79,38 +78,22 @@ public class CameraActivity extends AppCompatActivity {
     private Bitmap finalImage;
     double ivScale = 0.9;
 
+
     private float rotation;
-    MaterialButton rotateButton = null;
-    MaterialButton warpButton = null;
-    MaterialButton imageMarker = null;
-    MaterialButton eqMarker = null;
-    MaterialButton selectButton = null;
+
+    Button rotateButton = null;
+    Button warpButton = null;
 
     private enum CPB_STATE{
         CAMERA,
         WARP,
         PROCESS;
     }
-
-    private enum MARKER{
-        IMAGE,
-        EQUATION
-    }
-
-    public enum WARP_MODE{
-        MAIN,
-        MARKER
-    }
-
-    MARKER marker = null;
     CPB_STATE cpbState = CPB_STATE.CAMERA;
     //CircularProgressButton cpb;
 
     final static float POLYGON_CIRCLE_RADIUS_IN_DP = 17f;
     float POLYGON_CIRCLE_RADIUS;
-
-    ArrayList<Bitmap> markedImages = null;
-    ArrayList<Bitmap> markedEquations = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,97 +119,13 @@ public class CameraActivity extends AppCompatActivity {
                 for (int i = 0; i < rotation / 90; i++){
                     Core.flip(rgba.t(), rgba, 1);
                 }
-                Mat result = warp(rgba, WARP_MODE.MAIN);
+                Mat result = warp(rgba);
                 finalImage = matToBit(result);
 
                 mainIv.setImageBitmap(finalImage);
                 findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
                 warpButton.setVisibility(View.INVISIBLE);
                 processButton.setVisibility(View.VISIBLE);
-                imageMarker.setVisibility(View.VISIBLE);
-                eqMarker.setVisibility(View.VISIBLE);
-            }
-        });
-
-        imageMarker = findViewById(R.id.mark_image);
-        imageMarker.setVisibility(View.GONE);
-        imageMarker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                marker = MARKER.IMAGE;
-                findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
-                selectButton.setVisibility(View.VISIBLE);
-
-                processButton.setVisibility(View.GONE);
-                imageMarker.setVisibility(View.GONE);
-                eqMarker.setVisibility(View.GONE);
-
-            }
-        });
-
-        eqMarker= findViewById(R.id.mark_equation);
-        eqMarker.setVisibility(View.GONE);
-        eqMarker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                marker = MARKER.EQUATION;
-                findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
-                selectButton.setVisibility(View.VISIBLE);
-
-                processButton.setVisibility(View.GONE);
-                imageMarker.setVisibility(View.GONE);
-                eqMarker.setVisibility(View.GONE);
-            }
-        });
-
-        selectButton = findViewById(R.id.select_button);
-        selectButton.setVisibility(View.GONE);
-        selectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                findViewById(R.id.polygonView).setVisibility(View.GONE);
-                Mat warpedMat = new Mat();
-                Utils.bitmapToMat(finalImage, warpedMat);
-                Bitmap img = finalImage;
-                Mat result = warp(warpedMat, WARP_MODE.MARKER);
-                final Bitmap resultBitmap = matToBit(result);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
-                LayoutInflater inflater = getLayoutInflater();
-                View dialogLayout = inflater.inflate(R.layout.marker_dialog, null);
-
-                ImageView markerIv = dialogLayout.findViewById(R.id.marker_iv);
-                markerIv.setImageBitmap(resultBitmap);
-
-                builder.setView(dialogLayout);
-                builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getApplicationContext(), "Adding Image", Toast.LENGTH_LONG).show();
-                        if(marker == MARKER.IMAGE){
-                            markedImages.add(resultBitmap);
-                        }else{
-                            markedEquations.add(resultBitmap);
-                        }
-                        selectButton.setVisibility(View.GONE);
-                        processButton.setVisibility(View.VISIBLE);
-                        imageMarker.setVisibility(View.VISIBLE);
-                        eqMarker.setVisibility(View.VISIBLE);
-                        dialog.dismiss();
-                    }
-                });
-                builder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getApplicationContext(), "Image discarded", Toast.LENGTH_LONG).show();
-                        selectButton.setVisibility(View.GONE);
-                        processButton.setVisibility(View.VISIBLE);
-                        imageMarker.setVisibility(View.VISIBLE);
-                        eqMarker.setVisibility(View.VISIBLE);
-                        dialog.dismiss();
-                    }
-                });
-                builder.show();
             }
         });
 
@@ -259,7 +158,7 @@ public class CameraActivity extends AppCompatActivity {
 
                 WebView wv = new WebView(CameraActivity.this);
                 wv.getSettings().setBuiltInZoomControls(true);
-                wv.getSettings().setUseWideViewPort(true);Toast.makeText(getApplicationContext(), "Adding Image", Toast.LENGTH_LONG).show();
+                wv.getSettings().setUseWideViewPort(true);
                 wv.getSettings().setLoadWithOverviewMode(true);
 
                 final ProgressDialog progressDialog;
@@ -501,8 +400,8 @@ public class CameraActivity extends AppCompatActivity {
         return matToBit(rgba);
     }
 
-    public Mat warp(Mat inputMat, WARP_MODE mode) {
-        List<Point> pp = pvc.getPoints(mode);
+    public Mat warp(Mat inputMat) {
+        List<Point> pp = pvc.getPoints();
 
         for (Point p: pp) {
             Log.i("POINT WARP", p.toString());
