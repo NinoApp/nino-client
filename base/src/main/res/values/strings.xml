@@ -35,6 +35,7 @@
     <string name="choose_note_color">Change Color</string>
     <string name="tag_shortcut_google" translatable="false">Find Entities in Google</string>
     <string name="tag_shortcut_wikipedia" translatable="false">Find Entities in Wikipedia</string>
+    <string name="tag_shortcut_google_scholar" translatable="false">Find Entities in Google Scholar</string>
     <string name="tag_shortcut_youtube" translatable="false">Find Entities in Youtube</string>
     <string name="tag_shortcut" translatable="false">Search Entities</string>
     <string name="lock_note">Lock Note</string>
@@ -43,7 +44,7 @@
     <string name="quiz_show_answer" translatable="false">Show Answer</string>
     <string name="quiz_hide_answer" translatable="false">Hide Answer</string>
     <string name="quiz_loading" translatable="false">Laoding...</string>
-    <string name="quiz_no_questions" translatable="false">The content of note is not rich enough to be able to create questions about.</string>
+    <string name="quiz_no_questions" translatable="false">The content of note is not rich enough for creating a quiz.</string>
     <string name="generate_quiz_sub" translatable="false">Automatically Generate Quiz</string>
     <string name="change_tags">Change Tags</string>
     <string name="unlock_note">Unlock Note</string>

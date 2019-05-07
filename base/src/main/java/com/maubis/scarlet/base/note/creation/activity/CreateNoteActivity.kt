@@ -476,10 +476,10 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     val formatToChange = formats[position]
     if (!formatToChange.text.isBlank()) {
       val noteImage = NoteImage(context)
-      deleteIfExist(noteImage.getFile(note!!.uuid, formatToChange.text.split("<Nino>")[0]))
+      deleteIfExist(noteImage.getFile(note!!.uuid, formatToChange.text.split("<Nino> ")[0]))
     }
     if (ninoText.isNotEmpty())
-      formatToChange.text = file.name + "<Nino>" + ninoText
+      formatToChange.text = file.name + "<Nino> " + ninoText
     else
       formatToChange.text = file.name
 

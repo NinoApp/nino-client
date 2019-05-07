@@ -3,6 +3,7 @@ package com.maubis.scarlet.base.note.tag.sheet
 import android.app.Dialog
 import android.content.DialogInterface
 import android.view.View
+import android.widget.Toast
 import com.github.bijoysingh.uibasics.views.UITextView
 import com.maubis.scarlet.base.R
 import com.maubis.scarlet.base.database.room.note.Note
@@ -56,6 +57,7 @@ class TagShortcutsBottomSheet : TagOptionItemBottomSheetBase() {
     var url = "none"
     when (type) {
       "google" -> { url = "https://www.google.com/search?q="}
+      "google_scholar" -> { url = "https://scholar.google.com.tr/scholar?q="}
       "wikipedia" -> { url = "https://en.m.wikipedia.org/wiki/" }
       "youtube" -> { url = "https://www.youtube.com/results?search_query=" }
     }
@@ -73,6 +75,9 @@ class TagShortcutsBottomSheet : TagOptionItemBottomSheetBase() {
         ))
       }
     }
+    Toast.makeText(context, "No entity found for this note.", Toast.LENGTH_SHORT).show()
+    dismiss()
+
     return options
   }
 

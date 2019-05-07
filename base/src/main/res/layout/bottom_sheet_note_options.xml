@@ -94,7 +94,7 @@
 
     <androidx.cardview.widget.CardView
         style="@style/BottomSheetCardView"
-        app:cardBackgroundColor="@color/material_red_800">
+        app:cardBackgroundColor="@color/material_green_800">
 
       <GridLayout
           android:id="@+id/tag_shortcuts"

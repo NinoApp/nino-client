@@ -1,6 +1,7 @@
 package com.maubis.scarlet.base.note.creation.sheet
 
 import android.app.Dialog
+import android.widget.Toast
 import com.facebook.litho.Column
 import com.facebook.litho.Component
 import com.facebook.litho.ComponentContext
@@ -93,11 +94,8 @@ class QuizBottomSheet : LithoBottomSheet() {
                     }
                     .paddingDip(YogaEdge.VERTICAL, 8f))
         } else {
-          component.child(BottomSheetBar.create(componentContext)
-                  .secondaryActionRes(R.string.quiz_hide_answer)
-                  .onPrimaryClick {
-                      hideAnswer()
-                  }.paddingDip(YogaEdge.VERTICAL, 8f))
+          Toast.makeText(context, R.string.quiz_no_questions, Toast.LENGTH_SHORT).show()
+          dismiss()
       }
     return component.build()
   }
