@@ -3,7 +3,7 @@ package com.maubis.scarlet.base.widget
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import android.widget.AdapterView
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService

@@ -5,7 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import com.facebook.litho.ComponentContext
@@ -68,7 +68,7 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
   protected lateinit var context: Context
   protected lateinit var adapter: FormatAdapter
   protected lateinit var formats: MutableList<Format>
-  protected lateinit var formatsView: RecyclerView
+  protected lateinit var formatsView: androidx.recyclerview.widget.RecyclerView
   protected var isDistractionFree: Boolean = false
 
   val creationFinished = AtomicBoolean(false)

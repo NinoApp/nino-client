@@ -2,7 +2,7 @@ package com.maubis.scarlet.base.note.recycler
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v7.widget.CardView
+import androidx.cardview.widget.CardView
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -20,7 +20,7 @@ import com.maubis.scarlet.base.support.utils.trim
 
 open class NoteRecyclerViewHolderBase(context: Context, view: View) : RecyclerViewHolder<RecyclerItem>(context, view) {
 
-  protected val view: CardView
+  protected val view: androidx.cardview.widget.CardView
   protected val tags: TextView
   protected val image: ImageView
   protected val title: TextView
@@ -38,7 +38,7 @@ open class NoteRecyclerViewHolderBase(context: Context, view: View) : RecyclerVi
   protected val backupIndicator: ImageView
 
   init {
-    this.view = view as CardView
+    this.view = view as androidx.cardview.widget.CardView
     tags = view.findViewById(R.id.tags)
     image = view.findViewById(R.id.image)
     title = view.findViewById(R.id.title)

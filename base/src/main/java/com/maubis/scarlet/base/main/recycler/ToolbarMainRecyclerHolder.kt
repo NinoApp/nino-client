@@ -2,7 +2,7 @@ package com.maubis.scarlet.base.main.recycler
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v7.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -55,7 +55,7 @@ class ToolbarMainRecyclerHolder(context: Context, itemView: View) : RecyclerView
 
 fun RecyclerViewHolder<RecyclerItem>.setFullSpan() {
   try {
-    val layoutParams = itemView.getLayoutParams() as StaggeredGridLayoutManager.LayoutParams
+    val layoutParams = itemView.getLayoutParams() as androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams
     layoutParams.isFullSpan = true
   } catch (e: Exception) {
   }

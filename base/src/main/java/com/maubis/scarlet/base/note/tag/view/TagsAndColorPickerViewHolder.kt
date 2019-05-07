@@ -1,6 +1,6 @@
 package com.maubis.scarlet.base.note.tag.view
 
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import android.view.View
 import android.widget.TextView
 import com.google.android.flexbox.FlexboxLayout

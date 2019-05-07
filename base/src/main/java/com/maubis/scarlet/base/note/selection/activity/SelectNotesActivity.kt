@@ -1,8 +1,8 @@
 package com.maubis.scarlet.base.note.selection.activity
 
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.v7.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import androidx.recyclerview.widget.RecyclerView
 import com.github.bijoysingh.starter.util.IntentUtils
 import com.maubis.scarlet.base.R
 import com.maubis.scarlet.base.database.room.note.Note
@@ -20,8 +20,8 @@ class SelectNotesActivity : SelectableNotesActivityBase() {
   val selectedNotes = HashMap<Int, Note>()
   val orderingNoteIds = ArrayList<Int>()
 
-  val primaryFab: FloatingActionButton by bind(R.id.primary_fab_action)
-  val secondaryFab: FloatingActionButton by bind(R.id.secondary_fab_action)
+  val primaryFab: com.google.android.material.floatingactionbutton.FloatingActionButton by bind(R.id.primary_fab_action)
+  val secondaryFab: com.google.android.material.floatingactionbutton.FloatingActionButton by bind(R.id.secondary_fab_action)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -56,15 +56,15 @@ class SelectNotesActivity : SelectableNotesActivityBase() {
     secondaryFab.setOnClickListener {
       SelectedNoteOptionsBottomSheet.openSheet(this)
     }
-    recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-      override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+    recyclerView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+      override fun onScrollStateChanged(recyclerView: androidx.recyclerview.widget.RecyclerView, newState: Int) {
         super.onScrollStateChanged(recyclerView, newState)
         when (newState) {
-          RecyclerView.SCROLL_STATE_DRAGGING -> {
+          androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING -> {
             primaryFab.hide()
             secondaryFab.hide()
           }
-          RecyclerView.SCROLL_STATE_IDLE -> {
+          androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE -> {
             primaryFab.show()
             secondaryFab.show()
           }

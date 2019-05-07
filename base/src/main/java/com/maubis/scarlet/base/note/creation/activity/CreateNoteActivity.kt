@@ -6,9 +6,9 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.speech.RecognizerIntent
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ItemTouchHelper
 import android.util.Log
 import android.view.View
 import com.facebook.litho.ComponentContext
@@ -525,8 +525,8 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     return if (holder !== null && holder is FormatImageViewHolder) holder else null
   }
 
-  private fun findViewHolderAtPositionAggressively(position: Int): RecyclerView.ViewHolder? {
-    var holder: RecyclerView.ViewHolder? = formatsView.findViewHolderForAdapterPosition(position)
+  private fun findViewHolderAtPositionAggressively(position: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder? {
+    var holder: androidx.recyclerview.widget.RecyclerView.ViewHolder? = formatsView.findViewHolderForAdapterPosition(position)
     if (holder == null) {
       holder = formatsView.findViewHolderForLayoutPosition(position)
       if (holder == null) {

@@ -4,7 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import com.github.bijoysingh.starter.util.ToastHelper
 import com.maubis.scarlet.base.R
 import com.maubis.scarlet.base.config.CoreConfig

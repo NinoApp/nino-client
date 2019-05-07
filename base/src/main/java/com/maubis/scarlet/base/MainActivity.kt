@@ -2,9 +2,9 @@ package com.maubis.scarlet.base
 
 import android.content.BroadcastReceiver
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -65,7 +65,7 @@ import kotlinx.coroutines.*
 class MainActivity : ThemedActivity(), INoteOptionSheetActivity {
   private val singleThreadDispatcher = newSingleThreadContext("singleThreadDispatcher")
 
-  private lateinit var recyclerView: RecyclerView
+  private lateinit var recyclerView: androidx.recyclerview.widget.RecyclerView
   private lateinit var adapter: NoteAppAdapter
   private lateinit var snackbar: MainSnackbar
 
@@ -159,10 +159,10 @@ class MainActivity : ThemedActivity(), INoteOptionSheetActivity {
         .build()
   }
 
-  private fun getLayoutManager(isStaggeredView: Boolean, isTabletView: Boolean): RecyclerView.LayoutManager {
+  private fun getLayoutManager(isStaggeredView: Boolean, isTabletView: Boolean): androidx.recyclerview.widget.RecyclerView.LayoutManager {
     return when {
-      isTabletView || isStaggeredView -> StaggeredGridLayoutManager(2, VERTICAL)
-      else -> LinearLayoutManager(this)
+      isTabletView || isStaggeredView -> androidx.recyclerview.widget.StaggeredGridLayoutManager(2, VERTICAL)
+      else -> androidx.recyclerview.widget.LinearLayoutManager(this)
     }
   }
 

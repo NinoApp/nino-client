@@ -24,11 +24,11 @@ import com.maubis.scarlet.base.support.specs.ToolbarColorConfig
 import com.maubis.scarlet.base.support.specs.bottomBarCard
 import com.maubis.scarlet.base.support.specs.bottomBarRoundIcon
 import android.widget.Toast
-import android.support.v4.app.ActivityCompat.startActivityForResult
+import androidx.core.app.ActivityCompat.startActivityForResult
 import android.speech.RecognizerIntent
 import android.content.Intent
 import android.os.Handler
-import android.support.annotation.ColorInt
+import androidx.annotation.ColorInt
 import com.maubis.scarlet.base.core.note.getFormats
 import com.maubis.scarlet.base.iink.IInkActivity
 import java.util.*

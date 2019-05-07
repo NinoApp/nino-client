@@ -2,8 +2,8 @@ package com.maubis.scarlet.base.config
 
 import android.content.Context
 import android.graphics.Typeface
-import android.support.v4.content.res.ResourcesCompat
-import android.support.v7.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
+import androidx.appcompat.app.AppCompatActivity
 import com.github.ajalt.reprint.core.Reprint
 import com.github.bijoysingh.starter.prefs.Store
 import com.maubis.markdown.MarkdownConfig

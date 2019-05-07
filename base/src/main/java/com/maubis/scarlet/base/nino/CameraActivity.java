@@ -5,32 +5,28 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -84,11 +80,11 @@ public class CameraActivity extends AppCompatActivity {
     double ivScale = 0.9;
 
     private float rotation;
-    Button rotateButton = null;
-    Button warpButton = null;
-    Button imageMarker = null;
-    Button eqMarker = null;
-    Button selectButton = null;
+    MaterialButton rotateButton = null;
+    MaterialButton warpButton = null;
+    MaterialButton imageMarker = null;
+    MaterialButton eqMarker = null;
+    MaterialButton selectButton = null;
 
     private enum CPB_STATE{
         CAMERA,
@@ -130,10 +126,10 @@ public class CameraActivity extends AppCompatActivity {
         POLYGON_CIRCLE_RADIUS = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POLYGON_CIRCLE_RADIUS_IN_DP,
                 r.getDisplayMetrics());
 
-        final Button processButton = (Button)findViewById(R.id.process_button);
+        final Button processButton = (MaterialButton)findViewById(R.id.process_button);
         processButton.setVisibility(View.INVISIBLE);
 
-        warpButton = (Button) findViewById(R.id.warpButton);
+        warpButton = (MaterialButton) findViewById(R.id.warpButton);
         warpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
@@ -243,7 +239,7 @@ public class CameraActivity extends AppCompatActivity {
         });
         */
 
-        rotateButton = (Button) findViewById(R.id.rotate_button);
+        rotateButton = (MaterialButton) findViewById(R.id.rotate_button);
         rotateButton.setVisibility(View.INVISIBLE);
         rotateButton.setOnClickListener(new View.OnClickListener() {
             @Override

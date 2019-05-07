@@ -2,7 +2,7 @@ package com.maubis.scarlet.base.note.folder
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v7.widget.CardView
+import androidx.cardview.widget.CardView
 import android.view.View
 import android.widget.TextView
 import com.github.bijoysingh.starter.recyclerview.RecyclerViewHolder
@@ -12,13 +12,13 @@ import com.maubis.scarlet.base.support.recycler.RecyclerItem
 
 class FolderRecyclerHolder(context: Context, view: View) : RecyclerViewHolder<RecyclerItem>(context, view) {
 
-  protected val view: CardView
+  protected val view: androidx.cardview.widget.CardView
   protected val label: UITextView
   protected val title: TextView
   protected val timestamp: TextView
 
   init {
-    this.view = view as CardView
+    this.view = view as androidx.cardview.widget.CardView
     title = view.findViewById(R.id.title)
     timestamp = view.findViewById(R.id.timestamp)
     label = view.findViewById(R.id.ui_information_title)
