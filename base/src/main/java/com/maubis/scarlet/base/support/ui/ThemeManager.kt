@@ -90,15 +90,15 @@ class ThemeManager() : IThemeManager {
           return theme
         }
       }
-      return Theme.DARK
+      return Theme.TEAL
     }
 
     fun getThemeFromStore(): Theme {
-      val theme = CoreConfig.instance.store().get(KEY_APP_THEME, Theme.DARK.name)
+      val theme = CoreConfig.instance.store().get(KEY_APP_THEME, Theme.TEAL.name)
       try {
         return Theme.valueOf(theme)
       } catch (_: Exception) {
-        return Theme.DARK
+        return Theme.TEAL
       }
     }
   }

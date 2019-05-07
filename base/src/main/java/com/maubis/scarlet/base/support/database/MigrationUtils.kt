@@ -27,7 +27,7 @@ class Migrator(val context: Context) {
   fun start() {
     runTask(KEY_MIGRATE_THEME) {
       val isNightMode = CoreConfig.instance.store().get(KEY_NIGHT_THEME, true)
-      CoreConfig.instance.store().put(KEY_APP_THEME, if (isNightMode) Theme.DARK.name else Theme.LIGHT.name)
+      CoreConfig.instance.store().put(KEY_APP_THEME, if (isNightMode) Theme.TEAL.name else Theme.LIGHT.name)
       CoreConfig.instance.themeController().notifyChange(context)
     }
     runTask(key = KEY_MIGRATE_REMINDERS) {
@@ -59,7 +59,7 @@ class Migrator(val context: Context) {
     runTaskIf(
         getLastUsedAppVersionCode() == 0,
         KEY_MIGRATE_DEFAULT_VALUES) {
-      CoreConfig.instance.store().put(KEY_APP_THEME, Theme.DARK.name)
+      CoreConfig.instance.store().put(KEY_APP_THEME, Theme.TEAL.name)
       CoreConfig.instance.store().put(KEY_LIST_VIEW, true)
     }
   }
