@@ -8,6 +8,7 @@ import android.os.Bundle
 import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import com.facebook.litho.ComponentContext
 import com.facebook.litho.LithoView
 import com.github.bijoysingh.starter.recyclerview.MultiRecyclerViewControllerItem
@@ -139,31 +140,40 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
     val json = JsonObject();
     json.addProperty("text", text);
 
-    Log.v("IONViewNote", "text" + text)
-    Ion.with(context)
-            .load(SERVER_POST_URL)
-            .setLogging("IONLOGS", Log.DEBUG)
-            .setJsonObjectBody(json)
-            .asJsonObject()
-            .setCallback { e, res -> run {
-              //Log.v("IONViewNote", res.toString())
-              //Log.v("IONViewNote", e.toString())
-              val questionsJsonArray = res
-                      .getAsJsonArray("questions")
-                      .iterator()
+    if (!editModeValue) {
+      Log.v("IONViewNote", "text" + text)
+      Ion.with(context)
+              .load(SERVER_POST_URL)
+              .setLogging("IONLOGS", Log.DEBUG)
+              .setJsonObjectBody(json)
+              .asJsonObject()
+              .setCallback { e, res ->
+                run {
+                  //Log.v("IONViewNote", res.toString())
+                  //Log.v("IONViewNote", e.toString())
 
-              val questions = ArrayList<String>()
-              val answers = ArrayList<String>()
-              for (jsq in questionsJsonArray) {
-                val jso = jsq.asJsonObject
-                val question = jso.getAsJsonPrimitive("question").asString
-                val answer = jso.getAsJsonPrimitive("answer").asString
-                questions.add(question)
-                answers.add(answer)
+                  if (res == null) {
+                    Toast.makeText(context, "Quiz generation failed. \n Please check your internet connection...", Toast.LENGTH_SHORT).show()
+                  } else {
+                    val questionsJsonArray = res
+                            .getAsJsonArray("questions")
+                            .iterator()
+
+                    val questions = ArrayList<String>()
+                    val answers = ArrayList<String>()
+                    for (jsq in questionsJsonArray) {
+                      val jso = jsq.asJsonObject
+                      val question = jso.getAsJsonPrimitive("question").asString
+                      val answer = jso.getAsJsonPrimitive("answer").asString
+                      questions.add(question)
+                      answers.add(answer)
+                    }
+                    notifyQuestions(questions, answers)
+
+                  }
+                }
               }
-              notifyQuestions(questions, answers)
-
-            } }
+    }
   }
 
   protected open fun onResumeAction() {
@@ -240,6 +250,15 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
 
     val format = Format(FormatType.TAG, tagLabel)
     adapter.addItem(format)
+/*
+    val tags = currentNote.getTags()
+    for (tag in tags) {
+      val oneTagLabel = '`' + tag.title + '`'
+      val format = Format(FormatType.TAG, oneTagLabel)
+      adapter.addItem(format)
+    }
+    */
+
   }
 
   private fun maybeAddEmptySpace() {

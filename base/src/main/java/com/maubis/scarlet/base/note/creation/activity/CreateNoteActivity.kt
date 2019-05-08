@@ -332,24 +332,28 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
               .asJsonObject()
               .setCallback { e, res ->
                 run {
-                  val entitylist = res
-                          .getAsJsonArray("entitylist")
-                          .iterator()
+                    if (res == null) {
+                        Toast.makeText(context, "Smart Tagging failed. \n Please check your internet connection...", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val entitylist = res
+                                .getAsJsonArray("entitylist")
+                                .iterator()
 
-                  Log.v("CreateNoteActivity", "ion result: " + res.toString())
+                        Log.v("CreateNoteActivity", "ion result: " + res.toString())
 
-                  val tb = TagBuilder()
-                  for (jse in entitylist) {
-                    val tag = tb.emptyTag()
+                        val tb = TagBuilder()
+                        for (jse in entitylist) {
+                            val tag = tb.emptyTag()
 
-                    tag.title = jse.asString
-                    tag.uuid = jse.asString
-                    Log.v("CreateNoteActivity", "tagtitle: " + tag.title)
-                    tag.save()
-                    note!!.addTag(tag)
+                            tag.title = jse.asString
+                            tag.uuid = jse.asString
+                            Log.v("CreateNoteActivity", "tagtitle: " + tag.title)
+                            tag.save()
+                            note!!.addTag(tag)
 
-                  }
-                  notifyTagsChanged(note!!)
+                        }
+                        notifyTagsChanged(note!!)
+                    }
                 }
               }
       }
