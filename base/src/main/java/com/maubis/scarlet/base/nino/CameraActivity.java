@@ -93,11 +93,6 @@ public class CameraActivity extends AppCompatActivity {
         EQUATION
     }
 
-    private enum CPB_STATE{
-        CAMERA,
-        WARP,
-        PROCESS
-    }
     final static float POLYGON_CIRCLE_RADIUS_IN_DP = 17f;
     float POLYGON_CIRCLE_RADIUS;
 
@@ -165,12 +160,9 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 marker = MARKER.IMAGE;
-                //findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
-
                 pvc.createPolygonForMarker(finalImage, mainIv);
 
                 selectButton.setVisibility(View.VISIBLE);
-
                 processButton.setVisibility(View.INVISIBLE);
                 imageMarker.setVisibility(View.INVISIBLE);
                 eqMarker.setVisibility(View.INVISIBLE);
@@ -183,10 +175,9 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 marker = MARKER.EQUATION;
-                //findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
                 pvc.createPolygonForMarker(finalImage, mainIv);
-                selectButton.setVisibility(View.VISIBLE);
 
+                selectButton.setVisibility(View.VISIBLE);
                 processButton.setVisibility(View.INVISIBLE);
                 imageMarker.setVisibility(View.INVISIBLE);
                 eqMarker.setVisibility(View.INVISIBLE);
@@ -203,15 +194,6 @@ public class CameraActivity extends AppCompatActivity {
                 for (PointF p : pvc.getActualPoints()){
                     Log.i("P: POINT USER_SET", p.toString());
                 }
-
-                /*
-                Mat warpedMat = new Mat();
-                Utils.bitmapToMat(finalImage, warpedMat);
-                Bitmap img = finalImage;
-                Mat result = markerWarp(warpedMat);
-                final Bitmap resultBitmap = matToBit(result);
-
-*/
 
                 int bw = finalImage.getWidth();
                 int bh = finalImage.getHeight();
@@ -424,12 +406,12 @@ public class CameraActivity extends AppCompatActivity {
                             temp_double = approxCurve.get(i, 0);
                             p = new Point(temp_double[0], temp_double[1]);
                             source.add(p);
-                            Imgproc.circle (rgba, new Point(200, 100),10, new Scalar(255, 0, 0),50);
+                            //Imgproc.circle (rgba, new Point(200, 100),10, new Scalar(255, 0, 0),50);
                         }
                         pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
 
                     }else{
-                        Imgproc.circle (rgba, new Point(200, 100),30, new Scalar(255, 0, 0),50);
+                        //Imgproc.circle (rgba, new Point(200, 100),30, new Scalar(255, 0, 0),50);
                         pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
 
                     }
@@ -437,19 +419,13 @@ public class CameraActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                //mainIv.getLayoutParams().height = (int) (ivNewHeight);
-                //mainIv.requestLayout();
-
                 rgbaBit = matToBit(rgba);
                 mainIv.setImageBitmap(rgbaBit);
 
                 rgba = new Mat();
                 Utils.bitmapToMat(bitmap, rgba);
-                //return matToBit(rgba);
             }
         });
-
-
     }
 
     public Mat warp(Mat inputMat) {
