@@ -128,27 +128,6 @@ object NoteCreationBottomBarSpec {
     )
        .child(doneButton)
 
-/*    SpotlightView .Builder(this)
-            .introAnimationDuration(400)
-            .enableRevealAnimation(true)
-            .performClick(true)
-            .fadeinTextDuration(400)
-            .headingTvColor(Color.parseColor("#eb273f"))
-            .headingTvSize(32)
-            .headingTvText("Love")
-            .subHeadingTvColor(Color.parseColor("#ffffff"))
-            .subHeadingTvSize(16)
-            .subHeadingTvText("Like the picture?\nLet others know.")
-            .maskColor(Color.parseColor("#dc000000"))
-            .target(doneButton)
-            .lineAnimDuration(400)
-            .lineAndArcColor(Color.parseColor("#eb273f"))
-            .dismissOnTouch(true)
-            .dismissOnBackPress(true)
-            .enableDismissAfterShown(true)
-            .usageId("adsasds") //UNIQUE ID
-            .show();
-    */
 
     return bottomBarCard(context, row.build(), colorConfig).build()
   }

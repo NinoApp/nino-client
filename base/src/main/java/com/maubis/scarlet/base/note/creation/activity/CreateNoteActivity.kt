@@ -2,6 +2,7 @@ package com.maubis.scarlet.base.note.creation.activity
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -43,6 +44,10 @@ import com.maubis.scarlet.base.support.specs.ToolbarColorConfig
 import kotlinx.android.synthetic.main.activity_advanced_note.*
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
+import smartdevelop.ir.eram.showcaseviewlib.GuideView
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
+import smartdevelop.ir.eram.showcaseviewlib.config.Gravity
+import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener
 import java.io.File
 import java.util.*
 
@@ -62,6 +67,10 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
   var ninoRequest = false
   val NINO_REQUEST = 434
 
+
+  var guideViewOrder = 0
+  lateinit var guideViews : Array<GuideView>
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setTouchListener()
@@ -71,12 +80,56 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       getSupportActionBar()?.setDisplayHomeAsUpEnabled(false);
       getSupportActionBar()?.setHomeButtonEnabled(false);
     }
+
+  }
+
+  fun initGuideViews() {
+    val tutorialEnabled = CoreConfig.instance.store().get(UISettingsOptionsBottomSheet.KEY_TUTORIAL_ENABLED, true)
+
+    if (tutorialEnabled) {
+      guideViews = arrayOf(
+              buildGuideView("Markdown", "You may format your texts through the markdown bar.", R.id.lithoTopToolbar),
+              buildGuideView("Segments", "You may add segments through the segments bar.", R.id.lithoBottomToolbar)
+      )
+
+
+      guideViews[0].show()
+      CoreConfig.instance.store().put(UISettingsOptionsBottomSheet.KEY_TUTORIAL_ENABLED, false)
+    }
+
+
+  }
+
+  fun buildGuideView(title: String, contentText: String, targetViewId: Int) : GuideView {
+    val gv = GuideView.Builder(this)
+            .setTitle(title)
+            .setContentText(contentText)
+            .setGravity(Gravity.center) //optional
+            .setDismissType(DismissType.anywhere) //optional - default DismissType.targetView
+            .setTargetView(this.findViewById(targetViewId))
+            .setGuideListener(getGuideListener(guideViewOrder + 1))
+            .build()
+
+    guideViewOrder += 1
+
+    return gv
+  }
+
+  fun getGuideListener(idx: Int) : GuideListener {
+
+    Log.v("GET guide listener ", idx.toString())
+    return GuideListener {
+      if (idx < guideViews.size) {
+        guideViews[idx].show()
+      }
+    }
   }
   
   override fun onCreationFinished() {
     super.onCreationFinished()
     history.add(NoteBuilder().copy(note!!))
     setFolderFromIntent()
+    initGuideViews()
   }
 
   private fun setFolderFromIntent() {
