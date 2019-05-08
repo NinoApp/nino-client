@@ -339,7 +339,7 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
                     .build()))
   }
 
-  protected open fun setTopToolbar() {
+  open fun setTopToolbar() {
     lithoTopToolbar.removeAllViews()
     val componentContext = ComponentContext(this)
     lithoTopToolbar.addView(

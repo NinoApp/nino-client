@@ -4,6 +4,7 @@ package com.maubis.scarlet.base.iink;
 
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -25,6 +26,7 @@ import com.myscript.iink.Engine;
 import com.myscript.iink.IEditorListener;
 import com.myscript.iink.IImageDrawer;
 import com.myscript.iink.MimeType;
+import com.myscript.iink.graphics.Rectangle;
 import com.myscript.iink.uireferenceimplementation.EditorView;
 import com.myscript.iink.uireferenceimplementation.FontUtils;
 import com.myscript.iink.uireferenceimplementation.ImageDrawer;
@@ -66,11 +68,20 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
     } else {
         try {
           String outputFileName = getApplicationContext().getFilesDir().getAbsolutePath() + "/images/" + UUID.randomUUID() + ".jpeg";
-          IImageDrawer imageDrawer = new ImageDrawer();
+          ImageDrawer imageDrawer = new ImageDrawer();
           // imageDrawer.prepareImage(100, 100);
           // imageDrawer.saveImage(outputFileName);
           Log.v("IInkActity", outputFileName);
-          editor.export_(editor.getRootBlock(), outputFileName, MimeType.JPEG, imageDrawer);
+          Rectangle bbox = editor.getRootBlock().getBox();
+          if (!(bbox.height > 0 || bbox.width > 0))
+          {
+            Log.v("iinkactivity", "bbox " + bbox.height + " " + bbox.width);
+            imageDrawer.prepareImage(100, 100);
+            imageDrawer.setBackgroundColor(Color.WHITE);
+            imageDrawer.saveImage(outputFileName);
+          } else {
+            editor.export_(editor.getRootBlock(), outputFileName, MimeType.JPEG, imageDrawer);
+          }
           editor.waitForIdle();
           editor.close();
 
@@ -199,9 +210,9 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
       helper = "You may scratch a " + typeText.toLowerCase() + " and then click Convert!";
     }
     if (!helper.isEmpty())
-      Toast.makeText(getBaseContext(), helper, Toast.LENGTH_LONG).show();
+      Toast.makeText(this, helper, Toast.LENGTH_LONG).show();
 
-    Toast.makeText(getBaseContext(), "Press Back button to save " + typeText + ".", Toast.LENGTH_LONG).show();
+    Toast.makeText(this, "Press Back button to save " + typeText + ".", Toast.LENGTH_LONG).show();
 
   }
 

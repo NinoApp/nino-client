@@ -505,7 +505,7 @@ object NoteCreationMarkdownsBottomBarSpec {
     val activity = context.androidContext as CreateNoteActivity
     return Row.create(context)
             .alignItems(YogaAlign.CENTER)
-            .child(bottomBarRoundIcon(context, colorConfig)
+            .child( bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.ic_title_white_48dp)
                     .onClick { activity.triggerMarkdown(MarkdownType.HEADER) })
             .child(bottomBarRoundIcon(context, colorConfig)

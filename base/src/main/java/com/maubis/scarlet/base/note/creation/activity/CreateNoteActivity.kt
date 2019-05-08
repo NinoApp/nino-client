@@ -108,6 +108,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     when {
       isEmpty -> {
         addEmptyItem(0, FormatType.HEADING)
+        addEmptyItem(FormatType.CHECKLIST_UNCHECKED)
         addDefaultItem()
       }
       !formats[0].text.startsWith("# ") &&
@@ -132,7 +133,9 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     val componentContext = ComponentContext(this)
     lithoTopToolbar.addView(
         LithoView.create(componentContext,
-            NoteCreationTopBar.create(componentContext).build()))
+            NoteCreationTopBar.create(componentContext)
+                    .colorConfig(ToolbarColorConfig(colorConfig.toolbarBackgroundColor, colorConfig.toolbarIconColor))
+                    .build()))
   }
 
   override fun setBottomToolbar() {
