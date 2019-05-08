@@ -225,7 +225,7 @@ public class PolygonViewCreator {
         return new ArrayList<PointF>(map.values());
     }
 
-    public float[] getMarkerPoints(ImageView iv, Bitmap bm) {
+    public int[] getMarkerPoints(ImageView iv, Bitmap bm) {
         Map<Integer, PointF> map = polygonView.getPoints();
         List<PointF> list = new ArrayList<PointF>(map.values());
 
@@ -246,7 +246,7 @@ public class PolygonViewCreator {
         double rX = bm.getWidth() / ((double) bitmapPos[2]);
         double rY = bm.getHeight() / ((double) bitmapPos[3]);
 
-        float[] arr = {(float) (x*rX), (float) (y*rY), (float) (w*rX), (float) (h*rY)};
+        int[] arr = {(int) (x*rX), (int) (y*rY), (int) (w*rX), (int) (h*rY)};
         return arr;
     }
 

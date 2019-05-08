@@ -162,6 +162,11 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
             JSONObject pageJSon = result.getJSONObject("page");
             int widthAbbyy = pageJSon.getInt("width");
             int heightAbbyy = pageJSon.getInt("height");
+
+            Log.i("IMAGES AFTER_VOL2", String.valueOf(widthAbbyy));
+            Log.i("IMAGES AFTER_VOL2", String.valueOf(heightAbbyy));
+            Log.i("IMAGES AFTER_VOL2", imagesJson.toString());
+
             Intent intent = getIntent();
             int imgWidth = intent.getIntExtra("img_width", widthAbbyy);
             int imgHeight = intent.getIntExtra("img_height", heightAbbyy);

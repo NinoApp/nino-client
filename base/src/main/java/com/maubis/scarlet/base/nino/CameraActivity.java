@@ -18,6 +18,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -34,6 +36,9 @@ import com.koushikdutta.ion.Ion;
 import com.maubis.scarlet.base.R;
 import com.scanlibrary.PolygonView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -97,8 +102,9 @@ public class CameraActivity extends AppCompatActivity {
     float POLYGON_CIRCLE_RADIUS;
 
     MARKER marker = null;
-    ArrayList<Bitmap> markedImages = null;
-    ArrayList<Bitmap> markedEquations = null;
+    ArrayList<int[]> markedImages = null;
+    ArrayList<int[]> markedEquations = null;
+    ArrayList<int[]> markedPlots = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +113,10 @@ public class CameraActivity extends AppCompatActivity {
         getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.material_grey_850));
 
         rotation = 0;
-        markedEquations = new ArrayList<>();
+
         markedImages = new ArrayList<>();
+        markedEquations = new ArrayList<>();
+        markedPlots = new ArrayList<>();
 
         mainIv = (ImageView) findViewById(R.id.takenPhotoImageView);
 
@@ -197,8 +205,8 @@ public class CameraActivity extends AppCompatActivity {
                     Log.i("P: POINT USER_SET", p.toString());
                 }
 
-                float[] arr = pvc.getMarkerPoints(mainIv, finalImage);
-                final Bitmap resultBitmap = Bitmap.createBitmap(finalImage, (int)arr[0] , (int)arr[1], (int)arr[2], (int)arr[3]);
+                final int[] arr = pvc.getMarkerPoints(mainIv, finalImage);
+                final Bitmap resultBitmap = Bitmap.createBitmap(finalImage, arr[0], arr[1], arr[2], arr[3]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
                 LayoutInflater inflater = getLayoutInflater();
                 View dialogLayout = inflater.inflate(R.layout.marker_dialog, null);
@@ -212,9 +220,9 @@ public class CameraActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         Toast.makeText(getApplicationContext(), "Added Image", Toast.LENGTH_LONG).show();
                         if(marker == MARKER.IMAGE){
-                            markedImages.add(resultBitmap);
+                            markedImages.add(arr);
                         }else{
-                            markedEquations.add(resultBitmap);
+                            markedEquations.add(arr);
                         }
                         selectButton.setVisibility(View.GONE);
                         processButton.setVisibility(View.VISIBLE);
@@ -270,7 +278,7 @@ public class CameraActivity extends AppCompatActivity {
 
     private void process(){
         finalImage = rotateBitmap(finalImage, rotation);
-        File finalImageFile = persistImage(finalImage);
+        final File finalImageFile = persistImage(finalImage);
 
         showProgress(true);
 
@@ -291,18 +299,63 @@ public class CameraActivity extends AppCompatActivity {
 
                     Intent editorIntent = new Intent(getApplicationContext(), PhotoEditorActivity.class);
                     try{
-                        editorIntent.putExtra("result", result.toString());
                         editorIntent.putExtra("img_width", finalImage.getWidth());
                         editorIntent.putExtra("img_height", finalImage.getHeight());
 
                         editorIntent.setData(bitToUri(finalImage));
+
+                        //addMarkedImages()
+                        JSONObject r = new JSONObject(result.toString());
+                        JSONArray imagesJson = r.getJSONArray("images");
+                        JSONObject pageJSon = r.getJSONObject("page");
+                        int widthAbbyy = pageJSon.getInt("width");
+                        int heightAbbyy = pageJSon.getInt("height");
+
+                        double rX = ((double) widthAbbyy) / finalImage.getWidth();
+                        double rY = ((double) heightAbbyy) / finalImage.getHeight();
+
+                        ArrayList<int[]> allMarked = new ArrayList<>(markedImages);
+                        allMarked.addAll(markedEquations);
+                        allMarked.addAll(markedPlots);
+
+                        Log.i("IMAGES BEFORE", imagesJson.toString());
+
+                        for (int[] arr : allMarked){
+                            JSONObject image = new JSONObject();
+                            image.put("left", arr[0]*rX);
+                            image.put("top", arr[1]*rY);
+                            image.put("right", (arr[0] + arr[2])*rX);
+                            image.put("bottom", (arr[1] + arr[3])*rY);
+                            imagesJson.put(image);
+                        }
+
+                        Log.i("IMAGES AFTER", imagesJson.toString());
+
+                        editorIntent.putExtra("result", r.toString());
+
+                        /*
+                        JSONArray imageJsonArray = new JSONArray();
+                        JSONArray equationJsonArray = new JSONArray();
+
+                        for(Bitmap b : markedImages){
+                            imageJsonArray.put(getStringFromBitmap(b));
+                        }
+                        for(Bitmap b : markedEquations){
+                            equationJsonArray.put(getStringFromBitmap(b));
+                        }
+
+                        editorIntent.putExtra("imageJsonArray", imageJsonArray.toString());
+                        editorIntent.putExtra("equationJsonArray", equationJsonArray.toString());
+                        */
+
                         startActivityForResult(editorIntent, PESDK_REQUEST);
-                        //cpb.setProgress(100);
 
                     }catch (NullPointerException npe){
                         Toast.makeText(getApplicationContext(),
                                 "There was a problem connecting to the server, please try again", Toast.LENGTH_SHORT).show();
                         Log.v("Response Error: ", "" + e.getMessage()); //DEBUG
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
                     }
 
                     showProgress(false);
@@ -311,6 +364,17 @@ public class CameraActivity extends AppCompatActivity {
                     }
                 }
             });
+    }
+
+    private String getStringFromBitmap(Bitmap bitmapPicture) {
+        final int COMPRESSION_QUALITY = 100;
+        String encodedImage;
+        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
+        bitmapPicture.compress(Bitmap.CompressFormat.PNG, COMPRESSION_QUALITY,
+                byteArrayBitmapStream);
+        byte[] b = byteArrayBitmapStream.toByteArray();
+        encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+        return encodedImage;
     }
 
     private Uri bitToUri(Bitmap bitmap){
