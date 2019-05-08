@@ -78,8 +78,7 @@ public class CameraActivity extends AppCompatActivity {
     private Bitmap edgeDetectedTakenImage;
     private Bitmap finalImage;
     private Bitmap rgbaBit;
-    double ivScale = 1.0;
-
+    //double ivScale = 1.0;
 
     private float rotation;
 
@@ -114,7 +113,7 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.act_cam);
+        setContentView(R.layout.activity_camera);
         getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.material_grey_850));
 
         rotation = 0;
@@ -171,7 +170,10 @@ public class CameraActivity extends AppCompatActivity {
             public void onClick(View v) {
                 marker = MARKER.IMAGE;
                 //findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
-                pvc.createPolygonForMarker(finalImage, mainIv, ivScale);
+
+                //pvc.createPolygonForMarker(finalImage, mainIv, ivScale);
+                pvc.createPolygonForMarker(finalImage, mainIv);
+
                 selectButton.setVisibility(View.VISIBLE);
 
                 processButton.setVisibility(View.GONE);
@@ -187,7 +189,8 @@ public class CameraActivity extends AppCompatActivity {
             public void onClick(View v) {
                 marker = MARKER.EQUATION;
                 //findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
-                pvc.createPolygonForMarker(finalImage, mainIv, ivScale);
+//                pvc.createPolygonForMarker(finalImage, mainIv, ivScale);
+                pvc.createPolygonForMarker(finalImage, mainIv);
                 selectButton.setVisibility(View.VISIBLE);
 
                 processButton.setVisibility(View.GONE);
@@ -410,7 +413,7 @@ public class CameraActivity extends AppCompatActivity {
 
         DisplayMetrics metrics = this.getResources().getDisplayMetrics();
         int width = metrics.widthPixels;
-        mainIv.getLayoutParams().width = (int) (width * ivScale);
+        mainIv.getLayoutParams().width = width;//(int) (width * ivScale);
 
         double[] temp_double;
         Point p;
@@ -425,9 +428,13 @@ public class CameraActivity extends AppCompatActivity {
                     source.add(p);
                     //Imgproc.circle (rgba, p,10, new Scalar(255, 0, 0),10);
                 }
-                ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv, ivScale);
+                //ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv, ivScale);
+                ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
+
             }else{
-                ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv, ivScale);
+                //ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv, ivScale);
+                ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
+
             }
         }catch(NullPointerException e){
             e.printStackTrace();
