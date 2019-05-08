@@ -33,10 +33,10 @@
     <string name="restore_note">Restore Note</string>
     <string name="trash_note">Move to Trash</string>
     <string name="choose_note_color">Change Color</string>
-    <string name="tag_shortcut_google" translatable="false">Entities in Google</string>
-    <string name="tag_shortcut_wikipedia" translatable="false">Entities in Wikipedia</string>
-    <string name="tag_shortcut_google_scholar" translatable="false">Entities in Scholar</string>
-    <string name="tag_shortcut_youtube" translatable="false">Entities in Youtube</string>
+    <string name="tag_shortcut_google" translatable="false">SmartFind Google</string>
+    <string name="tag_shortcut_wikipedia" translatable="false">SmartFind Wikipedia</string>
+    <string name="tag_shortcut_google_scholar" translatable="false">SmartFind Scholar</string>
+    <string name="tag_shortcut_youtube" translatable="false">SmartFind Youtube</string>
     <string name="tag_shortcut" translatable="false">Search Entities</string>
     <string name="lock_note">Lock Note</string>
     <string name="generate_quiz" translatable="false">Generate Quiz</string>

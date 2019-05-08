@@ -64,8 +64,10 @@ class TagShortcutsBottomSheet : TagOptionItemBottomSheetBase() {
 
     val activity = context as ThemedActivity
 
+    var showNoEntityToast = true;
     for (tag in tagsDb.getAll()) {
       if (tags.contains(tag.uuid)) {
+        showNoEntityToast = false;
         options.add(TagOptionsItem(
                 tag = tag,
                 listener = View.OnClickListener {
@@ -75,8 +77,13 @@ class TagShortcutsBottomSheet : TagOptionItemBottomSheetBase() {
         ))
       }
     }
-    Toast.makeText(context, "No entity found for this note.", Toast.LENGTH_SHORT).show()
-    dismiss()
+
+    if (showNoEntityToast) {
+
+      Toast.makeText(context, "No entity found for this note.", Toast.LENGTH_SHORT).show()
+      dismiss()
+
+    }
 
     return options
   }
