@@ -243,10 +243,10 @@ public class PolygonViewCreator {
         float w = x2 - x;
         float h = y2 - y;
 
-        double rX = ((double) bitmapPos[2]) / bm.getWidth();
-        double rY = ((double) bitmapPos[3]) / bm.getHeight();
+        double rX = bm.getWidth() / ((double) bitmapPos[2]);
+        double rY = bm.getHeight() / ((double) bitmapPos[3]);
 
-        float[] arr = {x, y, w, h};
+        float[] arr = {(float) (x*rX), (float) (y*rY), (float) (w*rX), (float) (h*rY)};
         return arr;
     }
 

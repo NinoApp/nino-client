@@ -107,6 +107,8 @@ public class CameraActivity extends AppCompatActivity {
         getWindow().getDecorView().setBackgroundColor(getResources().getColor(R.color.material_grey_850));
 
         rotation = 0;
+        markedEquations = new ArrayList<>();
+        markedImages = new ArrayList<>();
 
         mainIv = (ImageView) findViewById(R.id.takenPhotoImageView);
 
@@ -195,11 +197,8 @@ public class CameraActivity extends AppCompatActivity {
                     Log.i("P: POINT USER_SET", p.toString());
                 }
 
-                int bw = finalImage.getWidth();
-                int bh = finalImage.getHeight();
                 float[] arr = pvc.getMarkerPoints(mainIv, finalImage);
                 final Bitmap resultBitmap = Bitmap.createBitmap(finalImage, (int)arr[0] , (int)arr[1], (int)arr[2], (int)arr[3]);
-                Bitmap test = Bitmap.createBitmap(finalImage, 0 , 0, bw, bh);
                 AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
                 LayoutInflater inflater = getLayoutInflater();
                 View dialogLayout = inflater.inflate(R.layout.marker_dialog, null);
@@ -211,7 +210,7 @@ public class CameraActivity extends AppCompatActivity {
                 builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getApplicationContext(), "Adding Image", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Added Image", Toast.LENGTH_LONG).show();
                         if(marker == MARKER.IMAGE){
                             markedImages.add(resultBitmap);
                         }else{
