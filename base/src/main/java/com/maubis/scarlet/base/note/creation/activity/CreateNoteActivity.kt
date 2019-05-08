@@ -120,6 +120,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     Log.v("GET guide listener ", idx.toString())
     return GuideListener {
       if (idx < guideViews.size) {
+        tryClosingTheKeyboard()
         guideViews[idx].show()
       }
     }

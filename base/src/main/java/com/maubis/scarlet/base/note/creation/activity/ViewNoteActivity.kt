@@ -236,6 +236,8 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
       return
     }
 
+    adapter.addItem(Format(FormatType.SEPARATOR)) // separator between tags and the note.
+
     val format = Format(FormatType.TAG, tagLabel)
     adapter.addItem(format)
   }
