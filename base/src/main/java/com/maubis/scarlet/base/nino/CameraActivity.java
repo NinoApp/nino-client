@@ -414,15 +414,9 @@ public class CameraActivity extends AppCompatActivity {
         mainIv.post(new Runnable() {
             @Override
             public void run() {
-//DisplayMetrics metrics = this.getResources().getDisplayMetrics();
-                //int width = metrics.widthPixels;
-                //mainIv.getLayoutParams().width = width;//(int) (width * ivScale);
-
                 double[] temp_double;
                 Point p;
                 List<Point> source = new ArrayList<Point>();
-                //int ivNewHeight = width;
-                int ivNewHeight;
                 try {
                     Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
                     if(approxCurve.total() > 0 && !getApplicationContext().getResources().getBoolean(R.bool.is_tablet)) {
@@ -432,11 +426,11 @@ public class CameraActivity extends AppCompatActivity {
                             source.add(p);
                             Imgproc.circle (rgba, new Point(200, 100),10, new Scalar(255, 0, 0),50);
                         }
-                        ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
+                        pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
 
                     }else{
                         Imgproc.circle (rgba, new Point(200, 100),30, new Scalar(255, 0, 0),50);
-                        ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
+                        pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
 
                     }
                 }catch(NullPointerException e){
