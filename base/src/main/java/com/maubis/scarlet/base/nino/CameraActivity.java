@@ -95,19 +95,14 @@ public class CameraActivity extends AppCompatActivity {
     private enum CPB_STATE{
         CAMERA,
         WARP,
-        PROCESS;
+        PROCESS
     }
-    CPB_STATE cpbState = CPB_STATE.CAMERA;
-    //CircularProgressButton cpb;
-
     final static float POLYGON_CIRCLE_RADIUS_IN_DP = 17f;
     float POLYGON_CIRCLE_RADIUS;
-
 
     MARKER marker = null;
     ArrayList<Bitmap> markedImages = null;
     ArrayList<Bitmap> markedEquations = null;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +134,7 @@ public class CameraActivity extends AppCompatActivity {
                 mainIv.setImageBitmap(finalImage);
                 findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
                 warpButton.setVisibility(View.INVISIBLE);
+                rotateButton.setVisibility(View.INVISIBLE);
                 processButton.setVisibility(View.VISIBLE);
                 imageMarker.setVisibility(View.VISIBLE);
                 eqMarker.setVisibility(View.VISIBLE);
@@ -174,9 +170,9 @@ public class CameraActivity extends AppCompatActivity {
 
                 selectButton.setVisibility(View.VISIBLE);
 
-                processButton.setVisibility(View.GONE);
-                imageMarker.setVisibility(View.GONE);
-                eqMarker.setVisibility(View.GONE);
+                processButton.setVisibility(View.INVISIBLE);
+                imageMarker.setVisibility(View.INVISIBLE);
+                eqMarker.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -190,9 +186,9 @@ public class CameraActivity extends AppCompatActivity {
                 pvc.createPolygonForMarker(finalImage, mainIv);
                 selectButton.setVisibility(View.VISIBLE);
 
-                processButton.setVisibility(View.GONE);
-                imageMarker.setVisibility(View.GONE);
-                eqMarker.setVisibility(View.GONE);
+                processButton.setVisibility(View.INVISIBLE);
+                imageMarker.setVisibility(View.INVISIBLE);
+                eqMarker.setVisibility(View.INVISIBLE);
             }
         });
 
