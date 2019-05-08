@@ -11,6 +11,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -20,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -64,7 +66,6 @@ public class CameraActivity extends AppCompatActivity {
     private static final int PESDK_REQUEST = 18312;
     String mCurrentPhotoPath;
 
-    private Mat mainMat;
     private Mat rgba;
 
     private ImageView mainIv;
@@ -76,13 +77,22 @@ public class CameraActivity extends AppCompatActivity {
 
     private Bitmap edgeDetectedTakenImage;
     private Bitmap finalImage;
-    double ivScale = 0.9;
+    private Bitmap rgbaBit;
+    double ivScale = 1.0;
 
 
     private float rotation;
 
-    Button rotateButton = null;
-    Button warpButton = null;
+    MaterialButton rotateButton = null;
+    MaterialButton warpButton = null;
+    MaterialButton imageMarker = null;
+    MaterialButton eqMarker = null;
+    MaterialButton selectButton = null;
+
+    private enum MARKER{
+        IMAGE,
+        EQUATION
+    }
 
     private enum CPB_STATE{
         CAMERA,
@@ -94,6 +104,12 @@ public class CameraActivity extends AppCompatActivity {
 
     final static float POLYGON_CIRCLE_RADIUS_IN_DP = 17f;
     float POLYGON_CIRCLE_RADIUS;
+
+
+    MARKER marker = null;
+    ArrayList<Bitmap> markedImages = null;
+    ArrayList<Bitmap> markedEquations = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,17 +142,10 @@ public class CameraActivity extends AppCompatActivity {
                 findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
                 warpButton.setVisibility(View.INVISIBLE);
                 processButton.setVisibility(View.VISIBLE);
+                imageMarker.setVisibility(View.VISIBLE);
+                eqMarker.setVisibility(View.VISIBLE);
             }
         });
-
-        /*
-        ((Button)findViewById(R.id.cameraButton)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dispatchTakePictureIntent();
-            }
-        });
-        */
 
         rotateButton = (MaterialButton) findViewById(R.id.rotate_button);
         rotateButton.setVisibility(View.INVISIBLE);
@@ -148,56 +157,101 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
-        /*
-        Button webButton = (Button) findViewById(R.id.web_button);
-        webButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(CameraActivity.this);
-                alert.setTitle("TITLE");
-
-                WebView wv = new WebView(CameraActivity.this);
-                wv.getSettings().setBuiltInZoomControls(true);
-                wv.getSettings().setUseWideViewPort(true);
-                wv.getSettings().setLoadWithOverviewMode(true);
-
-                final ProgressDialog progressDialog;
-                progressDialog = new ProgressDialog(CameraActivity.this);
-                progressDialog.setMessage("Loading...");
-                progressDialog.show();
-
-                wv.loadUrl("http://www.google.com");
-                wv.setWebViewClient(new WebViewClient() {
-                    @Override
-                    public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                        view.loadUrl(url);
-                        return true;
-                    }
-
-                    @Override
-                    public void onPageFinished(WebView view, String url) {
-                        if (progressDialog.isShowing()) {
-                            progressDialog.dismiss();
-                        }
-                    }
-                });
-
-                alert.setView(wv);
-                alert.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
-                alert.show();
-            }
-        });
-        */
-
         processButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 process();
+            }
+        });
+
+        imageMarker = (MaterialButton) findViewById(R.id.mark_image);
+        imageMarker.setVisibility(View.GONE);
+        imageMarker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                marker = MARKER.IMAGE;
+                //findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
+                pvc.createPolygonForMarker(finalImage, mainIv, ivScale);
+                selectButton.setVisibility(View.VISIBLE);
+
+                processButton.setVisibility(View.GONE);
+                imageMarker.setVisibility(View.GONE);
+                eqMarker.setVisibility(View.GONE);
+            }
+        });
+
+        eqMarker = (MaterialButton) findViewById(R.id.mark_equation);
+        eqMarker.setVisibility(View.GONE);
+        eqMarker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                marker = MARKER.EQUATION;
+                //findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
+                pvc.createPolygonForMarker(finalImage, mainIv, ivScale);
+                selectButton.setVisibility(View.VISIBLE);
+
+                processButton.setVisibility(View.GONE);
+                imageMarker.setVisibility(View.GONE);
+                eqMarker.setVisibility(View.GONE);
+            }
+        });
+
+        selectButton = (MaterialButton) findViewById(R.id.select_button);
+        selectButton.setVisibility(View.GONE);
+        selectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                findViewById(R.id.polygonView).setVisibility(View.GONE);
+
+                for (PointF p : pvc.getActualPoints()){
+                    Log.i("P: POINT USER_SET", p.toString());
+                }
+
+                /*
+                Mat warpedMat = new Mat();
+                Utils.bitmapToMat(finalImage, warpedMat);
+                Bitmap img = finalImage;
+                Mat result = markerWarp(warpedMat);
+                final Bitmap resultBitmap = matToBit(result);
+*/
+                float[] arr = pvc.getMarkerPoints(mainIv);
+                final Bitmap resultBitmap = Bitmap.createBitmap(finalImage, (int)arr[0] , (int)arr[1], (int)arr[2], (int)arr[3]);
+                AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
+                LayoutInflater inflater = getLayoutInflater();
+                View dialogLayout = inflater.inflate(R.layout.marker_dialog, null);
+
+                ImageView markerIv = dialogLayout.findViewById(R.id.marker_iv);
+                markerIv.setImageBitmap(resultBitmap);
+
+                builder.setView(dialogLayout);
+                builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getApplicationContext(), "Adding Image", Toast.LENGTH_LONG).show();
+                        if(marker == MARKER.IMAGE){
+                            markedImages.add(resultBitmap);
+                        }else{
+                            markedEquations.add(resultBitmap);
+                        }
+                        selectButton.setVisibility(View.GONE);
+                        processButton.setVisibility(View.VISIBLE);
+                        imageMarker.setVisibility(View.VISIBLE);
+                        eqMarker.setVisibility(View.VISIBLE);
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getApplicationContext(), "Image discarded", Toast.LENGTH_LONG).show();
+                        selectButton.setVisibility(View.GONE);
+                        processButton.setVisibility(View.VISIBLE);
+                        imageMarker.setVisibility(View.VISIBLE);
+                        eqMarker.setVisibility(View.VISIBLE);
+                        dialog.dismiss();
+                    }
+                });
+                builder.show();
             }
         });
 
@@ -351,7 +405,7 @@ public class CameraActivity extends AppCompatActivity {
 
         pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView), POLYGON_CIRCLE_RADIUS);
 
-        Bitmap rgbaBit = matToBit(rgba);
+        rgbaBit = matToBit(rgba);
         mainIv.setImageBitmap(rgbaBit);
 
         DisplayMetrics metrics = this.getResources().getDisplayMetrics();
