@@ -45,6 +45,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
@@ -92,11 +93,6 @@ public class CameraActivity extends AppCompatActivity {
         EQUATION
     }
 
-    private enum CPB_STATE{
-        CAMERA,
-        WARP,
-        PROCESS
-    }
     final static float POLYGON_CIRCLE_RADIUS_IN_DP = 17f;
     float POLYGON_CIRCLE_RADIUS;
 
@@ -164,12 +160,9 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 marker = MARKER.IMAGE;
-                //findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
-
                 pvc.createPolygonForMarker(finalImage, mainIv);
 
                 selectButton.setVisibility(View.VISIBLE);
-
                 processButton.setVisibility(View.INVISIBLE);
                 imageMarker.setVisibility(View.INVISIBLE);
                 eqMarker.setVisibility(View.INVISIBLE);
@@ -182,10 +175,9 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 marker = MARKER.EQUATION;
-                //findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
                 pvc.createPolygonForMarker(finalImage, mainIv);
-                selectButton.setVisibility(View.VISIBLE);
 
+                selectButton.setVisibility(View.VISIBLE);
                 processButton.setVisibility(View.INVISIBLE);
                 imageMarker.setVisibility(View.INVISIBLE);
                 eqMarker.setVisibility(View.INVISIBLE);
@@ -203,15 +195,11 @@ public class CameraActivity extends AppCompatActivity {
                     Log.i("P: POINT USER_SET", p.toString());
                 }
 
-                /*
-                Mat warpedMat = new Mat();
-                Utils.bitmapToMat(finalImage, warpedMat);
-                Bitmap img = finalImage;
-                Mat result = markerWarp(warpedMat);
-                final Bitmap resultBitmap = matToBit(result);
-*/
-                float[] arr = pvc.getMarkerPoints(mainIv);
+                int bw = finalImage.getWidth();
+                int bh = finalImage.getHeight();
+                float[] arr = pvc.getMarkerPoints(mainIv, finalImage);
                 final Bitmap resultBitmap = Bitmap.createBitmap(finalImage, (int)arr[0] , (int)arr[1], (int)arr[2], (int)arr[3]);
+                Bitmap test = Bitmap.createBitmap(finalImage, 0 , 0, bw, bh);
                 AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
                 LayoutInflater inflater = getLayoutInflater();
                 View dialogLayout = inflater.inflate(R.layout.marker_dialog, null);
@@ -400,7 +388,7 @@ public class CameraActivity extends AppCompatActivity {
 
         final MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
 
-        pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView), POLYGON_CIRCLE_RADIUS);
+        pvc = new PolygonViewCreator(getApplicationContext(), (PolygonView) findViewById(R.id.polygonView), POLYGON_CIRCLE_RADIUS);
 
         rgbaBit = matToBit(rgba);
         mainIv.setImageBitmap(rgbaBit);
@@ -408,47 +396,36 @@ public class CameraActivity extends AppCompatActivity {
         mainIv.post(new Runnable() {
             @Override
             public void run() {
-//DisplayMetrics metrics = this.getResources().getDisplayMetrics();
-                //int width = metrics.widthPixels;
-                //mainIv.getLayoutParams().width = width;//(int) (width * ivScale);
-
                 double[] temp_double;
                 Point p;
                 List<Point> source = new ArrayList<Point>();
-                //int ivNewHeight = width;
-                int ivNewHeight;
                 try {
                     Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
-                    if(approxCurve.total() > 0) {
+                    if(approxCurve.total() > 0 && !getApplicationContext().getResources().getBoolean(R.bool.is_tablet)) {
                         for (int i = 0; i < approxCurve.total(); i++) {
                             temp_double = approxCurve.get(i, 0);
                             p = new Point(temp_double[0], temp_double[1]);
                             source.add(p);
-                            //Imgproc.circle (rgba, p,10, new Scalar(255, 0, 0),10);
+                            //Imgproc.circle (rgba, new Point(200, 100),10, new Scalar(255, 0, 0),50);
                         }
-                        ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
+                        pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
 
                     }else{
-                        ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
+                        //Imgproc.circle (rgba, new Point(200, 100),30, new Scalar(255, 0, 0),50);
+                        pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
 
                     }
                 }catch(NullPointerException e){
                     e.printStackTrace();
                 }
 
-                //mainIv.getLayoutParams().height = (int) (ivNewHeight);
-                //mainIv.requestLayout();
-
                 rgbaBit = matToBit(rgba);
                 mainIv.setImageBitmap(rgbaBit);
 
                 rgba = new Mat();
                 Utils.bitmapToMat(bitmap, rgba);
-                //return matToBit(rgba);
             }
         });
-
-
     }
 
     public Mat warp(Mat inputMat) {
@@ -470,7 +447,7 @@ public class CameraActivity extends AppCompatActivity {
         int resultWidth = Math.max((int) widthA, (int) widthB);
 
         double heightA = Math.sqrt(Math.pow((tr.x - br.x), 2) + Math.pow((tr.y - br.y), 2));
-        double heightB = Math.sqrt(Math.pow((tl.x - tl.x), 2) + Math.pow((tl.y - bl.y), 2));
+        double heightB = Math.sqrt(Math.pow((tl.x - bl.x), 2) + Math.pow((tl.y - bl.y), 2));
         int resultHeight = Math.max((int) heightA, (int) heightB);
 
         Mat outputMat = new Mat(resultWidth, resultHeight, CvType.CV_8UC4);
