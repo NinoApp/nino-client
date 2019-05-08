@@ -512,7 +512,6 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
   private fun findImageViewHolderAtPosition(position: Int): FormatImageViewHolder? {
     val holder = findViewHolderAtPositionAggressively(position)
-    val bool = holder is FormatImageViewHolder
     return if (holder !== null && holder is FormatImageViewHolder) holder else null
   }
 

@@ -37,6 +37,11 @@ public class PolygonViewCreator {
         RECT
     }
 
+    public PolygonViewCreator(PolygonView polygonView, float POLYGON_CIRCLE_RADIUS) {
+        this.polygonView = polygonView;
+        this.POLYGON_CIRCLE_RADIUS = POLYGON_CIRCLE_RADIUS;
+    }
+
     public void createPolygonForMarker(Bitmap rgba, ImageView iv) {
         createPolygon(rgba, iv);
     }
@@ -49,8 +54,11 @@ public class PolygonViewCreator {
         float w = bitmapPos[2];
         float h = bitmapPos[3];
 
-        ivWidth = iv.getLayoutParams().width;
-        ivHeight = iv.getLayoutParams().height;
+        ivWidth = iv.getWidth();
+        ivHeight = iv.getHeight();
+
+        Log.i("POINT IV H", String.valueOf(ivHeight));
+        Log.i("POINT IV W", String.valueOf(ivWidth));
 
         x = x + iv.getLeft() - POLYGON_CIRCLE_RADIUS;
         y = y + iv.getTop() - POLYGON_CIRCLE_RADIUS;
@@ -84,15 +92,13 @@ public class PolygonViewCreator {
         polygonView.setVisibility(View.VISIBLE);
     }
 
-
-
-    public PolygonViewCreator(PolygonView polygonView, float POLYGON_CIRCLE_RADIUS) {
-        this.polygonView = polygonView;
-        this.POLYGON_CIRCLE_RADIUS = POLYGON_CIRCLE_RADIUS;
-    }
-
     private int createPolygon(MODE mode, Object dataHolder, Bitmap rgba, ImageView iv){
-        Log.i("POLYGON_POINT", "curve v2");
+        bitmapPos = getBitmapPositionInsideImageView(iv);
+
+        float left = bitmapPos[0];
+        float top = bitmapPos[1];
+        float bitWidth = bitmapPos[2];
+        float bitHeight = bitmapPos[3];
 
         float origBitWidth = rgba.getWidth();
         float origBitHeight = rgba.getHeight();
@@ -105,9 +111,9 @@ public class PolygonViewCreator {
         rHeight = ivHeight / origBitHeight;
 
         rHeight = rWidth;
-        ivHeight = (int) (rHeight * origBitHeight);
-        Log.i("POINT IV H", String.valueOf(iv.getLayoutParams().height));
-        Log.i("POINT IV W", String.valueOf(iv.getLayoutParams().width));
+        //ivHeight = (int) (rHeight * origBitHeight);
+        Log.i("POINT IV H", String.valueOf(ivHeight));
+        Log.i("POINT IV W", String.valueOf(ivWidth));
 
         List<PointF> pointFs = new ArrayList<>();
         if (mode == MODE.CURVE){
@@ -188,7 +194,6 @@ public class PolygonViewCreator {
         }
         return configuredPoints;
     }
-
     private Map<Integer, PointF> getOutlinePoints(float origBitWidth, float origBitHeight) {
         Map<Integer, PointF> outlinePoints = new HashMap<>();
         outlinePoints.put(0, new PointF(0, 0));
@@ -222,41 +227,30 @@ public class PolygonViewCreator {
     public List<PointF> getActualPoints(){
         Map<Integer, PointF> map = polygonView.getPoints();
         return new ArrayList<PointF>(map.values());
-
     }
 
     public float[] getMarkerPoints(ImageView iv) {
         Map<Integer, PointF> map = polygonView.getPoints();
         List<PointF> list = new ArrayList<PointF>(map.values());
-        List<Point> points = new ArrayList<Point>();
 
-        //+ iv.getLeft() + widthMargin - POLYGON_CIRCLE_RADIUS;
-        float x = list.get(0).x - iv.getLeft() + POLYGON_CIRCLE_RADIUS;
-        float y = list.get(0).y - iv.getTop() + POLYGON_CIRCLE_RADIUS;
-        float w = list.get(1).x - x;
-        float h = list.get(1).y - y;
+        for (PointF p : list){
+            Log.i("P: P GETMARK", p.toString());
+        }
+
+        //float x = list.get(0).x - iv.getLeft() + POLYGON_CIRCLE_RADIUS;
+        //float y = list.get(0).y - iv.getTop() + POLYGON_CIRCLE_RADIUS;
+        float x = list.get(0).x - bitmapPos[0] - iv.getLeft() + POLYGON_CIRCLE_RADIUS;
+        float y = list.get(0).y - bitmapPos[1] - iv.getTop() + POLYGON_CIRCLE_RADIUS;
+        if(x < 0){x = 0;} if(y < 0){y = 0;}
+
+        float x2 = list.get(1).x - bitmapPos[0] - iv.getLeft() + POLYGON_CIRCLE_RADIUS;
+        float y2 = list.get(2).y - bitmapPos[1] - iv.getTop() + POLYGON_CIRCLE_RADIUS;
+        if(x2 < 0){x2 = 0;} if(y2 < 0){y2 = 0;}
+        float w = x2 - x;
+        float h = y2 - y;
 
         float[] arr = {x, y, w, h};
         return arr;
-
-        /*
-        Map<Integer, PointF> map = polygonView.getPoints();
-        List<PointF> list = new ArrayList<PointF>(map.values());
-        List<Point> points = new ArrayList<Point>();
-
-        for(PointF pf : list){
-            double x = (pf.x - iv.getLeft() - widthMargin + POLYGON_CIRCLE_RADIUS) / rWidth;
-            double y = (pf.y - iv.getTop() - heightMargin + POLYGON_CIRCLE_RADIUS) / rHeight;
-            points.add(new Point(Math.floor(x), Math.floor(y)));
-        }
-        List<Point> sortedPoints = new ArrayList<Point>();
-        sortedPoints.add(points.get(0));
-        sortedPoints.add(points.get(2));
-        sortedPoints.add(points.get(3));
-        sortedPoints.add(points.get(1));
-
-        return sortedPoints;
-        */
     }
 
     /**
