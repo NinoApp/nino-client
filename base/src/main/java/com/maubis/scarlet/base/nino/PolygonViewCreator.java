@@ -1,5 +1,6 @@
 package com.maubis.scarlet.base.nino;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.maubis.scarlet.base.R;
 import com.scanlibrary.PolygonView;
 
 import org.opencv.core.MatOfPoint2f;
@@ -31,15 +33,17 @@ public class PolygonViewCreator {
     private int[] bitmapPos;
 
     private float POLYGON_CIRCLE_RADIUS;
+    private Context context;
 
     private enum MODE{
         CURVE,
         RECT
     }
 
-    public PolygonViewCreator(PolygonView polygonView, float POLYGON_CIRCLE_RADIUS) {
+    public PolygonViewCreator(Context context, PolygonView polygonView, float POLYGON_CIRCLE_RADIUS) {
         this.polygonView = polygonView;
         this.POLYGON_CIRCLE_RADIUS = POLYGON_CIRCLE_RADIUS;
+        this.context = context;
     }
 
     public void createPolygonForMarker(Bitmap rgba, ImageView iv) {
@@ -141,8 +145,8 @@ public class PolygonViewCreator {
 
             pointFs.add(new PointF(x, y));
             pointFs.add(new PointF(x + w, y));
-            pointFs.add(new PointF(x,y + h));
             pointFs.add(new PointF(x + w,y + h));
+            pointFs.add(new PointF(x,y + h));
         }
 
         Map<Integer, PointF> orderedPoints = polygonView.getOrderedPoints(pointFs);
@@ -217,8 +221,14 @@ public class PolygonViewCreator {
         }
         List<Point> sortedPoints = new ArrayList<Point>();
         sortedPoints.add(points.get(0));
-        sortedPoints.add(points.get(2));
-        sortedPoints.add(points.get(3));
+        if(context.getResources().getBoolean(R.bool.is_tablet)){
+            sortedPoints.add(points.get(3));
+            sortedPoints.add(points.get(2));
+        }else{
+            sortedPoints.add(points.get(2));
+            sortedPoints.add(points.get(3));
+        }
+
         sortedPoints.add(points.get(1));
 
         return sortedPoints;
@@ -229,7 +239,7 @@ public class PolygonViewCreator {
         return new ArrayList<PointF>(map.values());
     }
 
-    public float[] getMarkerPoints(ImageView iv) {
+    public float[] getMarkerPoints(ImageView iv, Bitmap bm) {
         Map<Integer, PointF> map = polygonView.getPoints();
         List<PointF> list = new ArrayList<PointF>(map.values());
 
@@ -248,6 +258,9 @@ public class PolygonViewCreator {
         if(x2 < 0){x2 = 0;} if(y2 < 0){y2 = 0;}
         float w = x2 - x;
         float h = y2 - y;
+
+        double rX = ((double) bitmapPos[2]) / bm.getWidth();
+        double rY = ((double) bitmapPos[3]) / bm.getHeight();
 
         float[] arr = {x, y, w, h};
         return arr;
