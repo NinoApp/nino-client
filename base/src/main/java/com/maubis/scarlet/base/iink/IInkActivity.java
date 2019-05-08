@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.maubis.scarlet.base.R;
 import com.myscript.iink.Configuration;
@@ -91,7 +92,6 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
     ErrorActivity.installHandler(this);
 
     engine = IInkApplication.getEngine();
-
     // configure recognition
     Configuration conf = engine.getConfiguration();
     String confDir = "zip://" + getPackageCodePath() + "!/assets/conf";
@@ -187,8 +187,22 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
     findViewById(R.id.button_undo).setOnClickListener(this);
     findViewById(R.id.button_redo).setOnClickListener(this);
     findViewById(R.id.button_clear).setOnClickListener(this);
+    findViewById(R.id.iink_convert).setOnClickListener(this);
 
     invalidateIconButtons();
+    String typeText = iinkType.equals("Math") ? iinkType + " Equation" : iinkType;
+    String helper = "";
+
+    if (typeText.equals("Text")){
+      helper = "You may scratch your text aligned to the guidelines and then click Convert!";
+    } else {
+      helper = "You may scratch a " + typeText.toLowerCase() + " and then click Convert!";
+    }
+    if (!helper.isEmpty())
+      Toast.makeText(getBaseContext(), helper, Toast.LENGTH_LONG).show();
+
+    Toast.makeText(getBaseContext(), "Press Back button to save " + typeText + ".", Toast.LENGTH_LONG).show();
+
   }
 
   @Override
@@ -213,17 +227,6 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
     engine = null;
 
     super.onDestroy();
-  }
-
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu)
-  {
-    getMenuInflater().inflate(R.menu.iink_activity_main_menu, menu);
-
-    MenuItem convertMenuItem = menu.findItem(R.id.menu_convert);
-    convertMenuItem.setEnabled(true);
-
-    return super.onCreateOptionsMenu(menu);
   }
 
   @Override
@@ -262,7 +265,9 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
 
     } else if (i == R.id.button_clear) {
       editorView.getEditor().clear();
-
+    } else if (i == R.id.iink_convert){
+      Editor editor = editorView.getEditor();
+      editor.convert(editor.getRootBlock(), ConversionState.DIGITAL_EDIT);
     } else {
       Log.e(TAG, "Failed to handle click event");
 

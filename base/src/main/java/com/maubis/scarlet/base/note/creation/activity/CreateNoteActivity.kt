@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.ItemTouchHelper
 import android.util.Log
 import android.view.View
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import com.facebook.litho.ComponentContext
 import com.facebook.litho.LithoView
 import com.google.gson.JsonObject
@@ -56,28 +58,14 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
   override val editModeValue: Boolean get() = true
 
-  private var ninoUid = 0
-  private var ninoRequest = false
+  var ninoUid = 0
+  var ninoRequest = false
   val NINO_REQUEST = 434
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setTouchListener()
     startHandler()
-
-    val fab: View = findViewById(R.id.nino_fab)
-    fab.visibility = View.VISIBLE
-    fab.setOnClickListener { view ->
-
-      addEmptyItem(FormatType.IMAGE)
-
-      val handler = Handler()
-
-      handler.postDelayed({
-        ninoRequest = true
-        EasyImage.openCamera(context as AppCompatActivity, ninoUid + 0) //add all possible
-      }, 100)
-    }
 
     if (getSupportActionBar() != null) {
       getSupportActionBar()?.setDisplayHomeAsUpEnabled(false);
@@ -523,6 +511,21 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     val holder = findViewHolderAtPositionAggressively(position)
     val bool = holder is FormatImageViewHolder
     return if (holder !== null && holder is FormatImageViewHolder) holder else null
+  }
+
+  fun getSpeechInput() {
+    val activity = this
+    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+
+    if (intent.resolveActivity(activity.packageManager) != null) {
+
+      ActivityCompat.startActivityForResult(activity, intent, 10, null)
+
+    } else {
+      Toast.makeText(activity, "Your Device Don't Support Speech Input", Toast.LENGTH_SHORT).show()
+    }
   }
 
   private fun findViewHolderAtPositionAggressively(position: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder? {

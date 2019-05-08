@@ -41,6 +41,7 @@
     <string name="lock_note">Lock Note</string>
     <string name="generate_quiz" translatable="false">Generate Quiz</string>
     <string name="quiz_title" translatable="false">Quiz</string>
+    <string name="iink_convert" translatable="false">Convert</string>
     <string name="quiz_show_answer" translatable="false">Show Answer</string>
     <string name="quiz_hide_answer" translatable="false">Hide Answer</string>
     <string name="quiz_loading" translatable="false">Laoding...</string>
@@ -440,6 +441,7 @@
     <string name="Error">Error</string>
     <string name="Upload">Upload</string>
     <string name="title_activity_test">TestActivity</string>
+    <string name="convert">Convert</string>
     <!-- End: Widget Options Sheet -->
 
 </resources>
