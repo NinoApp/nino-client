@@ -1,7 +1,7 @@
 package com.bijoysingh.quicknote.scarlet
 
 import android.content.Context
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.bijoysingh.quicknote.BuildConfig
 import com.bijoysingh.quicknote.firebase.activity.DataPolicyActivity.Companion.openIfNeeded
 import com.bijoysingh.quicknote.firebase.support.RemoteConfigFetcher

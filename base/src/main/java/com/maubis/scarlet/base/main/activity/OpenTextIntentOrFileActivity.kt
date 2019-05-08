@@ -26,7 +26,7 @@ import com.maubis.scarlet.base.support.utils.bind
 import com.maubis.scarlet.base.support.ui.ThemeColorType
 import com.maubis.scarlet.base.support.ui.ThemedActivity
 import java.io.InputStreamReader
-import android.support.annotation.NonNull
+import androidx.annotation.NonNull
 import android.text.style.*
 import com.maubis.markdown.spannable.clearMarkdownSpans
 

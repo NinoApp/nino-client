@@ -16,7 +16,7 @@ android {
         targetSdkVersion rootProject.ext.appconfig_target_os_version
         versionCode rootProject.ext.appconfig_version_code
         versionName rootProject.ext.appconfig_version
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
@@ -63,6 +63,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     implementation 'com.google.android.gms:play-services-drive:16.0.0'
     implementation project(':UIReferenceImplementation')
+    implementation 'com.google.android.material:material:1.0.0'
+
 }
 
 apply plugin: 'kotlin-android-extensions'
@@ -121,6 +123,8 @@ pesdkConfig {
         include 'ly.img.android.pesdk.assets:overlay-basic'
         include 'ly.img.android.pesdk.assets:sticker-shapes'
         include 'ly.img.android.pesdk.assets:sticker-emoticons'
+
+
     }
 }
 

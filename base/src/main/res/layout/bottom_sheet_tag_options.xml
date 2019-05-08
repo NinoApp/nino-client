@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:ui="http://schemas.android.com/apk/res-auto"
   android:id="@+id/root_layout"
   android:layout_width="match_parent"
@@ -12,7 +12,7 @@
     android:orientation="vertical"
     style="@style/BottomSheetCardContainer">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
       android:id="@+id/tag_card_layout"
       style="@style/BottomSheetCardView"
       ui:cardCornerRadius="@dimen/spacing_xxsmall">
@@ -25,9 +25,9 @@
         android:padding="@dimen/spacing_normal">
 
       </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
       style="@style/BottomSheetCardView"
       ui:cardBackgroundColor="@color/material_red_800">
 
@@ -44,6 +44,6 @@
         ui:textColor="@color/light_tertiary_text"
         ui:textSize="@dimen/font_size_normal" />
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
   </LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+</androidx.core.widget.NestedScrollView>

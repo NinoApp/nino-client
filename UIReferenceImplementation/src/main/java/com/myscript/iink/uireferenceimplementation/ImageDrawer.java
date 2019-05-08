@@ -5,7 +5,7 @@ package com.myscript.iink.uireferenceimplementation;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.annotation.ColorInt;
+import androidx.annotation.ColorInt;
 
 import com.myscript.iink.IImageDrawer;
 import com.myscript.iink.Renderer;
@@ -105,7 +105,7 @@ public class ImageDrawer implements IImageDrawer
     }
     catch (Exception e)
     {
-      throw new IOException("Can't save image");
+      throw new IOException("Can't save image"  + e.toString());
     }
 
     bitmap.recycle();

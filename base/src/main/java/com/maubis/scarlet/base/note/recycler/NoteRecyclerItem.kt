@@ -1,7 +1,7 @@
 package com.maubis.scarlet.base.note.recycler
 
 import android.content.Context
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import com.maubis.markdown.Markdown
 import com.maubis.scarlet.base.R
 import com.maubis.scarlet.base.core.note.getNoteState

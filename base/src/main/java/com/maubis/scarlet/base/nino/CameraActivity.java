@@ -5,37 +5,40 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.maubis.scarlet.base.R;
 import com.scanlibrary.PolygonView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
@@ -47,6 +50,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
@@ -68,7 +72,6 @@ public class CameraActivity extends AppCompatActivity {
     private static final int PESDK_REQUEST = 18312;
     String mCurrentPhotoPath;
 
-    private Mat mainMat;
     private Mat rgba;
 
     private ImageView mainIv;
@@ -80,22 +83,28 @@ public class CameraActivity extends AppCompatActivity {
 
     private Bitmap edgeDetectedTakenImage;
     private Bitmap finalImage;
-    double ivScale = 0.9;
+    private Bitmap rgbaBit;
 
     private float rotation;
-    Button rotateButton = null;
-    Button warpButton = null;
 
-    private enum CPB_STATE{
-        CAMERA,
-        WARP,
-        PROCESS;
+    MaterialButton rotateButton = null;
+    MaterialButton warpButton = null;
+    MaterialButton imageMarker = null;
+    MaterialButton eqMarker = null;
+    MaterialButton selectButton = null;
+
+    private enum MARKER{
+        IMAGE,
+        EQUATION
     }
-    CPB_STATE cpbState = CPB_STATE.CAMERA;
-    //CircularProgressButton cpb;
 
     final static float POLYGON_CIRCLE_RADIUS_IN_DP = 17f;
     float POLYGON_CIRCLE_RADIUS;
+
+    MARKER marker = null;
+    ArrayList<int[]> markedImages = null;
+    ArrayList<int[]> markedEquations = null;
+    ArrayList<int[]> markedPlots = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,16 +114,20 @@ public class CameraActivity extends AppCompatActivity {
 
         rotation = 0;
 
+        markedImages = new ArrayList<>();
+        markedEquations = new ArrayList<>();
+        markedPlots = new ArrayList<>();
+
         mainIv = (ImageView) findViewById(R.id.takenPhotoImageView);
 
         Resources r = getResources();
         POLYGON_CIRCLE_RADIUS = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, POLYGON_CIRCLE_RADIUS_IN_DP,
                 r.getDisplayMetrics());
 
-        final Button processButton = (Button)findViewById(R.id.process_button);
+        final Button processButton = (MaterialButton)findViewById(R.id.process_button);
         processButton.setVisibility(View.INVISIBLE);
 
-        warpButton = (Button) findViewById(R.id.warpButton);
+        warpButton = (MaterialButton) findViewById(R.id.warpButton);
         warpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
@@ -127,20 +140,14 @@ public class CameraActivity extends AppCompatActivity {
                 mainIv.setImageBitmap(finalImage);
                 findViewById(R.id.polygonView).setVisibility(View.INVISIBLE);
                 warpButton.setVisibility(View.INVISIBLE);
+                rotateButton.setVisibility(View.INVISIBLE);
                 processButton.setVisibility(View.VISIBLE);
+                imageMarker.setVisibility(View.VISIBLE);
+                eqMarker.setVisibility(View.VISIBLE);
             }
         });
 
-        /*
-        ((Button)findViewById(R.id.cameraButton)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dispatchTakePictureIntent();
-            }
-        });
-        */
-
-        rotateButton = (Button) findViewById(R.id.rotate_button);
+        rotateButton = (MaterialButton) findViewById(R.id.rotate_button);
         rotateButton.setVisibility(View.INVISIBLE);
         rotateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,54 +157,92 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
-        Button webButton = (Button) findViewById(R.id.web_button);
-        webButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder alert = new AlertDialog.Builder(CameraActivity.this);
-                alert.setTitle("TITLE");
-
-                WebView wv = new WebView(CameraActivity.this);
-                wv.getSettings().setBuiltInZoomControls(true);
-                wv.getSettings().setUseWideViewPort(true);
-                wv.getSettings().setLoadWithOverviewMode(true);
-
-                final ProgressDialog progressDialog;
-                progressDialog = new ProgressDialog(CameraActivity.this);
-                progressDialog.setMessage("Loading...");
-                progressDialog.show();
-
-                wv.loadUrl("http://www.google.com");
-                wv.setWebViewClient(new WebViewClient() {
-                    @Override
-                    public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                        view.loadUrl(url);
-                        return true;
-                    }
-
-                    @Override
-                    public void onPageFinished(WebView view, String url) {
-                        if (progressDialog.isShowing()) {
-                            progressDialog.dismiss();
-                        }
-                    }
-                });
-
-                alert.setView(wv);
-                alert.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
-                alert.show();
-            }
-        });
-
         processButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 process();
+            }
+        });
+
+        imageMarker = (MaterialButton) findViewById(R.id.mark_image);
+        imageMarker.setVisibility(View.GONE);
+        imageMarker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                marker = MARKER.IMAGE;
+                pvc.createPolygonForMarker(finalImage, mainIv);
+
+                selectButton.setVisibility(View.VISIBLE);
+                processButton.setVisibility(View.INVISIBLE);
+                imageMarker.setVisibility(View.INVISIBLE);
+                eqMarker.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        eqMarker = (MaterialButton) findViewById(R.id.mark_equation);
+        eqMarker.setVisibility(View.GONE);
+        eqMarker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                marker = MARKER.EQUATION;
+                pvc.createPolygonForMarker(finalImage, mainIv);
+
+                selectButton.setVisibility(View.VISIBLE);
+                processButton.setVisibility(View.INVISIBLE);
+                imageMarker.setVisibility(View.INVISIBLE);
+                eqMarker.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        selectButton = (MaterialButton) findViewById(R.id.select_button);
+        selectButton.setVisibility(View.GONE);
+        selectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                findViewById(R.id.polygonView).setVisibility(View.GONE);
+
+                for (PointF p : pvc.getActualPoints()){
+                    Log.i("P: POINT USER_SET", p.toString());
+                }
+
+                final int[] arr = pvc.getMarkerPoints(mainIv, finalImage);
+                final Bitmap resultBitmap = Bitmap.createBitmap(finalImage, arr[0], arr[1], arr[2], arr[3]);
+                AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
+                LayoutInflater inflater = getLayoutInflater();
+                View dialogLayout = inflater.inflate(R.layout.marker_dialog, null);
+
+                ImageView markerIv = dialogLayout.findViewById(R.id.marker_iv);
+                markerIv.setImageBitmap(resultBitmap);
+
+                builder.setView(dialogLayout);
+                builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getApplicationContext(), "Added Image", Toast.LENGTH_LONG).show();
+                        if(marker == MARKER.IMAGE){
+                            markedImages.add(arr);
+                        }else{
+                            markedEquations.add(arr);
+                        }
+                        selectButton.setVisibility(View.GONE);
+                        processButton.setVisibility(View.VISIBLE);
+                        imageMarker.setVisibility(View.VISIBLE);
+                        eqMarker.setVisibility(View.VISIBLE);
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getApplicationContext(), "Image discarded", Toast.LENGTH_LONG).show();
+                        selectButton.setVisibility(View.GONE);
+                        processButton.setVisibility(View.VISIBLE);
+                        imageMarker.setVisibility(View.VISIBLE);
+                        eqMarker.setVisibility(View.VISIBLE);
+                        dialog.dismiss();
+                    }
+                });
+                builder.show();
             }
         });
 
@@ -230,9 +275,10 @@ public class CameraActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
+
     private void process(){
         finalImage = rotateBitmap(finalImage, rotation);
-        File finalImageFile = persistImage(finalImage);
+        final File finalImageFile = persistImage(finalImage);
 
         showProgress(true);
 
@@ -253,18 +299,63 @@ public class CameraActivity extends AppCompatActivity {
 
                     Intent editorIntent = new Intent(getApplicationContext(), PhotoEditorActivity.class);
                     try{
-                        editorIntent.putExtra("result", result.toString());
                         editorIntent.putExtra("img_width", finalImage.getWidth());
                         editorIntent.putExtra("img_height", finalImage.getHeight());
 
                         editorIntent.setData(bitToUri(finalImage));
+
+                        //addMarkedImages()
+                        JSONObject r = new JSONObject(result.toString());
+                        JSONArray imagesJson = r.getJSONArray("images");
+                        JSONObject pageJSon = r.getJSONObject("page");
+                        int widthAbbyy = pageJSon.getInt("width");
+                        int heightAbbyy = pageJSon.getInt("height");
+
+                        double rX = ((double) widthAbbyy) / finalImage.getWidth();
+                        double rY = ((double) heightAbbyy) / finalImage.getHeight();
+
+                        ArrayList<int[]> allMarked = new ArrayList<>(markedImages);
+                        allMarked.addAll(markedEquations);
+                        allMarked.addAll(markedPlots);
+
+                        Log.i("IMAGES BEFORE", imagesJson.toString());
+
+                        for (int[] arr : allMarked){
+                            JSONObject image = new JSONObject();
+                            image.put("left", arr[0]*rX);
+                            image.put("top", arr[1]*rY);
+                            image.put("right", (arr[0] + arr[2])*rX);
+                            image.put("bottom", (arr[1] + arr[3])*rY);
+                            imagesJson.put(image);
+                        }
+
+                        Log.i("IMAGES AFTER", imagesJson.toString());
+
+                        editorIntent.putExtra("result", r.toString());
+
+                        /*
+                        JSONArray imageJsonArray = new JSONArray();
+                        JSONArray equationJsonArray = new JSONArray();
+
+                        for(Bitmap b : markedImages){
+                            imageJsonArray.put(getStringFromBitmap(b));
+                        }
+                        for(Bitmap b : markedEquations){
+                            equationJsonArray.put(getStringFromBitmap(b));
+                        }
+
+                        editorIntent.putExtra("imageJsonArray", imageJsonArray.toString());
+                        editorIntent.putExtra("equationJsonArray", equationJsonArray.toString());
+                        */
+
                         startActivityForResult(editorIntent, PESDK_REQUEST);
-                        //cpb.setProgress(100);
 
                     }catch (NullPointerException npe){
                         Toast.makeText(getApplicationContext(),
                                 "There was a problem connecting to the server, please try again", Toast.LENGTH_SHORT).show();
                         Log.v("Response Error: ", "" + e.getMessage()); //DEBUG
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
                     }
 
                     showProgress(false);
@@ -273,6 +364,17 @@ public class CameraActivity extends AppCompatActivity {
                     }
                 }
             });
+    }
+
+    private String getStringFromBitmap(Bitmap bitmapPicture) {
+        final int COMPRESSION_QUALITY = 100;
+        String encodedImage;
+        ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();
+        bitmapPicture.compress(Bitmap.CompressFormat.PNG, COMPRESSION_QUALITY,
+                byteArrayBitmapStream);
+        byte[] b = byteArrayBitmapStream.toByteArray();
+        encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+        return encodedImage;
     }
 
     private Uri bitToUri(Bitmap bitmap){
@@ -312,6 +414,7 @@ public class CameraActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Intent resIntent = getIntent();
                 resIntent.putExtra("result_uri", data.getStringExtra("result_uri"));
+                resIntent.putExtra("text", data.getStringExtra("text"));
                 resIntent.setData(data.getData());
                 setResult(RESULT_OK, resIntent);
             }
@@ -322,7 +425,8 @@ public class CameraActivity extends AppCompatActivity {
     public void afterImageTaken(){
         Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
         showProgress(true);
-        edgeDetectedTakenImage = detectNote(takenImage);
+        //edgeDetectedTakenImage = detectNote(takenImage);
+        detectNote(takenImage);
         showProgress(false);
         warpButton.setVisibility(View.VISIBLE);
         rotateButton.setVisibility(View.VISIBLE);
@@ -335,7 +439,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private Bitmap detectNote(Bitmap bitmap) {
+    private void detectNote(final Bitmap bitmap) {
         ImageProcessor ip = new ImageProcessor();
         rgba = new Mat();
         Utils.bitmapToMat(bitmap, rgba);
@@ -343,49 +447,48 @@ public class CameraActivity extends AppCompatActivity {
         Mat edges = ip.detectEdges(bitmap);
         MatOfPoint maxContour = ip.findContours(edges);
 
-        Rect rect = Imgproc.boundingRect(maxContour);
+        final Rect rect = Imgproc.boundingRect(maxContour);
 
-        MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
+        final MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
 
-        pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView), POLYGON_CIRCLE_RADIUS);
-
-        Bitmap rgbaBit = matToBit(rgba);
-        mainIv.setImageBitmap(rgbaBit);
-
-        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
-        int width = metrics.widthPixels;
-        mainIv.getLayoutParams().width = (int) (width * ivScale);
-
-        double[] temp_double;
-        Point p;
-        List<Point> source = new ArrayList<Point>();
-        int ivNewHeight = width;
-        try {
-            Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
-            if(approxCurve.total() > 0) {
-                for (int i = 0; i < approxCurve.total(); i++) {
-                    temp_double = approxCurve.get(i, 0);
-                    p = new Point(temp_double[0], temp_double[1]);
-                    source.add(p);
-                    //Imgproc.circle (rgba, p,10, new Scalar(255, 0, 0),10);
-                }
-                ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv, ivScale);
-            }else{
-                ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv, ivScale);
-            }
-        }catch(NullPointerException e){
-            e.printStackTrace();
-        }
-
-        mainIv.getLayoutParams().height = (int) (ivNewHeight);
-        mainIv.requestLayout();
+        pvc = new PolygonViewCreator(getApplicationContext(), (PolygonView) findViewById(R.id.polygonView), POLYGON_CIRCLE_RADIUS);
 
         rgbaBit = matToBit(rgba);
         mainIv.setImageBitmap(rgbaBit);
 
-        rgba = new Mat();
-        Utils.bitmapToMat(bitmap, rgba);
-        return matToBit(rgba);
+        mainIv.post(new Runnable() {
+            @Override
+            public void run() {
+                double[] temp_double;
+                Point p;
+                List<Point> source = new ArrayList<Point>();
+                try {
+                    Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
+                    if(approxCurve.total() > 0 && !getApplicationContext().getResources().getBoolean(R.bool.is_tablet)) {
+                        for (int i = 0; i < approxCurve.total(); i++) {
+                            temp_double = approxCurve.get(i, 0);
+                            p = new Point(temp_double[0], temp_double[1]);
+                            source.add(p);
+                            //Imgproc.circle (rgba, new Point(200, 100),10, new Scalar(255, 0, 0),50);
+                        }
+                        pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
+
+                    }else{
+                        //Imgproc.circle (rgba, new Point(200, 100),30, new Scalar(255, 0, 0),50);
+                        pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
+
+                    }
+                }catch(NullPointerException e){
+                    e.printStackTrace();
+                }
+
+                rgbaBit = matToBit(rgba);
+                mainIv.setImageBitmap(rgbaBit);
+
+                rgba = new Mat();
+                Utils.bitmapToMat(bitmap, rgba);
+            }
+        });
     }
 
     public Mat warp(Mat inputMat) {
@@ -407,7 +510,7 @@ public class CameraActivity extends AppCompatActivity {
         int resultWidth = Math.max((int) widthA, (int) widthB);
 
         double heightA = Math.sqrt(Math.pow((tr.x - br.x), 2) + Math.pow((tr.y - br.y), 2));
-        double heightB = Math.sqrt(Math.pow((tl.x - tl.x), 2) + Math.pow((tl.y - bl.y), 2));
+        double heightB = Math.sqrt(Math.pow((tl.x - bl.x), 2) + Math.pow((tl.y - bl.y), 2));
         int resultHeight = Math.max((int) heightA, (int) heightB);
 
         Mat outputMat = new Mat(resultWidth, resultHeight, CvType.CV_8UC4);

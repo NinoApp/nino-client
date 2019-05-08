@@ -2,15 +2,18 @@ package com.maubis.scarlet.base.note.creation.activity
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.speech.RecognizerIntent
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ItemTouchHelper
 import android.util.Log
 import android.view.View
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import com.facebook.litho.ComponentContext
 import com.facebook.litho.LithoView
 import com.google.gson.JsonObject
@@ -41,9 +44,12 @@ import com.maubis.scarlet.base.support.specs.ToolbarColorConfig
 import kotlinx.android.synthetic.main.activity_advanced_note.*
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
+import smartdevelop.ir.eram.showcaseviewlib.GuideView
+import smartdevelop.ir.eram.showcaseviewlib.config.DismissType
+import smartdevelop.ir.eram.showcaseviewlib.config.Gravity
+import smartdevelop.ir.eram.showcaseviewlib.listener.GuideListener
 import java.io.File
 import java.util.*
-
 
 open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
@@ -57,27 +63,66 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
   override val editModeValue: Boolean get() = true
 
-  private var ninoUid = 0
-  private var ninoRequest = false
+  var ninoUid = 0
+  var ninoRequest = false
   val NINO_REQUEST = 434
+
+
+  var guideViewOrder = 0
+  var guideViews : Array<GuideView>? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setTouchListener()
     startHandler()
 
-    val fab: View = findViewById(R.id.nino_fab)
-    fab.visibility = View.VISIBLE
-    fab.setOnClickListener { view ->
-      addEmptyItem(FormatType.IMAGE)
-
-      ninoRequest = true
-      EasyImage.openCamera(context as AppCompatActivity, ninoUid) //add all possible
-    }
-
     if (getSupportActionBar() != null) {
       getSupportActionBar()?.setDisplayHomeAsUpEnabled(false);
       getSupportActionBar()?.setHomeButtonEnabled(false);
+    }
+
+  }
+
+  fun initGuideViews() {
+    val tutorialEnabled = CoreConfig.instance.store().get(UISettingsOptionsBottomSheet.KEY_TUTORIAL_ENABLED, true)
+
+    if (tutorialEnabled) {
+      guideViews = arrayOf(
+              buildGuideView("Markdown", "You may format your texts through the markdown bar.", R.id.lithoTopToolbar),
+              buildGuideView("Segments", "You may add segments through the segments bar.", R.id.lithoBottomToolbar)
+      )
+
+
+      guideViews!![0].show()
+      CoreConfig.instance.store().put(UISettingsOptionsBottomSheet.KEY_TUTORIAL_ENABLED, false)
+    }
+
+
+  }
+
+  fun buildGuideView(title: String, contentText: String, targetViewId: Int) : GuideView {
+    val gv = GuideView.Builder(this)
+            .setTitle(title)
+            .setContentText(contentText)
+            .setGravity(Gravity.center) //optional
+            .setDismissType(DismissType.anywhere) //optional - default DismissType.targetView
+            .setTargetView(this.findViewById(targetViewId))
+            .setGuideListener(getGuideListener(guideViewOrder + 1))
+            .build()
+
+    guideViewOrder += 1
+
+    return gv
+  }
+
+  fun getGuideListener(idx: Int) : GuideListener {
+
+    Log.v("GET guide listener ", idx.toString())
+    return GuideListener {
+      if (idx < guideViews!!.size) {
+        tryClosingTheKeyboard()
+        guideViews!![idx].show()
+      }
     }
   }
   
@@ -85,6 +130,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     super.onCreationFinished()
     history.add(NoteBuilder().copy(note!!))
     setFolderFromIntent()
+    initGuideViews()
   }
 
   private fun setFolderFromIntent() {
@@ -116,6 +162,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     when {
       isEmpty -> {
         addEmptyItem(0, FormatType.HEADING)
+        addEmptyItem(FormatType.CHECKLIST_UNCHECKED)
         addDefaultItem()
       }
       !formats[0].text.startsWith("# ") &&
@@ -140,7 +187,9 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     val componentContext = ComponentContext(this)
     lithoTopToolbar.addView(
         LithoView.create(componentContext,
-            NoteCreationTopBar.create(componentContext).build()))
+            NoteCreationTopBar.create(componentContext)
+                    .colorConfig(ToolbarColorConfig(colorConfig.toolbarBackgroundColor, colorConfig.toolbarIconColor))
+                    .build()))
   }
 
   override fun setBottomToolbar() {
@@ -182,10 +231,15 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       if(resultCode == RESULT_OK){
         ninoRequest = false
         val uri = Uri.parse(data?.getStringExtra("result_uri"))
-        //val uri = data?.data
+        val text = data!!.getStringExtra("text")
+
         val targetFile = NoteImage(context).renameOrCopy(note!!, File(uri?.getPath()))
-        val index = getFormatIndex(data!!.getIntExtra("type", ninoUid))
-        triggerImageLoaded(index, targetFile)
+
+        val handler = Handler()
+        handler.postDelayed({
+        val index = getFormatIndex(data.getIntExtra("type", ninoUid+0))
+        triggerImageLoaded(index, targetFile, text)
+      }, 1000)
       }
     } else if (requestCode == 10) {
       Log.v("CreateNoteActivity", "request with requestCode 10")
@@ -195,19 +249,71 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       if (resultCode == RESULT_OK && data != null) {
         val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
         Log.v("CreateNoteActivity", result.toString())
-        val res = result.joinToString(" ")
+        val res = result[0]
 
-        this.addEmptyItemAtFocused(FormatType.TEXT)
-        val position = getFormatIndex(focusedFormat!!) + 1
-
-        val handler = Handler()
-        handler.postDelayed(Runnable {
-          val holder = findTextViewHolderAtPosition(position) ?: return@Runnable
-          holder.requestSpeechToTextAction(res)
-        }, 100)
+        insertTextSegment(res)
       }
 
+    } else if (requestCode == 801) {
+
+      if (resultCode == RESULT_OK && data != null) {
+        val res = data.getStringExtra("result");
+        Log.v("CreateNoteActivity", res.toString())
+
+        insertTextSegment(res)
+      }
+    } else if (requestCode > 801 && requestCode < 805) {
+      if (resultCode == RESULT_OK && data != null) {
+
+
+          val uri = Uri.parse(data.getStringExtra("result_uri"))
+          Log.v("nino uri", uri?.getPath().toString())
+          val targetFile = NoteImage(context).renameOrCopy(note!!, File(uri.getPath()))
+        val handler = Handler()
+          handler.postDelayed({
+          val index = getFormatIndex(data.getIntExtra("type", ninoUid + 0))
+          Log.v("iink ninoUid index", ninoUid.toString() + " " + index.toString())
+
+            val handler = Handler()
+
+          handler.postDelayed({
+            Log.v(" can read targetFile", targetFile.canRead().toString())
+            Log.v(" can  targetFile", targetFile.toURI().path.toString())
+
+            triggerImageLoaded(index, targetFile)
+          }, 1000)
+
+          }, 1000)
+
+      }
     }
+  }
+
+  private fun retryTriggerImageLoaded(position: Int, file: File) {
+    val handler = Handler()
+    handler.postDelayed(Runnable {
+
+      if (file.canRead())
+        triggerImageLoaded(position, file)
+      else
+        retryTriggerImageLoaded(position, file)
+
+    }, 100)
+  }
+
+  private fun insertTextSegment(res: String) {
+    this.addEmptyItemAtFocused(FormatType.TEXT)
+    var position = formats.size - 1
+    if(focusedFormat != null){
+      position = getFormatIndex(focusedFormat!!) + 1
+    }
+
+    val handler = Handler()
+    handler.postDelayed(Runnable {
+      val holder = findTextViewHolderAtPosition(position) ?: return@Runnable
+      holder.requestSpeechToTextAction(res)
+    }, 100)
+
   }
 
   fun smartTagging() {
@@ -226,24 +332,28 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
               .asJsonObject()
               .setCallback { e, res ->
                 run {
-                  val entitylist = res
-                          .getAsJsonArray("entitylist")
-                          .iterator()
+                    if (res == null) {
+                        Toast.makeText(context, "Smart Tagging failed. \n Please check your internet connection...", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val entitylist = res
+                                .getAsJsonArray("entitylist")
+                                .iterator()
 
-                  Log.v("CreateNoteActivity", "ion result: " + res.toString())
+                        Log.v("CreateNoteActivity", "ion result: " + res.toString())
 
-                  val tb = TagBuilder()
-                  for (jse in entitylist) {
-                    val tag = tb.emptyTag()
+                        val tb = TagBuilder()
+                        for (jse in entitylist) {
+                            val tag = tb.emptyTag()
 
-                    tag.title = jse.asString
-                    tag.uuid = jse.asString
-                    Log.v("CreateNoteActivity", "tagtitle: " + tag.title)
-                    tag.save()
-                    note!!.addTag(tag)
+                            tag.title = jse.asString
+                            tag.uuid = jse.asString
+                            Log.v("CreateNoteActivity", "tagtitle: " + tag.title)
+                            tag.save()
+                            note!!.addTag(tag)
 
-                  }
-                  notifyTagsChanged(note!!)
+                        }
+                        notifyTagsChanged(note!!)
+                    }
                 }
               }
       }
@@ -258,9 +368,17 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     if (!destroyed && !note!!.disableBackup) {
       note!!.saveToSync(this)
     }
+  }
+
+  fun onSave() {
+    onBackPressed()
+    val destroyed = destroyIfNeeded()
     if (!destroyed){
       smartTagging()
     }
+
+
+
   }
 
   override fun onBackPressed() {
@@ -338,7 +456,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     }, HANDLER_UPDATE_TIME.toLong())
   }
 
-  protected fun addEmptyItem(type: FormatType) {
+  fun addEmptyItem(type: FormatType) {
     addEmptyItem(formats.size, type)
   }
 
@@ -347,7 +465,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     format.uid = maxUid + 1
     maxUid++
 
-    ninoUid = format.uid
+    ninoUid = format.uid + 0
 
     formats.add(position, format)
     adapter.addItem(format, position)
@@ -396,7 +514,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     }, 100)
   }
 
-  fun triggerImageLoaded(position: Int, file: File) {
+  fun triggerImageLoaded(position: Int, file: File, ninoText: String = "") {
     if (position == -1) {
       return
     }
@@ -407,9 +525,13 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
     val formatToChange = formats[position]
     if (!formatToChange.text.isBlank()) {
       val noteImage = NoteImage(context)
-      deleteIfExist(noteImage.getFile(note!!.uuid, formatToChange.text))
+      deleteIfExist(noteImage.getFile(note!!.uuid, formatToChange.text.split("<Nino> ")[0]))
     }
-    formatToChange.text = file.name
+    if (ninoText.isNotEmpty())
+      formatToChange.text = file.name + "<Nino> " + ninoText
+    else
+      formatToChange.text = file.name
+
     setFormat(formatToChange)
   }
 
@@ -448,12 +570,26 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
   private fun findImageViewHolderAtPosition(position: Int): FormatImageViewHolder? {
     val holder = findViewHolderAtPositionAggressively(position)
-    val bool = holder is FormatImageViewHolder
     return if (holder !== null && holder is FormatImageViewHolder) holder else null
   }
 
-  private fun findViewHolderAtPositionAggressively(position: Int): RecyclerView.ViewHolder? {
-    var holder: RecyclerView.ViewHolder? = formatsView.findViewHolderForAdapterPosition(position)
+  fun getSpeechInput() {
+    val activity = this
+    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+    intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+
+    if (intent.resolveActivity(activity.packageManager) != null) {
+
+      ActivityCompat.startActivityForResult(activity, intent, 10, null)
+
+    } else {
+      Toast.makeText(activity, "Your Device Don't Support Speech Input", Toast.LENGTH_SHORT).show()
+    }
+  }
+
+  private fun findViewHolderAtPositionAggressively(position: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder? {
+    var holder: androidx.recyclerview.widget.RecyclerView.ViewHolder? = formatsView.findViewHolderForAdapterPosition(position)
     if (holder == null) {
       holder = formatsView.findViewHolderForLayoutPosition(position)
       if (holder == null) {

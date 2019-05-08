@@ -4,8 +4,8 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.support.design.widget.BottomSheetDialogFragment
-import android.support.v7.app.AppCompatActivity
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.widget.ScrollView
 import com.facebook.litho.Column
@@ -47,7 +47,7 @@ fun getLithoBottomSheetButton(context: ComponentContext): Text.Builder {
       .backgroundRes(R.drawable.accent_rounded_bg)
 }
 
-abstract class LithoBottomSheet : BottomSheetDialogFragment() {
+abstract class LithoBottomSheet : com.google.android.material.bottomsheet.BottomSheetDialogFragment() {
   override fun setupDialog(dialog: Dialog, style: Int) {
     val localContext = context
     if (localContext === null) {

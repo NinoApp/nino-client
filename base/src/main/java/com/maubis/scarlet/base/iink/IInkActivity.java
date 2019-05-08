@@ -2,16 +2,19 @@
 
 package com.maubis.scarlet.base.iink;
 
+import android.content.Intent;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.maubis.scarlet.base.R;
 import com.myscript.iink.Configuration;
@@ -21,13 +24,18 @@ import com.myscript.iink.ConversionState;
 import com.myscript.iink.Editor;
 import com.myscript.iink.Engine;
 import com.myscript.iink.IEditorListener;
+import com.myscript.iink.IImageDrawer;
+import com.myscript.iink.MimeType;
+import com.myscript.iink.graphics.Rectangle;
 import com.myscript.iink.uireferenceimplementation.EditorView;
 import com.myscript.iink.uireferenceimplementation.FontUtils;
+import com.myscript.iink.uireferenceimplementation.ImageDrawer;
 import com.myscript.iink.uireferenceimplementation.InputController;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 
 public class IInkActivity extends AppCompatActivity implements View.OnClickListener
 {
@@ -37,6 +45,55 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
   private ContentPackage contentPackage;
   private ContentPart contentPart;
   private EditorView editorView;
+  private String iinkType;
+
+
+  @Override
+  public void onBackPressed() {
+
+      Editor editor = editorView.getEditor();
+      if (editor == null)
+        return;
+
+      editor.waitForIdle();
+    if (iinkType.equals("Text")) {
+        try {
+          String result = editor.export_(editor.getRootBlock(), MimeType.TEXT);
+          Intent returnIntent = new Intent();
+          returnIntent.putExtra("result", result);
+          setResult(RESULT_OK, returnIntent);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+    } else {
+        try {
+          String outputFileName = getApplicationContext().getFilesDir().getAbsolutePath() + "/images/" + UUID.randomUUID() + ".jpeg";
+          ImageDrawer imageDrawer = new ImageDrawer();
+          // imageDrawer.prepareImage(100, 100);
+          // imageDrawer.saveImage(outputFileName);
+          Log.v("IInkActity", outputFileName);
+          Rectangle bbox = editor.getRootBlock().getBox();
+          if (!(bbox.height > 0 || bbox.width > 0))
+          {
+            Log.v("iinkactivity", "bbox " + bbox.height + " " + bbox.width);
+            imageDrawer.prepareImage(100, 100);
+            imageDrawer.setBackgroundColor(Color.WHITE);
+            imageDrawer.saveImage(outputFileName);
+          } else {
+            editor.export_(editor.getRootBlock(), outputFileName, MimeType.JPEG, imageDrawer);
+          }
+          editor.waitForIdle();
+          editor.close();
+
+          Intent returnIntent = new Intent();
+          returnIntent.putExtra("result_uri", outputFileName);
+          setResult(RESULT_OK, returnIntent);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      finish();
+  }
 
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -46,7 +103,6 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
     ErrorActivity.installHandler(this);
 
     engine = IInkApplication.getEngine();
-
     // configure recognition
     Configuration conf = engine.getConfiguration();
     String confDir = "zip://" + getPackageCodePath() + "!/assets/conf";
@@ -65,7 +121,12 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
 
     editorView.setEngine(engine);
 
+
+
+
     final Editor editor = editorView.getEditor();
+
+
     editor.addListener(new IEditorListener()
     {
       @Override
@@ -97,12 +158,15 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
 
     setInputMode(InputController.INPUT_MODE_FORCE_PEN); // If using an active pen, put INPUT_MODE_AUTO here
 
-    String packageName = "File1.iink";
+    String packageName = UUID.randomUUID() + ".iink";
     File file = new File(getFilesDir(), packageName);
     try
     {
+      Intent intent = getIntent();
+      iinkType = intent.getStringExtra("iink_type");
+
       contentPackage = engine.createPackage(file);
-      contentPart = contentPackage.createPart("Math"); // Choose type of content (possible values are: "Text Document", "Text", "Diagram", "Math", and "Drawing")
+      contentPart = contentPackage.createPart(iinkType); // Choose type of content (possible values are: "Text Document", "Text", "Diagram", "Math", and "Drawing")
     }
     catch (IOException e)
     {
@@ -134,8 +198,22 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
     findViewById(R.id.button_undo).setOnClickListener(this);
     findViewById(R.id.button_redo).setOnClickListener(this);
     findViewById(R.id.button_clear).setOnClickListener(this);
+    findViewById(R.id.iink_convert).setOnClickListener(this);
 
     invalidateIconButtons();
+    String typeText = iinkType.equals("Math") ? iinkType + " Equation" : iinkType;
+    String helper = "";
+
+    if (typeText.equals("Text")){
+      helper = "You may scratch your text aligned to the guidelines and then click Convert!";
+    } else {
+      helper = "You may scratch a " + typeText.toLowerCase() + " and then click Convert!";
+    }
+    if (!helper.isEmpty())
+      Toast.makeText(this, helper, Toast.LENGTH_LONG).show();
+
+    Toast.makeText(this, "Press Back button to add " + typeText + ".", Toast.LENGTH_LONG).show();
+
   }
 
   @Override
@@ -160,17 +238,6 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
     engine = null;
 
     super.onDestroy();
-  }
-
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu)
-  {
-    getMenuInflater().inflate(R.menu.iink_activity_main_menu, menu);
-
-    MenuItem convertMenuItem = menu.findItem(R.id.menu_convert);
-    convertMenuItem.setEnabled(true);
-
-    return super.onCreateOptionsMenu(menu);
   }
 
   @Override
@@ -209,7 +276,9 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
 
     } else if (i == R.id.button_clear) {
       editorView.getEditor().clear();
-
+    } else if (i == R.id.iink_convert){
+      Editor editor = editorView.getEditor();
+      editor.convert(editor.getRootBlock(), ConversionState.DIGITAL_EDIT);
     } else {
       Log.e(TAG, "Failed to handle click event");
 

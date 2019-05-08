@@ -71,4 +71,23 @@
 
     </LinearLayout>
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_marginEnd="@dimen/text_button_margin"
+        android:layout_marginBottom="@dimen/text_button_margin">
+
+        <Button
+            android:id="@+id/iink_convert"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/text_button_height"
+            android:layout_marginEnd="@dimen/text_button_margin"
+            android:layout_marginBottom="@dimen/text_button_margin"
+            android:background="@color/colorPrimary"
+            android:text="@string/iink_convert"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
 </FrameLayout>

@@ -57,9 +57,9 @@ class TextToSpeechBottomSheet : ThemedBottomSheetFragment() {
 
   fun speak(note: Note) {
     if (Build.VERSION.SDK_INT >= 21) {
-      textToSpeech?.speak(note.getUnreliablyStrippedText(themedContext()), TextToSpeech.QUEUE_FLUSH, null, "NOTE")
+      textToSpeech?.speak(note.getUnreliablyStrippedText(themedContext()).replace("true", " "), TextToSpeech.QUEUE_FLUSH, null, "NOTE")
     } else {
-      textToSpeech?.speak(note.getUnreliablyStrippedText(themedContext()), TextToSpeech.QUEUE_FLUSH, null)
+      textToSpeech?.speak(note.getUnreliablyStrippedText(themedContext()).replace("true", " "), TextToSpeech.QUEUE_FLUSH, null)
     }
   }
 

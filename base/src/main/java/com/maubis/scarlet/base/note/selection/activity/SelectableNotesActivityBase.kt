@@ -1,9 +1,9 @@
 package com.maubis.scarlet.base.note.selection.activity
 
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import android.view.View
 import android.widget.GridLayout
 import android.widget.ImageView
@@ -24,7 +24,7 @@ import com.maubis.scarlet.base.support.ui.ThemedActivity
 
 abstract class SelectableNotesActivityBase : ThemedActivity(), INoteSelectorActivity {
 
-  lateinit var recyclerView: RecyclerView
+  lateinit var recyclerView: androidx.recyclerview.widget.RecyclerView
   lateinit var adapter: NoteAppAdapter
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,13 +95,13 @@ abstract class SelectableNotesActivityBase : ThemedActivity(), INoteSelectorActi
     findViewById<TextView>(R.id.toolbar_title).setTextColor(toolbarIconColor)
   }
 
-  private fun getLayoutManager(isStaggeredView: Boolean, isTabletView: Boolean): RecyclerView.LayoutManager {
+  private fun getLayoutManager(isStaggeredView: Boolean, isTabletView: Boolean): androidx.recyclerview.widget.RecyclerView.LayoutManager {
     if (isTabletView) {
-      return StaggeredGridLayoutManager(2, GridLayout.VERTICAL)
+      return androidx.recyclerview.widget.StaggeredGridLayoutManager(2, GridLayout.VERTICAL)
     }
     return if (isStaggeredView)
-      StaggeredGridLayoutManager(2, GridLayout.VERTICAL)
+        androidx.recyclerview.widget.StaggeredGridLayoutManager(2, GridLayout.VERTICAL)
     else
-      LinearLayoutManager(this)
+        androidx.recyclerview.widget.LinearLayoutManager(this)
   }
 }

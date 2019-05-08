@@ -40,7 +40,7 @@ class NoteImage(context: Context) {
     if (imageFormat.formatType != FormatType.IMAGE) {
       throw IllegalArgumentException("Format should be an Image")
     }
-    return getFile(noteUUID, imageFormat.text)
+    return getFile(noteUUID, imageFormat.text.split("<Nino> ")[0])
   }
 
   fun getFile(noteUUID: String, formatFileName: String): File {

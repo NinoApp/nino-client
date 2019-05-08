@@ -83,7 +83,7 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
         },
         visible = flavor != Flavor.NONE,
         actionIcon = if (flavor == Flavor.PRO) 0 else R.drawable.ic_rating
-    ))
+    ))/*
     options.add(LithoOptionsItem(
         title = R.string.note_option_number_lines,
         subtitle = 0,
@@ -93,6 +93,7 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
           openSheet(activity, LineCountBottomSheet())
         }
     ))
+    */
     options.add(LithoOptionsItem(
         title = R.string.ui_options_note_background_color,
         subtitle = when (useNoteColorAsBackground) {
@@ -112,6 +113,7 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
         visible = flavor != Flavor.NONE,
         actionIcon = if (flavor == Flavor.PRO) 0 else R.drawable.ic_rating
     ))
+
       options.add(LithoOptionsItem(
               title = R.string.note_option_smart_tagging,
               subtitle = R.string.note_option_smart_tagging_subtitle,
@@ -123,16 +125,17 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
               isSelectable = true,
               selected = sSmartTaggingEnabled
       ))
+
       options.add(LithoOptionsItem(
-              title = R.string.markdown_sheet_home_markdown_support,
-              subtitle = R.string.markdown_sheet_home_markdown_support_subtitle,
-              icon = R.drawable.ic_markdown_logo,
+              title = R.string.note_option_tutorial,
+              subtitle = R.string.note_option_tutorial_subtitle,
+              icon = R.drawable.icon_markdown_help,
               listener = {
-                  sMarkdownEnabledHome = !sMarkdownEnabledHome
+                  sTutorialEnabled = !sTutorialEnabled
                   reset(activity, dialog)
               },
               isSelectable = true,
-              selected = sMarkdownEnabledHome
+              selected = sTutorialEnabled
       ))
     return options
   }
@@ -143,6 +146,7 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
     const val KEY_NOTE_VIEWER_BG_COLOR = "KEY_NOTE_VIEWER_BG_COLOR"
     const val KEY_MARKDOWN_HOME_ENABLED = "KEY_MARKDOWN_HOME_ENABLED"
     const val KEY_SMART_TAGGING_ENABLED = "KEY_SMART_TAGGING_ENABLED "
+    const val KEY_TUTORIAL_ENABLED = "KEY_TUTORIAL_ENABLED"
 
     fun openSheet(activity: MainActivity) {
       val sheet = UISettingsOptionsBottomSheet()
@@ -161,8 +165,12 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
       get() = CoreConfig.instance.store().get(KEY_MARKDOWN_HOME_ENABLED, true)
       set(value) = CoreConfig.instance.store().put(KEY_MARKDOWN_HOME_ENABLED, value)
 
-    var sSmartTaggingEnabled: Boolean
-      get() = CoreConfig.instance.store().get(KEY_SMART_TAGGING_ENABLED, true)
-      set(value) = CoreConfig.instance.store().put(KEY_SMART_TAGGING_ENABLED, value)
+      var sSmartTaggingEnabled: Boolean
+          get() = CoreConfig.instance.store().get(KEY_SMART_TAGGING_ENABLED, true)
+          set(value) = CoreConfig.instance.store().put(KEY_SMART_TAGGING_ENABLED, value)
+
+      var sTutorialEnabled: Boolean
+          get() = CoreConfig.instance.store().get(KEY_TUTORIAL_ENABLED, true)
+          set(value) = CoreConfig.instance.store().put(KEY_TUTORIAL_ENABLED, value)
   }
 }

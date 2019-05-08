@@ -33,17 +33,19 @@
     <string name="restore_note">Restore Note</string>
     <string name="trash_note">Move to Trash</string>
     <string name="choose_note_color">Change Color</string>
-    <string name="tag_shortcut_google" translatable="false">Find Entities in Google</string>
-    <string name="tag_shortcut_wikipedia" translatable="false">Find Entities in Wikipedia</string>
-    <string name="tag_shortcut_youtube" translatable="false">Find Entities in Youtube</string>
+    <string name="tag_shortcut_google" translatable="false">SmartFind Google</string>
+    <string name="tag_shortcut_wikipedia" translatable="false">SmartFind Wikipedia</string>
+    <string name="tag_shortcut_google_scholar" translatable="false">SmartFind Scholar</string>
+    <string name="tag_shortcut_youtube" translatable="false">SmartFind Youtube</string>
     <string name="tag_shortcut" translatable="false">Search Entities</string>
     <string name="lock_note">Lock Note</string>
     <string name="generate_quiz" translatable="false">Generate Quiz</string>
     <string name="quiz_title" translatable="false">Quiz</string>
+    <string name="iink_convert" translatable="false">Convert</string>
     <string name="quiz_show_answer" translatable="false">Show Answer</string>
     <string name="quiz_hide_answer" translatable="false">Hide Answer</string>
     <string name="quiz_loading" translatable="false">Laoding...</string>
-    <string name="quiz_no_questions" translatable="false">The content of note is not rich enough to be able to create questions about.</string>
+    <string name="quiz_no_questions" translatable="false">The content of note is not rich enough for creating a quiz.</string>
     <string name="generate_quiz_sub" translatable="false">Automatically Generate Quiz</string>
     <string name="change_tags">Change Tags</string>
     <string name="unlock_note">Unlock Note</string>
@@ -196,6 +198,9 @@
     <string name="markdown_sheet_home_markdown_support">Markdown in Note List</string>
     <string name="note_option_smart_tagging" translatable="false">Automated Smart Tagging of Notes</string>
     <string name="note_option_smart_tagging_subtitle" translatable="false">Enable creating tags from note contents using named entity recognition and keyphrase extraction models powered by machine learning.</string>
+    <string name="note_option_tutorial" translatable="false">Tutorial on Creating Notes</string>
+    <string name="note_option_tutorial_subtitle" translatable="false">Show tutorial on Creating Notes.</string>
+
     <string name="markdown_sheet_home_markdown_support_subtitle">Enable Markdown formatting in the list of notes</string>
     <string name="markdown_sheet_examples">Examples</string>
     <string name="markdown_sheet_examples_list" translatable="false"># Heading \n## Subheading \n\n```\nblock of code\n```\n\n> quote\n\n- **bold**\n- *italics*\n- _underline_\n- ~~strike~~\n- `code`\n</string>
@@ -439,6 +444,7 @@
     <string name="Error">Error</string>
     <string name="Upload">Upload</string>
     <string name="title_activity_test">TestActivity</string>
+    <string name="convert">Convert</string>
     <!-- End: Widget Options Sheet -->
 
 </resources>

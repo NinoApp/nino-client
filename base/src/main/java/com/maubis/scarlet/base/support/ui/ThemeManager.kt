@@ -3,7 +3,7 @@ package com.maubis.scarlet.base.support.ui
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import com.github.bijoysingh.starter.util.DimensionManager
 import com.maubis.markdown.MarkdownConfig
 import com.maubis.scarlet.base.R
@@ -90,15 +90,15 @@ class ThemeManager() : IThemeManager {
           return theme
         }
       }
-      return Theme.DARK
+      return Theme.TEAL
     }
 
     fun getThemeFromStore(): Theme {
-      val theme = CoreConfig.instance.store().get(KEY_APP_THEME, Theme.DARK.name)
+      val theme = CoreConfig.instance.store().get(KEY_APP_THEME, Theme.TEAL.name)
       try {
         return Theme.valueOf(theme)
       } catch (_: Exception) {
-        return Theme.DARK
+        return Theme.TEAL
       }
     }
   }

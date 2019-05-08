@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:ui="http://schemas.android.com/apk/res-auto"
   android:id="@+id/root_layout"
   android:layout_width="match_parent"
@@ -14,7 +14,7 @@
     android:orientation="vertical"
     style="@style/BottomSheetCardContainer">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
       android:id="@+id/navigation_card_layout"
       style="@style/BottomSheetCardView"
       ui:cardBackgroundColor="@color/material_blue_800">
@@ -35,9 +35,9 @@
           android:useDefaultMargins="true" />
 
       </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
       android:id="@+id/tag_card_layout"
       style="@style/BottomSheetCardView"
       ui:cardBackgroundColor="@color/material_teal_800">
@@ -76,6 +76,6 @@
           ui:textColor="@color/dark_tertiary_text"
           ui:textSize="@dimen/font_size_normal" />
       </LinearLayout>
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
   </LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+</androidx.core.widget.NestedScrollView>

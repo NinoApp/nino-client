@@ -19,6 +19,7 @@ import com.maubis.scarlet.base.database.room.folder.Folder
 import com.maubis.scarlet.base.main.sheets.HomeNavigationBottomSheet
 import com.maubis.scarlet.base.note.creation.activity.CreateNoteActivity
 import com.maubis.scarlet.base.note.folder.sheet.CreateOrEditFolderBottomSheet
+import com.maubis.scarlet.base.settings.sheet.SettingsOptionsBottomSheet
 import com.maubis.scarlet.base.settings.sheet.sNoteDefaultColor
 import com.maubis.scarlet.base.support.specs.EmptySpec
 import com.maubis.scarlet.base.support.specs.ToolbarColorConfig
@@ -39,12 +40,19 @@ object MainActivityBottomBarSpec {
         .widthPercent(100f)
         .alignItems(YogaAlign.CENTER)
         .paddingDip(YogaEdge.HORIZONTAL, 4f)
-    row.child(bottomBarRoundIcon(context, colorConfig)
-        .bgColor(Color.TRANSPARENT)
-        .iconRes(R.drawable.ic_apps_white_48dp)
-        .onClick {
-          HomeNavigationBottomSheet.openSheet(activity)
-        })
+      row.child(bottomBarRoundIcon(context, colorConfig)
+              .bgColor(Color.TRANSPARENT)
+              .iconRes(R.drawable.ic_action_settings)
+              .onClick {
+                  SettingsOptionsBottomSheet.openSheet(activity)
+              })
+      row.child(bottomBarRoundIcon(context, colorConfig)
+              .bgColor(Color.TRANSPARENT)
+              .iconRes(R.drawable.ic_apps_white_48dp)
+              .onClick {
+                  HomeNavigationBottomSheet.openSheet(activity)
+              })
+      row.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
 
       row.child(bottomBarRoundIcon(context, colorConfig)
               .bgColor(Color.TRANSPARENT)
@@ -55,8 +63,7 @@ object MainActivityBottomBarSpec {
                           FolderBuilder().emptyFolder(sNoteDefaultColor),
                           { _, _ -> activity.setupData() })
               })
-      row.child(EmptySpec.create(context).heightDip(1f).flexGrow(1f))
-
+      
     row.child(bottomBarRoundIcon(context, colorConfig)
             .bgColor(Color.TRANSPARENT)
         .iconRes(R.drawable.icon_add_note)

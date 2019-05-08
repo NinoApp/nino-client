@@ -15,7 +15,7 @@
     android:layout_width="@dimen/main_toolbar_icon_size"
     android:layout_height="@dimen/main_toolbar_icon_size"
     android:padding="@dimen/spacing_xsmall"
-    android:src="@drawable/app_icon_round" />
+    android:src="@mipmap/ic_launcher_home" />
 
   <TextView
     android:id="@+id/toolbarTitle"

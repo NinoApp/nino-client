@@ -5,9 +5,9 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.CardView
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import android.view.View
 import com.github.bijoysingh.starter.fragments.SimpleBottomSheetFragment
 import com.maubis.scarlet.base.MainActivity
@@ -47,7 +47,7 @@ abstract class ThemedBottomSheetFragment : SimpleBottomSheetFragment() {
     val containerLayout = dialog.findViewById<View>(getBackgroundView())
     containerLayout.setBackgroundColor(backgroundColor)
     for (viewId in getBackgroundCardViewIds()) {
-      val cardView = dialog.findViewById<CardView>(viewId)
+      val cardView = dialog.findViewById<androidx.cardview.widget.CardView>(viewId)
       cardView.setCardBackgroundColor(backgroundColor)
     }
   }

@@ -7,16 +7,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -27,13 +25,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Console;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Set;
 
 import ly.img.android.pesdk.assets.filter.basic.FilterPackBasic;
 import ly.img.android.pesdk.assets.font.basic.FontPackBasic;
@@ -71,6 +66,8 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
     public static int GALLERY_RESULT = 2;
     private Uri uri;
 
+    private String ninoText = "";
+
     private String jsonFileName = "JSON_TEMPLATE.json";
     private Bitmap origBitmap;
     @Override
@@ -78,8 +75,6 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //byte[] byteArray = getIntent().getByteArrayExtra("bitmap");
-        //origBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
         Uri imageUri = getIntent().getData();
         try {
             origBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
@@ -91,8 +86,9 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
         requestPermissionAndOpenEditor(uri);
     }
 
+    private SettingsList settingsList;
     private void openEditor(Uri inputImage) {
-        SettingsList settingsList = createPesdkSettingsList();
+        settingsList = createPesdkSettingsList();
         settingsList.getSettingsModel(EditorLoadSettings.class).setImageSource(inputImage);
 
         addImagesToPesdk(settingsList);
@@ -111,33 +107,38 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
             JSONObject result =  new JSONObject(getIntent().getStringExtra("result"));
             JSONArray linesJson = result.getJSONArray("paragraphs");
             JSONArray imagesJson = result.getJSONArray("images");
+
             JSONObject pageJSon = result.getJSONObject("page");
-            Intent intent = getIntent();
             jh = new JsonHelper(pageJSon.getInt("width"), pageJSon.getInt("height"));
             jo = jh.createJsonTemplate(linesJson, imagesJson);
-            /*
-            jo = jh.createJsonTemplate(linesJson, imagesJson, intent.getIntExtra("img_width", 1000),
-                    intent.getIntExtra("img_height", 1000));
-            */
             Log.i("JSON_RESULT", jo.toString());
             jh.writeJson(jo, jsonFileName);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            for(int i = 0; i < linesJson.length(); i++) {
+                JSONObject entry = linesJson.getJSONObject(i);
+                String text = entry.getString("text");
+                this.ninoText += text + "\n";
+            }
+            } catch (JSONException e1) {
+            e1.printStackTrace();
         }
     }
 
-    private ArrayList<ImageStickerItem> createImageArray(JSONArray imagesJson, AssetConfig assetConfig){
+    private ArrayList<ImageStickerItem> createImageArray(JSONArray imagesJson, AssetConfig assetConfig,
+                                                         double widthRatio, double heightRatio){
         ArrayList<ImageStickerItem> imageStickers = new ArrayList<ImageStickerItem>();
         for (int i = 0; i < imagesJson.length(); i++){
             try {
                 JSONObject entry = imagesJson.getJSONObject(i);
-                double x = entry.getDouble("left");
-                double y = entry.getDouble("top");
-                double width = entry.getDouble("right") - x;
-                double height = entry.getDouble("bottom") - y;
+                double left = entry.getDouble("left") * widthRatio;
+                double top = entry.getDouble("top") * heightRatio;
+                double right = entry.getDouble("right") * widthRatio;
+                double bottom = entry.getDouble("bottom") * heightRatio;
+
+                double width = right - left;
+                double height = bottom - top;
 
                 String name = "image" + i;
-                Bitmap newBitmap = Bitmap.createBitmap(origBitmap, (int)x , (int)y, (int)width, (int)height);
+                Bitmap newBitmap = Bitmap.createBitmap(origBitmap, (int)left , (int)top, (int)width, (int)height);
                 Uri imgUri = bitToUri(newBitmap);
                 ImageStickerItem isi = new ImageStickerItem(name, name, ImageSource.create(
                         imgUri
@@ -150,33 +151,6 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
         }
         return imageStickers;
     }
-
-    /*
-    private ArrayList<ImageStickerItem> createImageArray(JSONArray imagesJson, AssetConfig assetConfig){
-        ArrayList<ImageStickerItem> imageStickers = new ArrayList<ImageStickerItem>();
-        for (int i = 0; i < imagesJson.length(); i++){
-            try {
-                JSONObject entry = imagesJson.getJSONObject(i);
-                double x = entry.getDouble("left");
-                double y = entry.getDouble("top");
-                double width = entry.getDouble("right") - x;
-                double height = entry.getDouble("bottom") - y;
-
-                String name = "image" + i;
-                Bitmap newBitmap = Bitmap.createBitmap(origBitmap, (int)x , (int)y, (int)width, (int)height);
-                Uri imgUri = bitToUri(newBitmap);
-                ImageStickerItem isi = new ImageStickerItem(name, name, ImageSource.create(
-                        imgUri
-                ));
-                assetConfig.addAsset(new ImageStickerAsset(name, ImageSource.create(imgUri)));
-                imageStickers.add(isi);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        return imageStickers;
-    }
-    */
 
     private void addImagesToPesdk(SettingsList settingsList) {
         AssetConfig assetConfig = settingsList.getConfig();
@@ -184,7 +158,23 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
         try {
             JSONObject result = new JSONObject(getIntent().getStringExtra("result"));
             JSONArray imagesJson = result.getJSONArray("images");
-            imageStickers = createImageArray(imagesJson ,assetConfig);
+
+            JSONObject pageJSon = result.getJSONObject("page");
+            int widthAbbyy = pageJSon.getInt("width");
+            int heightAbbyy = pageJSon.getInt("height");
+
+            Log.i("IMAGES AFTER_VOL2", String.valueOf(widthAbbyy));
+            Log.i("IMAGES AFTER_VOL2", String.valueOf(heightAbbyy));
+            Log.i("IMAGES AFTER_VOL2", imagesJson.toString());
+
+            Intent intent = getIntent();
+            int imgWidth = intent.getIntExtra("img_width", widthAbbyy);
+            int imgHeight = intent.getIntExtra("img_height", heightAbbyy);
+
+            double widthRatio = ((double)imgWidth/widthAbbyy);
+            double heightRatio = ((double)imgHeight/heightAbbyy);
+
+            imageStickers = createImageArray(imagesJson, assetConfig, widthRatio, heightRatio);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -198,28 +188,6 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
                     ImageSource.create(R.drawable.imgly_sticker_shapes_badge_13),
                     imageStickers
             ));
-            /*
-            uiConfigSticker.setStickerLists(
-                    new StickerCategoryItem(
-                            "emojis",
-                            R.string.imgly_sticker_category_name_emoticons,
-                            ImageSource.create(R.drawable.imgly_sticker_emoticons_alien),
-                            new ImageStickerItem("imgly_sticker_emoticons_grin", ly.img.android.pesdk.assets.sticker.emoticons.R.string.imgly_sticker_name_emoticons_grin, ImageSource.create(ly.img.android.pesdk.assets.sticker.emoticons.R.drawable.imgly_sticker_emoticons_grin))
-                    ),
-                    new StickerCategoryItem(
-                            "shapes",
-                            R.string.imgly_sticker_category_name_shapes,
-                            ImageSource.create(R.drawable.imgly_sticker_shapes_badge_35),
-                            new ImageStickerItem("imgly_sticker_shapes_badge_01", ly.img.android.pesdk.assets.sticker.shapes.R.string.imgly_sticker_name_shapes_badge_01, ImageSource.create(ly.img.android.pesdk.assets.sticker.shapes.R.drawable.imgly_sticker_shapes_badge_01))
-                    ),
-                    new StickerCategoryItem(
-                            "det_im",
-                            "Detected Images",
-                            ImageSource.create(R.drawable.imgly_sticker_emoticons_alien),
-                            imageStickers
-                    )
-            );
-            */
         }
     }
 
@@ -401,12 +369,15 @@ public class PhotoEditorActivity extends Activity implements PermissionRequest.R
                 ));
             } catch (IOException e) { e.printStackTrace(); }
 
-            //JsonHelper jh = new JsonHelper();
-            //jh.readNprintJson("serialisationReadyToReadWithPESDKFileReader.json");
+            Log.i("PESDK EDITOR RH", String.valueOf(settingsList.getSettingsModel(EditorLoadSettings.class).getRealImageSourceHeight()));
+            Log.i("PESDK EDITOR RW", String.valueOf(settingsList.getSettingsModel(EditorLoadSettings.class).getRealImageSourceWidth()));
+            Log.i("PESDK EDITOR SH", String.valueOf(settingsList.getSettingsModel(EditorLoadSettings.class).getImageSourceHeight()));
+            Log.i("PESDK EDITOR SW", String.valueOf(settingsList.getSettingsModel(EditorLoadSettings.class).getImageSourceWidth()));
 
             Intent resIntent = getIntent();
             resIntent.putExtra("result_uri", resultURI.toString());
             resIntent.setData(resultURI);
+            resIntent.putExtra("text", ninoText);
             setResult(RESULT_OK, resIntent);
             finish();
 

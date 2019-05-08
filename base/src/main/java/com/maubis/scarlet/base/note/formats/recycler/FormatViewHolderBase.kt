@@ -2,7 +2,7 @@ package com.maubis.scarlet.base.note.formats.recycler
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import android.view.View
 import com.github.bijoysingh.starter.recyclerview.RecyclerViewHolder
 import com.maubis.scarlet.base.R

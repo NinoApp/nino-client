@@ -14,9 +14,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class JsonHelper {
 
@@ -25,9 +22,10 @@ public class JsonHelper {
     public JsonHelper(int width, int height) {
         imgWidth = width;
         imgHeight = height;
+
+        Log.i("ABBYY W", String.valueOf(imgWidth));
+        Log.i("ABBYY H", String.valueOf(imgHeight));
     }
-
-
 
     public JSONObject createJsonTemplate(JSONArray lines, JSONArray images) throws JSONException {
         JSONObject jo = new JSONObject();
@@ -45,9 +43,6 @@ public class JsonHelper {
             image.put("width", imgWidth);
             image.put("height", imgHeight);
             jo.put("image", image);
-
-            Log.i("JSON_HELPER W", String.valueOf(imgWidth));
-            Log.i("JSON_HELPER H", String.valueOf(imgHeight));
 
             JSONArray operations = new JSONArray();
             //JSONObject transform = new JSONObject();
@@ -80,6 +75,7 @@ public class JsonHelper {
         for(int i = 0; i < lines.length(); i++) {
             JSONObject entry = lines.getJSONObject(i);
             String text = entry.getString("text");
+
             double left = entry.getDouble("left") / imgWidth;
             double bottom = entry.getDouble("bottom") / imgHeight;
             double right = entry.getDouble("right") / imgWidth;
@@ -95,16 +91,17 @@ public class JsonHelper {
             double margin = (double) (Math.abs(imgWidth - imgHeight) / 2);
             if(imgWidth > imgHeight){
                 xToPut = left + width/2;
-                yToPut = (margin / imgHeight) + top + height/2;
+                yToPut = (margin / imgWidth) + (top + height/2);
             }else{
-                xToPut = (margin / imgWidth) + left + width/2;
+                xToPut = (margin / imgHeight) + (left + width/2);
                 yToPut = top + height/2;
             }
+
             int lineCount = text.split("\\r?\\n").length - 1;
+            double fontSize = (height/lineCount)*(imgHeight/1200.0) / 1.61803398875;
             Log.d("ATTEMPTING: TEXT", " x: " + xToPut + " y: " + yToPut + " w: " + width
-                    + " fs: " + (height/lineCount));
-            JSONObject jsonTextObject = getTextJson(text, xToPut, yToPut, width,
-                    (height/lineCount)/1.42857);
+                    + " fs: " + fontSize);
+            JSONObject jsonTextObject = getTextJson(text, xToPut, yToPut, width, fontSize);
             operations_sprite_option_sprites.put(jsonTextObject);
         }
     }
@@ -127,14 +124,13 @@ public class JsonHelper {
             double margin = (double) (Math.abs(imgWidth - imgHeight) / 2);
             if(imgWidth > imgHeight){
                 xToPut = left + width/2;
-                yToPut = (margin / imgHeight) + top + height/2;
+                yToPut = (margin / imgWidth) + top + height/2;
             }else{
-                xToPut = (margin / imgWidth) + left + width/2;
+                xToPut = (margin / imgHeight) + left + width/2;
                 yToPut = bottom + height/2;
             }
             String identifier = "image" + i;
             JSONObject jsonImageObject = getImageJson(identifier, xToPut, yToPut, width, height);
-            //Log.i("JSON_IMAGE_OBJECT", jsonImageObject.toString());
             operations_sprite_option_sprites.put(jsonImageObject);
         }
     }
