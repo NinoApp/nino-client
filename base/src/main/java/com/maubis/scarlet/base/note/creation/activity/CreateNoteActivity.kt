@@ -69,7 +69,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
 
   var guideViewOrder = 0
-  lateinit var guideViews : Array<GuideView>
+  var guideViews : Array<GuideView>? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -93,7 +93,7 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
       )
 
 
-      guideViews[0].show()
+      guideViews!![0].show()
       CoreConfig.instance.store().put(UISettingsOptionsBottomSheet.KEY_TUTORIAL_ENABLED, false)
     }
 
@@ -119,9 +119,9 @@ open class CreateNoteActivity : ViewAdvancedNoteActivity() {
 
     Log.v("GET guide listener ", idx.toString())
     return GuideListener {
-      if (idx < guideViews.size) {
+      if (idx < guideViews!!.size) {
         tryClosingTheKeyboard()
-        guideViews[idx].show()
+        guideViews!![idx].show()
       }
     }
   }
