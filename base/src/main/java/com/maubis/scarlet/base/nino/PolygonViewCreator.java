@@ -70,8 +70,8 @@ public class PolygonViewCreator {
         List<PointF> pointFs = new ArrayList<>();
         pointFs.add(new PointF(x, y));
         pointFs.add(new PointF(x + w, y));
-        pointFs.add(new PointF(x,y + h));
         pointFs.add(new PointF(x + w,y + h));
+        pointFs.add(new PointF(x,y + h));
 
         for (PointF p : pointFs){
             Log.i("P: POLYGON_POINT Fs", p.toString());
