@@ -102,7 +102,9 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
         note = notesDb.getByID(noteId)
       }
       if (note === null) {
-        note = NoteBuilder().emptyNote(sNoteDefaultColor)
+        val colors : IntArray = resources.getIntArray(R.array.bright_colors_accent)
+
+        note = NoteBuilder().emptyNote(colors.random()) // sNoteDefaultColor
       }
       GlobalScope.launch(Dispatchers.Main) {
         resetBundle()
@@ -233,6 +235,8 @@ open class ViewAdvancedNoteActivity : ThemedActivity(), INoteOptionSheetActivity
     if (tagLabel.isEmpty()) {
       return
     }
+
+    adapter.addItem(Format(FormatType.SEPARATOR)) // separator between tags and the note.
 
     val format = Format(FormatType.TAG, tagLabel)
     adapter.addItem(format)

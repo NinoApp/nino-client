@@ -125,6 +125,18 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
               isSelectable = true,
               selected = sSmartTaggingEnabled
       ))
+
+      options.add(LithoOptionsItem(
+              title = R.string.note_option_tutorial,
+              subtitle = R.string.note_option_tutorial_subtitle,
+              icon = R.drawable.icon_markdown_help,
+              listener = {
+                  sTutorialEnabled = !sTutorialEnabled
+                  reset(activity, dialog)
+              },
+              isSelectable = true,
+              selected = sTutorialEnabled
+      ))
     return options
   }
 
@@ -134,6 +146,7 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
     const val KEY_NOTE_VIEWER_BG_COLOR = "KEY_NOTE_VIEWER_BG_COLOR"
     const val KEY_MARKDOWN_HOME_ENABLED = "KEY_MARKDOWN_HOME_ENABLED"
     const val KEY_SMART_TAGGING_ENABLED = "KEY_SMART_TAGGING_ENABLED "
+    const val KEY_TUTORIAL_ENABLED = "KEY_TUTORIAL_ENABLED"
 
     fun openSheet(activity: MainActivity) {
       val sheet = UISettingsOptionsBottomSheet()
@@ -152,8 +165,12 @@ class UISettingsOptionsBottomSheet : LithoOptionBottomSheet() {
       get() = CoreConfig.instance.store().get(KEY_MARKDOWN_HOME_ENABLED, true)
       set(value) = CoreConfig.instance.store().put(KEY_MARKDOWN_HOME_ENABLED, value)
 
-    var sSmartTaggingEnabled: Boolean
-      get() = CoreConfig.instance.store().get(KEY_SMART_TAGGING_ENABLED, true)
-      set(value) = CoreConfig.instance.store().put(KEY_SMART_TAGGING_ENABLED, value)
+      var sSmartTaggingEnabled: Boolean
+          get() = CoreConfig.instance.store().get(KEY_SMART_TAGGING_ENABLED, true)
+          set(value) = CoreConfig.instance.store().put(KEY_SMART_TAGGING_ENABLED, value)
+
+      var sTutorialEnabled: Boolean
+          get() = CoreConfig.instance.store().get(KEY_TUTORIAL_ENABLED, true)
+          set(value) = CoreConfig.instance.store().put(KEY_TUTORIAL_ENABLED, value)
   }
 }

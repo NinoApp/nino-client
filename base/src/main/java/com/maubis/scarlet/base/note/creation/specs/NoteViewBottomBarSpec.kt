@@ -79,6 +79,13 @@ object NoteCreationBottomBarSpec {
     }
     */
 
+    val doneButton = bottomBarRoundIcon(context, colorConfig)
+            .iconRes(R.drawable.ic_done_white_48dp)
+            .iconColor(Color.GREEN)
+            .onClick {
+              activity.onSave()
+            }
+
     val content = when (state) {
       /*
       NoteCreateBottomBarType.OPTIONS ->
@@ -119,12 +126,8 @@ object NoteCreationBottomBarSpec {
             .segmentsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_SEGMENTS))
             .markdownsClick(NoteCreationBottomBar.onStateChangeClick(context, NoteCreateBottomBarType.DEFAULT_MARKDOWNS))
     )
-       .child(bottomBarRoundIcon(context, colorConfig)
-                    .iconRes(R.drawable.ic_done_white_48dp)
-                    .iconColor(Color.GREEN)
-                    .onClick {
-                      activity.onSave()
-                    })
+       .child(doneButton)
+
 
     return bottomBarCard(context, row.build(), colorConfig).build()
   }

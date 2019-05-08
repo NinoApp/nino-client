@@ -212,7 +212,7 @@ public class IInkActivity extends AppCompatActivity implements View.OnClickListe
     if (!helper.isEmpty())
       Toast.makeText(this, helper, Toast.LENGTH_LONG).show();
 
-    Toast.makeText(this, "Press Back button to save " + typeText + ".", Toast.LENGTH_LONG).show();
+    Toast.makeText(this, "Press Back button to add " + typeText + ".", Toast.LENGTH_LONG).show();
 
   }
 
