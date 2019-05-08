@@ -270,14 +270,14 @@ object NoteCreationNinoSpecialBottomBarSpec {
                       activity.getSpeechInput()
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
-                    .iconRes(R.drawable.iink_text)
+                    .iconRes(R.drawable.iink_diagram)
                     .iconColor(Color.WHITE)
                     .onClick {
-                      // drawing to text block
-
+                      // drawing to diagrams in image format
+                      activity.addEmptyItem(FormatType.IMAGE)
                       val handler = Handler()
                       handler.postDelayed(Runnable {
-                        openIinkActivity(activity, "Text")
+                        openIinkActivity(activity, "Diagram")
                       }, 100)
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
@@ -292,15 +292,15 @@ object NoteCreationNinoSpecialBottomBarSpec {
                       }, 100)
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
-                    .iconRes(R.drawable.iink_diagram)
+                    .iconRes(R.drawable.iink_text)
                     .iconColor(Color.WHITE)
                     .onClick {
-                      // drawing to diagrams in image format
-                      activity.addEmptyItem(FormatType.IMAGE)
+                      // drawing to text block
+
                       val handler = Handler()
                       handler.postDelayed(Runnable {
-                      openIinkActivity(activity, "Diagram")
-                    }, 100)
+                        openIinkActivity(activity, "Text")
+                      }, 100)
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
                     .iconRes(R.drawable.iink_draw)
@@ -366,14 +366,14 @@ object NoteCreationSegmentsBottomBarSpec {
                       activity.getSpeechInput()
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
-                    .iconRes(R.drawable.iink_text)
+                    .iconRes(R.drawable.iink_diagram)
                     .iconColor(Color.WHITE)
                     .onClick {
-                      // drawing to text block
-
+                      // drawing to diagrams in image format
+                      activity.addEmptyItem(FormatType.IMAGE)
                       val handler = Handler()
                       handler.postDelayed(Runnable {
-                        NoteCreationNinoSpecialBottomBarSpec.openIinkActivity(activity, "Text")
+                        NoteCreationNinoSpecialBottomBarSpec.openIinkActivity(activity, "Diagram")
                       }, 100)
                     })
             .child(bottomBarRoundIcon(context, colorConfig)
