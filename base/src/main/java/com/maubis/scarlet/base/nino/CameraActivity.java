@@ -78,7 +78,6 @@ public class CameraActivity extends AppCompatActivity {
     private Bitmap edgeDetectedTakenImage;
     private Bitmap finalImage;
     private Bitmap rgbaBit;
-    //double ivScale = 1.0;
 
     private float rotation;
 
@@ -171,7 +170,6 @@ public class CameraActivity extends AppCompatActivity {
                 marker = MARKER.IMAGE;
                 //findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
 
-                //pvc.createPolygonForMarker(finalImage, mainIv, ivScale);
                 pvc.createPolygonForMarker(finalImage, mainIv);
 
                 selectButton.setVisibility(View.VISIBLE);
@@ -189,7 +187,6 @@ public class CameraActivity extends AppCompatActivity {
             public void onClick(View v) {
                 marker = MARKER.EQUATION;
                 //findViewById(R.id.polygonView).setVisibility(View.VISIBLE);
-//                pvc.createPolygonForMarker(finalImage, mainIv, ivScale);
                 pvc.createPolygonForMarker(finalImage, mainIv);
                 selectButton.setVisibility(View.VISIBLE);
 
@@ -381,7 +378,8 @@ public class CameraActivity extends AppCompatActivity {
     public void afterImageTaken(){
         Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
         showProgress(true);
-        edgeDetectedTakenImage = detectNote(takenImage);
+        //edgeDetectedTakenImage = detectNote(takenImage);
+        detectNote(takenImage);
         showProgress(false);
         warpButton.setVisibility(View.VISIBLE);
         rotateButton.setVisibility(View.VISIBLE);
@@ -394,7 +392,7 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private Bitmap detectNote(Bitmap bitmap) {
+    private void detectNote(final Bitmap bitmap) {
         ImageProcessor ip = new ImageProcessor();
         rgba = new Mat();
         Utils.bitmapToMat(bitmap, rgba);
@@ -402,53 +400,59 @@ public class CameraActivity extends AppCompatActivity {
         Mat edges = ip.detectEdges(bitmap);
         MatOfPoint maxContour = ip.findContours(edges);
 
-        Rect rect = Imgproc.boundingRect(maxContour);
+        final Rect rect = Imgproc.boundingRect(maxContour);
 
-        MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
+        final MatOfPoint2f approxCurve = ip.findApproxCurve(maxContour);
 
         pvc = new PolygonViewCreator((PolygonView) findViewById(R.id.polygonView), POLYGON_CIRCLE_RADIUS);
 
         rgbaBit = matToBit(rgba);
         mainIv.setImageBitmap(rgbaBit);
 
-        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
-        int width = metrics.widthPixels;
-        mainIv.getLayoutParams().width = width;//(int) (width * ivScale);
+        mainIv.post(new Runnable() {
+            @Override
+            public void run() {
+//DisplayMetrics metrics = this.getResources().getDisplayMetrics();
+                //int width = metrics.widthPixels;
+                //mainIv.getLayoutParams().width = width;//(int) (width * ivScale);
 
-        double[] temp_double;
-        Point p;
-        List<Point> source = new ArrayList<Point>();
-        int ivNewHeight = width;
-        try {
-            Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
-            if(approxCurve.total() > 0) {
-                for (int i = 0; i < approxCurve.total(); i++) {
-                    temp_double = approxCurve.get(i, 0);
-                    p = new Point(temp_double[0], temp_double[1]);
-                    source.add(p);
-                    //Imgproc.circle (rgba, p,10, new Scalar(255, 0, 0),10);
+                double[] temp_double;
+                Point p;
+                List<Point> source = new ArrayList<Point>();
+                //int ivNewHeight = width;
+                int ivNewHeight;
+                try {
+                    Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
+                    if(approxCurve.total() > 0) {
+                        for (int i = 0; i < approxCurve.total(); i++) {
+                            temp_double = approxCurve.get(i, 0);
+                            p = new Point(temp_double[0], temp_double[1]);
+                            source.add(p);
+                            //Imgproc.circle (rgba, p,10, new Scalar(255, 0, 0),10);
+                        }
+                        ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
+
+                    }else{
+                        ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
+
+                    }
+                }catch(NullPointerException e){
+                    e.printStackTrace();
                 }
-                //ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv, ivScale);
-                ivNewHeight = pvc.createPolygonWithCurve(approxCurve, rgbaBit, mainIv);
 
-            }else{
-                //ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv, ivScale);
-                ivNewHeight = pvc.createPolygonWithRect(rect, rgbaBit, mainIv);
+                //mainIv.getLayoutParams().height = (int) (ivNewHeight);
+                //mainIv.requestLayout();
 
+                rgbaBit = matToBit(rgba);
+                mainIv.setImageBitmap(rgbaBit);
+
+                rgba = new Mat();
+                Utils.bitmapToMat(bitmap, rgba);
+                //return matToBit(rgba);
             }
-        }catch(NullPointerException e){
-            e.printStackTrace();
-        }
+        });
 
-        mainIv.getLayoutParams().height = (int) (ivNewHeight);
-        mainIv.requestLayout();
 
-        rgbaBit = matToBit(rgba);
-        mainIv.setImageBitmap(rgbaBit);
-
-        rgba = new Mat();
-        Utils.bitmapToMat(bitmap, rgba);
-        return matToBit(rgba);
     }
 
     public Mat warp(Mat inputMat) {

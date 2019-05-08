@@ -168,8 +168,11 @@ public class PolygonViewCreator {
 
         float origBitWidth = rgba.getWidth();
         float origBitHeight = rgba.getHeight();
-        ivWidth = iv.getLayoutParams().width;
-        ivHeight = iv.getLayoutParams().height;
+        //ivWidth = iv.getLayoutParams().width;
+        //ivHeight = iv.getLayoutParams().height;
+        ivWidth = iv.getWidth();
+        ivHeight = iv.getHeight();
+
         rWidth = ivWidth / origBitWidth;
         rHeight = ivHeight / origBitHeight;
 
