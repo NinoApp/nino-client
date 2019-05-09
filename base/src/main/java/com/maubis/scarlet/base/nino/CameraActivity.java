@@ -437,6 +437,7 @@ public class CameraActivity extends AppCompatActivity {
 
     public void afterImageTaken(){
         Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
+        //Bitmap takenImage = ExifUtil.rotateBitmap(mCurrentPhotoPath, BitmapFactory.decodeFile(mCurrentPhotoPath));
         showProgress(true);
         //edgeDetectedTakenImage = detectNote(takenImage);
         detectNote(takenImage);
