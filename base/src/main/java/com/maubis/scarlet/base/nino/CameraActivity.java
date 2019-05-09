@@ -478,7 +478,7 @@ public class CameraActivity extends AppCompatActivity {
                 List<Point> source = new ArrayList<Point>();
                 try {
                     Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
-                    if(approxCurve.total() > 0 && !getApplicationContext().getResources().getBoolean(R.bool.is_tablet)) {
+                    if(approxCurve.total() > 0 ){//&& !getApplicationContext().getResources().getBoolean(R.bool.is_tablet)) {
                         for (int i = 0; i < approxCurve.total(); i++) {
                             temp_double = approxCurve.get(i, 0);
                             p = new Point(temp_double[0], temp_double[1]);

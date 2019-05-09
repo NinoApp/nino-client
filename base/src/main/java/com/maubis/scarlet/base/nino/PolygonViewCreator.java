@@ -218,13 +218,16 @@ public class PolygonViewCreator {
         }
         List<Point> sortedPoints = new ArrayList<Point>();
         sortedPoints.add(points.get(0));
+        /*
         if(context.getResources().getBoolean(R.bool.is_tablet)){
             sortedPoints.add(points.get(3));
             sortedPoints.add(points.get(2));
         }else{
             sortedPoints.add(points.get(2));
             sortedPoints.add(points.get(3));
-        }
+        }*/
+        sortedPoints.add(points.get(2));
+        sortedPoints.add(points.get(3));
 
         sortedPoints.add(points.get(1));
 
