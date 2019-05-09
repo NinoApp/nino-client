@@ -126,8 +126,8 @@ public class PolygonViewCreator {
                 Log.i("P: POLYGON_POINT", p.x + " @ " + p.y + " @ " + rWidth + " @ " +
                         rHeight + " @ " + ivWidth + " @ " + ivHeight + " @ " + origBitWidth + " @ " + origBitHeight);
 
-                x = x + (float) ((p.x * rWidth) - POLYGON_CIRCLE_RADIUS);
-                y = y + (float) ((p.y * rHeight) - POLYGON_CIRCLE_RADIUS);
+                x = (float) ((p.x * rWidth) - POLYGON_CIRCLE_RADIUS);
+                y = (float) ((p.y * rHeight) - POLYGON_CIRCLE_RADIUS);
 
                 Log.i("P: POLYGON_POINT CORNER", x + "-" + y);
                 pointFs.add(new PointF(x, y));
@@ -135,10 +135,10 @@ public class PolygonViewCreator {
         }else{
             Log.i("POLYGON_POINT", "rect v2");
             Rect rect = (Rect) dataHolder;
-            x = x + (rect.x * rWidth) - POLYGON_CIRCLE_RADIUS;
-            y = y + (rect.y * rHeight) - POLYGON_CIRCLE_RADIUS;
-            w = w + (rect.width * rWidth);
-            h = h + (rect.height * rHeight);
+            x = (rect.x * rWidth) - POLYGON_CIRCLE_RADIUS;
+            y = (rect.y * rHeight) - POLYGON_CIRCLE_RADIUS;
+            w = (rect.width * rWidth);
+            h = (rect.height * rHeight);
 
             pointFs.add(new PointF(x, y));
             pointFs.add(new PointF(x + w, y));
@@ -212,8 +212,8 @@ public class PolygonViewCreator {
         List<Point> points = new ArrayList<Point>();
 
         for(PointF pf : list){
-            double x = (-bitmapPos[0] + pf.x + POLYGON_CIRCLE_RADIUS) / rWidth;
-            double y = (-bitmapPos[1] + pf.y + POLYGON_CIRCLE_RADIUS) / rHeight;
+            double x = (pf.x + POLYGON_CIRCLE_RADIUS) / rWidth;
+            double y = (pf.y + POLYGON_CIRCLE_RADIUS) / rHeight;
             points.add(new Point(Math.floor(x), Math.floor(y)));
         }
         List<Point> sortedPoints = new ArrayList<Point>();
