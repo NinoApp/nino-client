@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -275,63 +276,58 @@ public class CameraActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
-
-    private void process(){
-        finalImage = rotateBitmap(finalImage, rotation);
-        final File finalImageFile = persistImage(finalImage);
-
-        showProgress(true);
-
+    private void processImage(final File finalImageFile) {
         Log.e("TOKEN IN MAIN", token);
         String SERVER_POST_URL = "http://35.237.158.162:8000/api/notes/";
+
         Ion.with(CameraActivity.this)
-            .load("POST", SERVER_POST_URL)
-            .setHeader("Cache-Control", "No-Cache")
-            //.setHeader("Authorization", "Token " + token)
-            .noCache()
-            .setMultipartParameter("name", "test")
-            .setMultipartFile("image","multipart/form-data", saveBitmapToFile(finalImageFile))
-            .asJsonObject()
-            .setCallback(new FutureCallback<JsonObject>() {
-                @Override
-                public void onCompleted(Exception e, JsonObject result) {
-                    Log.v("R Foto: ", "" + result);
+                .load("POST", SERVER_POST_URL)
+                .setHeader("Cache-Control", "No-Cache")
+                //.setHeader("Authorization", "Token " + token)
+                .noCache()
+                .setMultipartParameter("name", "test")
+                .setMultipartFile("image","multipart/form-data", saveBitmapToFile(finalImageFile))
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        Log.v("R Foto: ", "" + result);
 
-                    Intent editorIntent = new Intent(getApplicationContext(), PhotoEditorActivity.class);
-                    try{
-                        editorIntent.putExtra("img_width", finalImage.getWidth());
-                        editorIntent.putExtra("img_height", finalImage.getHeight());
+                        Intent editorIntent = new Intent(getApplicationContext(), PhotoEditorActivity.class);
+                        try{
+                            editorIntent.putExtra("img_width", finalImage.getWidth());
+                            editorIntent.putExtra("img_height", finalImage.getHeight());
 
-                        editorIntent.setData(bitToUri(finalImage));
+                            editorIntent.setData(bitToUri(finalImage));
 
-                        //addMarkedImages()
-                        JSONObject r = new JSONObject(result.toString());
-                        JSONArray imagesJson = r.getJSONArray("images");
-                        JSONObject pageJSon = r.getJSONObject("page");
-                        int widthAbbyy = pageJSon.getInt("width");
-                        int heightAbbyy = pageJSon.getInt("height");
+                            //addMarkedImages()
+                            JSONObject r = new JSONObject(result.toString());
+                            JSONArray imagesJson = r.getJSONArray("images");
+                            JSONObject pageJSon = r.getJSONObject("page");
+                            int widthAbbyy = pageJSon.getInt("width");
+                            int heightAbbyy = pageJSon.getInt("height");
 
-                        double rX = ((double) widthAbbyy) / finalImage.getWidth();
-                        double rY = ((double) heightAbbyy) / finalImage.getHeight();
+                            double rX = ((double) widthAbbyy) / finalImage.getWidth();
+                            double rY = ((double) heightAbbyy) / finalImage.getHeight();
 
-                        ArrayList<int[]> allMarked = new ArrayList<>(markedImages);
-                        allMarked.addAll(markedEquations);
-                        allMarked.addAll(markedPlots);
+                            ArrayList<int[]> allMarked = new ArrayList<>(markedImages);
+                            allMarked.addAll(markedEquations);
+                            allMarked.addAll(markedPlots);
 
-                        Log.i("IMAGES BEFORE", imagesJson.toString());
+                            Log.i("IMAGES BEFORE", imagesJson.toString());
 
-                        for (int[] arr : allMarked){
-                            JSONObject image = new JSONObject();
-                            image.put("left", arr[0]*rX);
-                            image.put("top", arr[1]*rY);
-                            image.put("right", (arr[0] + arr[2])*rX);
-                            image.put("bottom", (arr[1] + arr[3])*rY);
-                            imagesJson.put(image);
-                        }
+                            for (int[] arr : allMarked){
+                                JSONObject image = new JSONObject();
+                                image.put("left", arr[0]*rX);
+                                image.put("top", arr[1]*rY);
+                                image.put("right", (arr[0] + arr[2])*rX);
+                                image.put("bottom", (arr[1] + arr[3])*rY);
+                                imagesJson.put(image);
+                            }
 
-                        Log.i("IMAGES AFTER", imagesJson.toString());
+                            Log.i("IMAGES AFTER", imagesJson.toString());
 
-                        editorIntent.putExtra("result", r.toString());
+                            editorIntent.putExtra("result", r.toString());
 
                         /*
                         JSONArray imageJsonArray = new JSONArray();
@@ -348,22 +344,39 @@ public class CameraActivity extends AppCompatActivity {
                         editorIntent.putExtra("equationJsonArray", equationJsonArray.toString());
                         */
 
-                        startActivityForResult(editorIntent, PESDK_REQUEST);
+                            startActivityForResult(editorIntent, PESDK_REQUEST);
 
-                    }catch (NullPointerException npe){
-                        Toast.makeText(getApplicationContext(),
-                                "There was a problem connecting to the server, please try again", Toast.LENGTH_SHORT).show();
-                        Log.v("Response Error: ", "" + e.getMessage()); //DEBUG
-                    } catch (JSONException e1) {
-                        e1.printStackTrace();
-                    }
+                            showProgress(false);
+                        }catch (NullPointerException npe){
+                            Toast.makeText(getApplicationContext(),
+                                    "Network seems slow... Trying again to process the image.", Toast.LENGTH_SHORT).show();
+                            Handler handler = new Handler();
+                            handler.postAtTime(new Runnable() {
+                                @Override
+                                public void run() {
+                                    processImage(finalImageFile);
+                                }
+                            }, 500);
+                            Log.v("Response Error: ", "" + e.getMessage()); //DEBUG
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
 
-                    showProgress(false);
-                    if (e != null) {
-                        Log.v("Query Error: ", "" + e.getMessage()); //DEBUG
+                        if (e != null) {
+                            Log.v("Query Error: ", "" + e.getMessage()); //DEBUG
+                        }
                     }
-                }
-            });
+                });
+
+    }
+
+    private void process(){
+        finalImage = rotateBitmap(finalImage, rotation);
+        final File finalImageFile = persistImage(finalImage);
+
+        showProgress(true);
+
+        processImage(finalImageFile);
     }
 
     private String getStringFromBitmap(Bitmap bitmapPicture) {
@@ -424,6 +437,7 @@ public class CameraActivity extends AppCompatActivity {
 
     public void afterImageTaken(){
         Bitmap takenImage = rotateBitmapOrientation(mCurrentPhotoPath);//BitmapFactory.decodeFile(mCurrentPhotoPath);
+        //Bitmap takenImage = ExifUtil.rotateBitmap(mCurrentPhotoPath, BitmapFactory.decodeFile(mCurrentPhotoPath));
         showProgress(true);
         //edgeDetectedTakenImage = detectNote(takenImage);
         detectNote(takenImage);
@@ -464,7 +478,7 @@ public class CameraActivity extends AppCompatActivity {
                 List<Point> source = new ArrayList<Point>();
                 try {
                     Log.d("APPROX_TOTAL", String.valueOf(approxCurve.total()));
-                    if(approxCurve.total() > 0 && !getApplicationContext().getResources().getBoolean(R.bool.is_tablet)) {
+                    if(approxCurve.total() > 0 ){//&& !getApplicationContext().getResources().getBoolean(R.bool.is_tablet)) {
                         for (int i = 0; i < approxCurve.total(); i++) {
                             temp_double = approxCurve.get(i, 0);
                             p = new Point(temp_double[0], temp_double[1]);

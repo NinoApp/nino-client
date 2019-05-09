@@ -97,6 +97,13 @@ public class PolygonViewCreator {
     }
 
     private void createPolygon(MODE mode, Object dataHolder, Bitmap rgba, ImageView iv){
+        bitmapPos = getBitmapPositionInsideImageView(iv);
+
+        float x = bitmapPos[0];
+        float y = bitmapPos[1];
+        float w = bitmapPos[2];
+        float h = bitmapPos[3];
+
         float origBitWidth = rgba.getWidth();
         float origBitHeight = rgba.getHeight();
         ivWidth = iv.getWidth();
@@ -119,8 +126,8 @@ public class PolygonViewCreator {
                 Log.i("P: POLYGON_POINT", p.x + " @ " + p.y + " @ " + rWidth + " @ " +
                         rHeight + " @ " + ivWidth + " @ " + ivHeight + " @ " + origBitWidth + " @ " + origBitHeight);
 
-                float x = (float) ((p.x * rWidth) - POLYGON_CIRCLE_RADIUS);
-                float y = (float) ((p.y * rHeight) - POLYGON_CIRCLE_RADIUS);
+                x = (float) ((p.x * rWidth) - POLYGON_CIRCLE_RADIUS);
+                y = (float) ((p.y * rHeight) - POLYGON_CIRCLE_RADIUS);
 
                 Log.i("P: POLYGON_POINT CORNER", x + "-" + y);
                 pointFs.add(new PointF(x, y));
@@ -128,10 +135,10 @@ public class PolygonViewCreator {
         }else{
             Log.i("POLYGON_POINT", "rect v2");
             Rect rect = (Rect) dataHolder;
-            float x = (rect.x * rWidth) - POLYGON_CIRCLE_RADIUS;
-            float y = (rect.y * rHeight) - POLYGON_CIRCLE_RADIUS;
-            float w = (rect.width * rWidth);
-            float h = (rect.height * rHeight);
+            x = (rect.x * rWidth) - POLYGON_CIRCLE_RADIUS;
+            y = (rect.y * rHeight) - POLYGON_CIRCLE_RADIUS;
+            w = (rect.width * rWidth);
+            h = (rect.height * rHeight);
 
             pointFs.add(new PointF(x, y));
             pointFs.add(new PointF(x + w, y));
@@ -154,6 +161,10 @@ public class PolygonViewCreator {
 
         orderedPoints = configureOutOfScreenPoints(orderedPoints, ivWidth, ivHeight);
 
+        for (PointF p : orderedPoints.values()){
+            Log.i("P: POLYGON_POINT CONF", p.toString());
+        }
+
         polygonView.setPoints(orderedPoints);
         polygonView.setVisibility(View.VISIBLE);
     }
@@ -169,16 +180,16 @@ public class PolygonViewCreator {
     private Map<Integer, PointF> configureOutOfScreenPoints(Map<Integer, PointF> orderedPoints,
                                                             float width, float height) {
         Map<Integer, PointF> configuredPoints = new HashMap<>();
-        float margin = (float) 0.9;
+        float margin = (float) 0.8;
         int count  = 0;
         for (PointF p: orderedPoints.values()) {
             PointF newP = new PointF(p.x, p.y);
             if((p.x >= width * margin) || (p.y >= height * margin)){
                 if(p.x > width * margin){
-                    newP.x = p.x * margin;
+                    newP.x = width * margin;
                 }
                 if(p.y > height * margin){
-                    newP.y = p.y * margin;
+                    newP.y = height * margin;
                 }
             }
             configuredPoints.put(count, newP);
@@ -207,13 +218,16 @@ public class PolygonViewCreator {
         }
         List<Point> sortedPoints = new ArrayList<Point>();
         sortedPoints.add(points.get(0));
+        /*
         if(context.getResources().getBoolean(R.bool.is_tablet)){
             sortedPoints.add(points.get(3));
             sortedPoints.add(points.get(2));
         }else{
             sortedPoints.add(points.get(2));
             sortedPoints.add(points.get(3));
-        }
+        }*/
+        sortedPoints.add(points.get(2));
+        sortedPoints.add(points.get(3));
 
         sortedPoints.add(points.get(1));
 
