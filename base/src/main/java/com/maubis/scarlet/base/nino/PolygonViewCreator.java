@@ -140,10 +140,19 @@ public class PolygonViewCreator {
             w = (rect.width * rWidth);
             h = (rect.height * rHeight);
 
-            pointFs.add(new PointF(x, y));
-            pointFs.add(new PointF(x + w, y));
-            pointFs.add(new PointF(x + w,y + h));
-            pointFs.add(new PointF(x,y + h));
+            if(x <= 0 || y <= 0){
+                pointFs.add(new PointF(x, y));
+                pointFs.add(new PointF(x + w, y));
+                pointFs.add(new PointF(x + w,y + h));
+                pointFs.add(new PointF(x,y + h));
+            }else{
+                pointFs.add(new PointF((float) (w/4.0), (float) (y/4.0)));
+                pointFs.add(new PointF((float) ((x+w)/4.0), (float) (y/4.0)));
+                pointFs.add(new PointF((float) ((x+w)/4.0), (float) ((y+h)/4.0)));
+                pointFs.add(new PointF((float) (x/4.0), (float) ((y+h)/4.0)));
+            }
+
+
         }
 
         Map<Integer, PointF> orderedPoints = polygonView.getOrderedPoints(pointFs);
