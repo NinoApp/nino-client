@@ -46,13 +46,14 @@ class QuizBottomSheet : LithoBottomSheet() {
 
       val component = Column.create(componentContext)
               .widthPercent(100f);
-      if (!isLoaded)
+      if (!isLoaded) {
           component.child(BottomSheetBar.create(componentContext)
                   .secondaryActionRes(R.string.quiz_loading)
                   .onPrimaryClick {
                       hideAnswer()
                   }.paddingDip(YogaEdge.VERTICAL, 8f))
-      if (questions.size > 0){
+      }
+      else if (questions.size > 0){
               component.child(CounterChooser.create(componentContext)
                       .value(curQuestionId)
                       .minValue(1)
